@@ -190,13 +190,13 @@ export default function AdminPanel() {
           {/* Toast notifications */}
           {message && (
             <div className="mb-4 flex items-center gap-2.5 px-4 py-3 bg-green-50 border border-green-200 rounded-xl text-[13px] text-green-800">
-              <CheckCircle2 size={15} className="text-green-600 flex-shrink-0" />
+              <CheckCircle2 size={15} className="text-green-600 shrink-0" />
               {message}
             </div>
           )}
           {error && (
             <div className="mb-4 flex items-center gap-2.5 px-4 py-3 bg-red-50 border border-red-200 rounded-xl text-[13px] text-red-800">
-              <AlertCircle size={15} className="text-red-600 flex-shrink-0" />
+              <AlertCircle size={15} className="text-red-600 shrink-0" />
               {error}
               <button onClick={() => setError('')} className="ml-auto"><X size={13} /></button>
             </div>
@@ -216,7 +216,7 @@ export default function AdminPanel() {
             <>
               {/* Access info banner */}
               <div className="mb-5 flex items-center gap-3 px-4 py-3 bg-[#1a3a6b]/5 border border-[#1a3a6b]/15 rounded-xl">
-                <ShieldCheck size={15} className="text-[#1a3a6b] flex-shrink-0" />
+                <ShieldCheck size={15} className="text-[#1a3a6b] shrink-0" />
                 <p className="text-[12px] text-[#1a3a6b]">
                   <span className="font-semibold">Admin access</span> — You can add, edit, and delete school records. Viewers can only read data.
                 </p>
@@ -317,7 +317,7 @@ export default function AdminPanel() {
                                     style={{ width: `${s.construction_progress_pct || 0}%` }}
                                   />
                                 </div>
-                                <span className="text-[11px] text-slate-500 font-mono min-w-[28px]">
+                                <span className="text-[11px] text-slate-500 font-mono min-w-7">
                                   {s.construction_progress_pct || 0}%
                                 </span>
                               </div>

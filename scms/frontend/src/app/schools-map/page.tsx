@@ -40,7 +40,7 @@ export default function SchoolsMapPage() {
 
         <div className="grid gap-6 xl:grid-cols-[1.8fr_1fr]">
           <section className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
-            <div className="h-[520px] overflow-hidden rounded-3xl">
+            <div className="h-130 overflow-hidden rounded-3xl">
               <MapContainer center={center as [number, number]} zoom={6} className="h-full w-full rounded-3xl">
                 <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
                 {reports?.schools?.map((school: any) => {

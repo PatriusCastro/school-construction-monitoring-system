@@ -96,7 +96,7 @@ export default function SchoolForm({
   return (
     <section className="rounded-2xl bg-white shadow-sm overflow-hidden">
       {/* Header */}
-      <div className="bg-gradient-to-r from-[#1a3a6b] to-[#1e4a8a] px-6 py-5 flex items-center justify-between">
+      <div className="bg-linear-to-r from-[#1a3a6b] to-[#1e4a8a] px-6 py-5 flex items-center justify-between">
         <div className="flex items-center gap-3">
           <div className="w-9 h-9 bg-white/15 rounded-lg flex items-center justify-center">
             <Building2 size={18} className="text-white" />
