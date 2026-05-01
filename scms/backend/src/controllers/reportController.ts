@@ -1,43 +1,34 @@
-import { Request, Response } from "express";
-import { supabase } from "../lib/supabase";
+import { Request, Response } from 'express'
+import { supabase } from '../lib/supabase'
 
-async function readTable(tableName: string) {
-  const { data, error } = await supabase.from(tableName).select("*");
-  if (error) {
-    return [];
-  }
-  return data || [];
-}
+// GET full report summary
+export const getReportSummary = async (req: Request, res: Response) => {
+  const { data: schools, error } = await supabase
+    .from('schools')
+    .select('*')
+    .order('ranking', { ascending: true })
 
-export const getReports = async (_req: Request, res: Response) => {
-  const [schools, progress, constructionData, planningParameters, funding] = await Promise.all([
-    readTable("schools"),
-    readTable("progress_updates"),
-    readTable("construction_data"),
-    readTable("planning_parameters"),
-    readTable("funding"),
-  ]);
+  if (error) return res.status(500).json({ error: error.message })
 
-  const statusSummary = schools.reduce<Record<string, number>>((acc, school: any) => {
-    const status = school.project_status || "Planned";
-    acc[status] = (acc[status] || 0) + 1;
-    return acc;
-  }, {});
-
-  const averageProgress = progress.length
-    ? Math.round(
-        progress.reduce((total: any, entry: any) => total + Number(entry.construction_progress || 0), 0) / progress.length,
-      )
-    : 0;
-
-  return res.json({
+  const summary = {
+    total_schools: schools.length,
+    total_classrooms: schools.reduce((s, x) => s + (x.proposed_classrooms || 0), 0),
+    total_units: schools.reduce((s, x) => s + (x.number_of_units || 0), 0),
+    total_budget_allocated: schools.reduce((s, x) => s + (x.budget_allocated_php || 0), 0),
+    total_budget_utilized: schools.reduce((s, x) => s + (x.budget_utilized_php || 0), 0),
+    by_priority: {
+      High: schools.filter(x => x.sdo_priority_level === 'High').length,
+      Medium: schools.filter(x => x.sdo_priority_level === 'Medium').length,
+      Low: schools.filter(x => x.sdo_priority_level === 'Low').length,
+    },
+    by_funding_year: schools.reduce((acc: Record<string, number>, x) => {
+      if (x.funding_year) {
+        acc[x.funding_year] = (acc[x.funding_year] || 0) + 1
+      }
+      return acc
+    }, {}),
     schools,
-    progress,
-    constructionData,
-    planningParameters,
-    funding,
-    statusSummary,
-    averageProgress,
-    generatedAt: new Date().toISOString(),
-  });
-};
+  }
+
+  return res.json(summary)
+}

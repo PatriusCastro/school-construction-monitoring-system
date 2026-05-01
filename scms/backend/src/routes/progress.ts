@@ -1,8 +1,16 @@
-import { Router } from "express";
-import { addProgressUpdate, getProgress } from "../controllers/progressController";
+import { Router } from 'express'
+import {
+  getAllProgress,
+  getProgressBySchool,
+  createProgress,
+  updateProgress,
+} from '../controllers/progressController'
 
-const router = Router();
-router.get("/", getProgress);
-router.post("/", addProgressUpdate);
+const router = Router()
 
-export default router;
+router.get('/', getAllProgress)
+router.get('/:schoolId', getProgressBySchool)
+router.post('/', createProgress)
+router.put('/:schoolId', updateProgress)
+
+export default router

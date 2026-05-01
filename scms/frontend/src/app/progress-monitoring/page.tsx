@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { fetchReports, postProgress } from "@/lib/api";
-import NavBar from "@/components/NavBar";
+import SidebarLayout from "@/components/SidebarLayout";
 
 export default function ProgressMonitoringPage() {
   const [reports, setReports] = useState<any>(null);
@@ -54,9 +54,8 @@ export default function ProgressMonitoringPage() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-900">
-      <NavBar />
-      <main className="mx-auto max-w-7xl px-4 py-8 sm:px-6">
+    <SidebarLayout title="Progress Monitoring" description="Track construction progress and material delivery">
+      <div className="p-8">
         <div className="mb-6 rounded-3xl bg-white p-6 shadow-sm">
           <h1 className="text-3xl font-semibold tracking-tight text-slate-950">Progress Monitoring</h1>
           <p className="mt-2 text-slate-600">Record construction progress, material delivery, and completion dates per school.</p>
@@ -153,7 +152,7 @@ export default function ProgressMonitoringPage() {
             </form>
           </section>
         </div>
-      </main>
-    </div>
+      </div>
+    </SidebarLayout>
   );
 }

@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { fetchReports } from "@/lib/api";
-import NavBar from "@/components/NavBar";
+import SidebarLayout from "@/components/SidebarLayout";
 
 export default function ConstructionDataPage() {
   const [reports, setReports] = useState<any>(null);
@@ -29,45 +29,47 @@ export default function ConstructionDataPage() {
   })) || [];
 
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-900">
-      <NavBar />
-      <main className="mx-auto max-w-7xl px-4 py-8 sm:px-6">
-        <div className="mb-6 rounded-3xl bg-white p-6 shadow-sm">
-          <h1 className="text-3xl font-semibold tracking-tight text-slate-950">Construction Data</h1>
-          <p className="mt-2 text-slate-600">A complete view of construction metrics, timeline, financing, and school-specific parameters.</p>
-        </div>
+    <SidebarLayout title="Construction Data" description="Complete view of construction metrics and timeline">
+      <div className="p-8">
+        <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
+          <div className="px-6 py-4 border-b border-gray-200">
+            <h2 className="font-semibold text-gray-800">All Schools Construction Details</h2>
+          </div>
 
-        <section className="rounded-3xl bg-white p-6 shadow-sm">
           {error ? (
-            <div className="rounded-3xl bg-rose-50 p-4 text-rose-700">{error}</div>
+            <div className="p-6 bg-red-50 text-red-700 text-sm rounded-lg m-6">{error}</div>
           ) : (
-            <div className="overflow-hidden rounded-3xl border border-slate-200">
-              <table className="min-w-full divide-y divide-slate-200 text-left text-sm">
-                <thead className="bg-slate-50 text-slate-600">
-                  <tr>
-                    <th className="px-4 py-4">School</th>
-                    <th className="px-4 py-4">Budget</th>
-                    <th className="px-4 py-4">Timeline</th>
-                    <th className="px-4 py-4">Contractor</th>
-                    <th className="px-4 py-4">Status</th>
+            <div className="overflow-x-auto">
+              <table className="w-full">
+                <thead>
+                  <tr className="bg-gray-50 border-b border-gray-200">
+                    <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600">SCHOOL</th>
+                    <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600">BUDGET</th>
+                    <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600">TIMELINE</th>
+                    <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600">CONTRACTOR</th>
+                    <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600">STATUS</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-200 bg-white">
+                <tbody>
                   {rows.map((row: any) => (
-                    <tr key={row.id}>
-                      <td className="px-4 py-4 font-medium text-slate-900">{row.name}</td>
-                      <td className="px-4 py-4 text-slate-600">{row.budget}</td>
-                      <td className="px-4 py-4 text-slate-600">{row.timeline}</td>
-                      <td className="px-4 py-4 text-slate-600">{row.contractor}</td>
-                      <td className="px-4 py-4 text-slate-600">{row.progress}</td>
+                    <tr key={row.id} className="border-b border-gray-200 hover:bg-gray-50 transition">
+                      <td className="px-6 py-4 font-medium text-gray-800 text-sm">{row.name}</td>
+                      <td className="px-6 py-4 text-gray-600 text-sm">{row.budget}</td>
+                      <td className="px-6 py-4 text-gray-600 text-sm">{row.timeline}</td>
+                      <td className="px-6 py-4 text-gray-600 text-sm">{row.contractor}</td>
+                      <td className="px-6 py-4 text-gray-600 text-sm">
+                        <span className="inline-block px-3 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+                          {row.progress}
+                        </span>
+                      </td>
                     </tr>
                   ))}
                 </tbody>
               </table>
             </div>
           )}
-        </section>
-      </main>
-    </div>
+        </div>
+      </div>
+    </SidebarLayout>
   );
 }

@@ -1,7 +1,8 @@
-import { Router } from "express";
-import { getReports } from "../controllers/reportController";
+import { Router } from 'express'
+import { getReportSummary } from '../controllers/reportController'
 
-const router = Router();
-router.get("/", getReports);
+const router = Router()
 
-export default router;
+router.get('/summary', getReportSummary)
+
+export default router

@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { MapContainer, TileLayer, CircleMarker, Popup } from "react-leaflet";
 import { fetchReports } from "@/lib/api";
-import NavBar from "@/components/NavBar";
+import SidebarLayout from "@/components/SidebarLayout";
 
 export default function SchoolsMapPage() {
   const [reports, setReports] = useState<any>(null);
@@ -31,9 +31,8 @@ export default function SchoolsMapPage() {
   }, [reports]);
 
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-900">
-      <NavBar />
-      <main className="mx-auto max-w-7xl px-4 py-8 sm:px-6">
+    <SidebarLayout title="Schools Map" description="Interactive map showing all school construction locations">
+      <div className="p-8">
         <div className="mb-6 rounded-3xl bg-white p-6 shadow-sm">
           <h1 className="text-3xl font-semibold tracking-tight text-slate-950">Schools Map</h1>
           <p className="mt-2 text-slate-600">Click a pin to inspect the school project and view the site development plan placeholder.</p>
@@ -91,7 +90,7 @@ export default function SchoolsMapPage() {
             </div>
           </aside>
         </div>
-      </main>
-    </div>
+      </div>
+    </SidebarLayout>
   );
 }

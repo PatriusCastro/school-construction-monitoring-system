@@ -1,5 +1,4 @@
 import Link from "next/link";
-import NavBar from "@/components/NavBar";
 
 const pages = [
   { href: "/dashboard", title: "Dashboard", description: "Live status and summaries." },
@@ -15,7 +14,6 @@ const pages = [
 export default function HomePage() {
   return (
     <div className="min-h-screen bg-slate-50 text-slate-900">
-      <NavBar />
       <main className="mx-auto max-w-6xl px-4 py-10 sm:px-6">
         <section className="rounded-[2rem] bg-white p-10 shadow-sm">
           <h1 className="text-4xl font-semibold tracking-tight text-slate-950">School Construction Monitoring</h1>

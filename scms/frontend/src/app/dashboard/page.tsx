@@ -1,15 +1,15 @@
 'use client';
 
 import { useEffect, useMemo, useState } from "react";
-import { Bar, Pie } from "react-chartjs-2";
-import { barOptions, pieOptions } from "@/lib/chart";
+import { Bar } from "react-chartjs-2";
+import { barOptions } from "@/lib/chart";
 import { fetchReports } from "@/lib/api";
-import NavBar from "@/components/NavBar";
+import SidebarLayout from "@/components/SidebarLayout";
+import { Search, Home, Building, ChartArea, Calendar, BookOpen } from "lucide-react";
 
 export default function DashboardPage() {
   const [reports, setReports] = useState<any>(null);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     async function load() {
@@ -18,7 +18,7 @@ export default function DashboardPage() {
         const data = await fetchReports();
         setReports(data);
       } catch (err) {
-        setError((err as Error).message);
+        console.error(err);
       } finally {
         setLoading(false);
       }
@@ -31,125 +31,169 @@ export default function DashboardPage() {
     return reports.schools.map((school: any) => {
       const progress = reports.progress.find((entry: any) => entry.school_id === school.id);
       return {
-        name: school.name,
+        id: school.id,
+        name: school.name || school.title,
         progress: progress?.construction_progress ?? 0,
         status: school.project_status || "Planned",
       };
     });
   }, [reports]);
 
-  const barData = useMemo(() => ({
-    labels: schoolProgress.map((item: any) => item.name),
+  const topSchools = schoolProgress.slice(0, 4);
+
+  const chartData = useMemo(() => ({
+    labels: schoolProgress.map((item: any) => item.name.slice(0, 10)),
     datasets: [
       {
-        label: "Construction Progress",
+        label: "Progress",
         data: schoolProgress.map((item: any) => item.progress),
-        backgroundColor: "rgba(14, 165, 233, 0.75)",
+        backgroundColor: "#4b5563",
+        borderRadius: 6,
       },
     ],
   }), [schoolProgress]);
 
-  const pieData = useMemo(() => ({
-    labels: Object.keys(reports?.statusSummary || {}),
-    datasets: [
-      {
-        data: Object.values(reports?.statusSummary || {}),
-        backgroundColor: ["#2563eb", "#f97316", "#10b981", "#a855f7", "#e11d48"],
-      },
-    ],
-  }), [reports]);
+  const pendingCount = schoolProgress.filter((s: any) => s.status === "Planned").length;
+  const activeCount = schoolProgress.filter((s: any) => s.progress > 0 && s.progress < 100).length;
 
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-900">
-      <NavBar />
-      <main className="mx-auto max-w-7xl px-4 py-8 sm:px-6">
-        <div className="mb-8 rounded-3xl bg-white p-6 shadow-sm">
-          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-            <div>
-              <p className="text-sm uppercase tracking-[0.24em] text-slate-500">Dashboard</p>
-              <h1 className="mt-2 text-3xl font-semibold tracking-tight text-slate-950">Project status overview</h1>
-            </div>
-            <p className="max-w-xl text-slate-600">
-              Live insights for school construction projects, funding, and site planning.
-            </p>
+    <SidebarLayout title="Good Morning" description={`You have ${pendingCount} pending and ${activeCount} active projects`}>
+      <div className="p-8">
+        <div className="flex justify-end mb-8">
+          <div className="relative">
+            <Search size={18} className="absolute left-3 top-3 text-gray-400" />
+            <input
+              type="text"
+              placeholder="Search..."
+              className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg bg-gray-50 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
           </div>
         </div>
 
-        <div className="grid gap-4 xl:grid-cols-[1.5fr_1fr]">
-          <section className="space-y-4 rounded-3xl bg-white p-6 shadow-sm">
-            <div className="grid gap-4 sm:grid-cols-3">
-              <div className="rounded-3xl border border-slate-200 p-5">
-                <p className="text-sm text-slate-500">Total schools</p>
-                <p className="mt-3 text-3xl font-semibold text-slate-950">{reports?.schools?.length ?? 0}</p>
-              </div>
-              <div className="rounded-3xl border border-slate-200 p-5">
-                <p className="text-sm text-slate-500">Active projects</p>
-                <p className="mt-3 text-3xl font-semibold text-slate-950">{schoolProgress.filter((item: any) => item.progress < 100).length}</p>
-              </div>
-              <div className="rounded-3xl border border-slate-200 p-5">
-                <p className="text-sm text-slate-500">Average completion</p>
-                <p className="mt-3 text-3xl font-semibold text-slate-950">{reports?.averageProgress || 0}%</p>
-              </div>
-            </div>
-
-            <div className="grid gap-4 lg:grid-cols-2">
-              <div className="rounded-3xl border border-slate-200 p-5">
-                <h2 className="mb-4 text-xl font-semibold text-slate-900">Construction progress</h2>
-                {loading ? (
-                  <p className="text-slate-500">Loading charts…</p>
-                ) : (
-                  <Bar options={barOptions} data={barData} />
-                )}
-              </div>
-              <div className="rounded-3xl border border-slate-200 p-5">
-                <h2 className="mb-4 text-xl font-semibold text-slate-900">Status distribution</h2>
-                {loading ? (
-                  <p className="text-slate-500">Loading charts…</p>
-                ) : (
-                  <Pie options={pieOptions} data={pieData} />
-                )}
+        {/* Metric Cards */}
+        <div className="grid grid-cols-5 gap-6 mb-8">
+          {[
+            { label: "Total Schools", value: reports?.schools?.length ?? 0, icon: <Home /> },
+            { label: "Total Proposed Classrooms", value: reports?.schools?.length ?? 0, icon: <BookOpen /> },
+            { label: "Total Units to Construct", value: activeCount, icon: <Building /> },
+            { label: "Priority Schools", value: `${reports?.averageProgress ?? 0}%`, icon: <ChartArea /> },
+            { label: "Proposed Funding Years", value: pendingCount, icon: <Calendar /> },
+          ].map((card, i) => (
+            <div key={i} className="bg-white rounded-lg p-6 border border-gray-200 hover:shadow-md transition">
+              <div className="flex items-start justify-between">
+                <div>
+                  <p className="text-gray-600 text-sm">{card.label}</p>
+                  <p className="text-3xl font-bold text-gray-800 mt-2">{card.value}</p>
+                </div>
+                <span className="text-2xl text-gray-700">{card.icon}</span>
               </div>
             </div>
-          </section>
-
-          <section className="rounded-3xl bg-white p-6 shadow-sm">
-            <div className="mb-6 flex items-center justify-between gap-4">
-              <div>
-                <p className="text-sm text-slate-500">School list</p>
-                <h2 className="text-2xl font-semibold text-slate-950">Project summary</h2>
-              </div>
-              <span className="rounded-full bg-emerald-100 px-3 py-1 text-sm text-emerald-800">Updated live</span>
-            </div>
-            {error ? (
-              <p className="rounded-2xl bg-rose-50 p-4 text-sm text-rose-700">{error}</p>
-            ) : (
-              <div className="overflow-hidden rounded-3xl border border-slate-200">
-                <table className="min-w-full divide-y divide-slate-200 text-sm">
-                  <thead className="bg-slate-50 text-left text-slate-600">
-                    <tr>
-                      <th className="px-4 py-3">School</th>
-                      <th className="px-4 py-3">Status</th>
-                      <th className="px-4 py-3">Progress</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-slate-200 bg-white">
-                    {(reports?.schools || []).map((school: any) => {
-                      const progress = reports?.progress?.find((entry: any) => entry.school_id === school.id);
-                      return (
-                        <tr key={school.id}>
-                          <td className="px-4 py-4 font-medium text-slate-900">{school.name || school.title || "Unnamed school"}</td>
-                          <td className="px-4 py-4 text-slate-600">{school.project_status || "Planned"}</td>
-                          <td className="px-4 py-4 text-slate-600">{progress?.construction_progress ?? 0}%</td>
-                        </tr>
-                      );
-                    })}
-                  </tbody>
-                </table>
-              </div>
-            )}
-          </section>
+          ))}
         </div>
-      </main>
-    </div>
+
+        {/* Budget Overview Section */}
+        <div className="grid grid-cols-3 gap-6">
+          {/* Left: Budget Details */}
+          <div className="col-span-2 bg-white rounded-lg p-6 border border-gray-200">
+            <h3 className="text-lg font-semibold text-gray-800 mb-6">Progress Overview</h3>
+
+            {/* Income/Expense */}
+            <div className="grid grid-cols-2 gap-6 mb-8">
+              <div>
+                <p className="text-gray-500 text-sm">Active Schools</p>
+                <p className="text-3xl font-bold text-gray-800 mt-2">{activeCount}</p>
+                <p className="text-xs text-gray-500 mt-1">+12.5% from last month</p>
+              </div>
+              <div>
+                <p className="text-gray-500 text-sm">Completed</p>
+                <p className="text-3xl font-bold text-gray-800 mt-2">
+                  {schoolProgress.filter((s: any) => s.progress === 100).length}
+                </p>
+                <p className="text-xs text-gray-500 mt-1">+5.2% from last month</p>
+              </div>
+            </div>
+
+            {/* Chart */}
+            <div className="h-64 bg-gray-50 rounded-lg p-4">
+              {!loading && schoolProgress.length > 0 ? (
+                <Bar options={barOptions} data={chartData} />
+              ) : (
+                <div className="flex items-center justify-center h-full text-gray-400">Loading...</div>
+              )}
+            </div>
+          </div>
+
+          {/* Right: Schools List */}
+          <div className="bg-white rounded-lg p-6 border border-gray-200">
+            <div className="flex items-center justify-between mb-6">
+              <h3 className="text-lg font-semibold text-gray-800">Top Schools</h3>
+              <button className="text-gray-400 hover:text-gray-600">⋮</button>
+            </div>
+
+            <div className="space-y-4">
+              {topSchools.map((school: any) => (
+                <div key={school.id} className="flex items-start justify-between pb-4 border-b border-gray-100">
+                  <div className="flex-1">
+                    <p className="font-medium text-gray-800 text-sm truncate">{school.name}</p>
+                    <p className="text-xs text-gray-500 capitalize">{school.status}</p>
+                  </div>
+                  <span className="text-sm font-semibold text-gray-800">{school.progress}%</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* Best Selling Products / Schools Table */}
+        <div className="mt-8 bg-white rounded-lg border border-gray-200 overflow-hidden">
+          <div className="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
+            <h3 className="font-semibold text-gray-800">All Schools</h3>
+            <button className="text-gray-400 hover:text-gray-600">⋮</button>
+          </div>
+
+          <div className="overflow-x-auto">
+            <table className="w-full">
+              <thead>
+                <tr className="border-b border-gray-200 bg-gray-50">
+                  <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600">SCHOOL</th>
+                  <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600">PROGRESS</th>
+                  <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600">STATUS</th>
+                  <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600">UPDATED</th>
+                </tr>
+              </thead>
+              <tbody>
+                {schoolProgress.map((school: any) => (
+                  <tr key={school.id} className="border-b border-gray-200 hover:bg-gray-50 transition">
+                    <td className="px-6 py-4 text-sm font-medium text-gray-800">{school.name}</td>
+                    <td className="px-6 py-4">
+                      <div className="flex items-center gap-3">
+                        <div className="flex-1 h-2 bg-gray-200 rounded-full overflow-hidden">
+                          <div className="h-full bg-gray-600" style={{ width: `${school.progress}%` }} />
+                        </div>
+                        <span className="text-sm font-medium text-gray-800">{school.progress}%</span>
+                      </div>
+                    </td>
+                    <td className="px-6 py-4 text-sm">
+                      <span
+                        className={`inline-block px-3 py-1 rounded-full text-xs font-medium ${
+                          school.status === "complete"
+                            ? "bg-green-100 text-green-800"
+                            : school.status === "in progress"
+                              ? "bg-blue-100 text-blue-800"
+                              : "bg-gray-100 text-gray-800"
+                        }`}
+                      >
+                        {school.status}
+                      </span>
+                    </td>
+                    <td className="px-6 py-4 text-sm text-gray-500">Today</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </SidebarLayout>
   );
 }

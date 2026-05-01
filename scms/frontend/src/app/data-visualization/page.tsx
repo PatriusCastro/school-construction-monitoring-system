@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import { Bar, Pie } from "react-chartjs-2";
 import { barOptions, pieOptions } from "@/lib/chart";
 import { fetchReports } from "@/lib/api";
-import NavBar from "@/components/NavBar";
+import SidebarLayout from "@/components/SidebarLayout";
 
 export default function DataVisualizationPage() {
   const [reports, setReports] = useState<any>(null);
@@ -51,9 +51,8 @@ export default function DataVisualizationPage() {
   }, [reports]);
 
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-900">
-      <NavBar />
-      <main className="mx-auto max-w-7xl px-4 py-8 sm:px-6">
+    <SidebarLayout title="Data Visualization" description="Charts and analytics for school construction data">
+      <div className="p-8">
         <div className="mb-6 rounded-3xl bg-white p-6 shadow-sm">
           <h1 className="text-3xl font-semibold tracking-tight text-slate-950">Data Visualization</h1>
           <p className="mt-2 text-slate-600">Explore classrooms, priority ranking, and funding distribution across years.</p>
@@ -79,7 +78,7 @@ export default function DataVisualizationPage() {
             </div>
           </section>
         </div>
-      </main>
-    </div>
+      </div>
+    </SidebarLayout>
   );
 }

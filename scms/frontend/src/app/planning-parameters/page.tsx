@@ -1,7 +1,7 @@
 'use client';
 
 import { useMemo, useState } from "react";
-import NavBar from "@/components/NavBar";
+import SidebarLayout from "@/components/SidebarLayout";
 
 export default function PlanningParametersPage() {
   const [students, setStudents] = useState(450);
@@ -18,9 +18,8 @@ export default function PlanningParametersPage() {
   }, [students, classSize, siteArea, budgetPerSqm]);
 
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-900">
-      <NavBar />
-      <main className="mx-auto max-w-5xl px-4 py-8 sm:px-6">
+    <SidebarLayout title="Planning Parameters" description="Automated planning calculator for school construction">
+      <div className="p-8">
         <div className="mb-6 rounded-3xl bg-white p-6 shadow-sm">
           <h1 className="text-3xl font-semibold tracking-tight text-slate-950">Planning Parameters</h1>
           <p className="mt-2 text-slate-600">Automated calculators for classrooms, area requirements, budget needs, and staffing.</p>
@@ -90,7 +89,7 @@ export default function PlanningParametersPage() {
             </div>
           </div>
         </section>
-      </main>
-    </div>
+      </div>
+    </SidebarLayout>
   );
 }

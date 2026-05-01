@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { fetchReportSummary } from "@/lib/api";
-import NavBar from "@/components/NavBar";
+import SidebarLayout from "@/components/SidebarLayout";
 import html2canvas from "html2canvas";
 import { jsPDF } from "jspdf";
 import * as XLSX from "xlsx";
@@ -52,9 +52,8 @@ export default function ReportsPage() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-900">
-      <NavBar />
-      <main className="mx-auto max-w-7xl px-4 py-8 sm:px-6">
+    <SidebarLayout title="Reports" description="Generate and export comprehensive project reports">
+      <div className="p-8">
         <div className="mb-6 rounded-3xl bg-white p-6 shadow-sm">
           <h1 className="text-3xl font-semibold tracking-tight text-slate-950">Reports</h1>
           <p className="mt-2 text-slate-600">Generate exportable PDF and XLSX reports from the latest school construction data.</p>
@@ -112,7 +111,7 @@ export default function ReportsPage() {
             </div>
           </div>
         </section>
-      </main>
-    </div>
+      </div>
+    </SidebarLayout>
   );
 }

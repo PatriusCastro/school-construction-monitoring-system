@@ -24,6 +24,10 @@ export async function fetchSchools() {
   return request("/api/schools");
 }
 
+export async function fetchSchoolById(id: string | number) {
+  return request(`/api/schools/${id}`);
+}
+
 export async function fetchProgress() {
   return request("/api/progress");
 }
@@ -32,6 +36,19 @@ export async function createSchool(body: Record<string, unknown>) {
   return request("/api/schools", {
     method: "POST",
     body: JSON.stringify(body),
+  });
+}
+
+export async function updateSchool(id: string | number, body: Record<string, unknown>) {
+  return request(`/api/schools/${id}`, {
+    method: "PUT",
+    body: JSON.stringify(body),
+  });
+}
+
+export async function deleteSchool(id: string | number) {
+  return request(`/api/schools/${id}`, {
+    method: "DELETE",
   });
 }
 
