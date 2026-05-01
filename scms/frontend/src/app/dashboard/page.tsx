@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import { Bar } from "react-chartjs-2";
 import { barOptions } from "@/lib/chart";
 import { fetchReports } from "@/lib/api";
-import SidebarLayout from "@/components/SidebarLayout";
+import SidebarLayout from "@/components/layout/SidebarLayout";
 import { Search, Home, Building, ChartArea, Calendar, BookOpen } from "lucide-react";
 
 export default function DashboardPage() {

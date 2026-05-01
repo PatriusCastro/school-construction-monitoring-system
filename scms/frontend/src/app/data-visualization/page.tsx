@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import { Bar, Pie } from "react-chartjs-2";
 import { barOptions, pieOptions } from "@/lib/chart";
 import { fetchReports } from "@/lib/api";
-import SidebarLayout from "@/components/SidebarLayout";
+import SidebarLayout from "@/components/layout/SidebarLayout";
 
 export default function DataVisualizationPage() {
   const [reports, setReports] = useState<any>(null);

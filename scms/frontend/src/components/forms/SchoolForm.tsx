@@ -2,8 +2,10 @@
 
 import { useEffect, useState } from 'react'
 import { Building2, HardHat, BarChart3, MapPin, X, Check, Loader2 } from 'lucide-react'
+import { generateScope } from '../../utils/scopeGenerator'
 
 export interface SchoolFormData {
+  [key: string]: unknown
   id?: string | number
   school_id: string
   school_name: string
@@ -20,6 +22,8 @@ export interface SchoolFormData {
   old_scope: string
   funding_year: number | ''
   construction_progress_pct: number
+  sdo_priority_level: string
+  ranking: number | '' 
   materials_delivered_pct: number
   budget_allocated_php: number
   budget_utilized_php: number
@@ -58,12 +62,8 @@ export default function SchoolForm({
 
   // Auto-generate scope when stories or classrooms change
   useEffect(() => {
-    const sty = school.stories || 0
-    const cl = school.proposed_classrooms || 0
-    const scope = sty && cl ? `${sty}STY${cl}CL` : ''
-    if (scope !== school.auto_generated_scope) {
-      setSchool({ ...school, auto_generated_scope: scope })
-    }
+    const scope = generateScope(school.stories, school.proposed_classrooms)
+    setSchool({ ...school, auto_generated_scope: scope })
   }, [school.stories, school.proposed_classrooms])
 
   const validate = (): boolean => {
@@ -209,6 +209,27 @@ export default function SchoolForm({
             </Field>
             <Field label="Completion Date">
               <Input type="date" value={school.completion_date} onChange={v => set('completion_date', v)} />
+            </Field>
+          </div>
+        </Section>
+
+        {/* Priority & Ranking */}
+        <Section icon={<BarChart3 size={14} className="text-purple-700" />} label="Priority & Ranking" color="bg-purple-50">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <Field label="SDO Priority Level">
+              <Select
+                value={school.sdo_priority_level}
+                onChange={v => set('sdo_priority_level', v)}
+                options={['High', 'Medium', 'Low']}
+                placeholder="Select priority"
+              />
+            </Field>
+            <Field label="Ranking">
+              <NumberInput
+                value={school.ranking}
+                onChange={v => set('ranking', v)}
+                min={1}
+              />
             </Field>
           </div>
         </Section>

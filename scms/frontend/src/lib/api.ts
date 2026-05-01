@@ -32,14 +32,14 @@ export async function fetchProgress() {
   return request("/api/progress");
 }
 
-export async function createSchool(body: Record<string, unknown>) {
+export async function createSchool(body: unknown) {
   return request("/api/schools", {
     method: "POST",
     body: JSON.stringify(body),
   });
 }
 
-export async function updateSchool(id: string | number, body: Record<string, unknown>) {
+export async function updateSchool(id: string | number, body: unknown) {
   return request(`/api/schools/${id}`, {
     method: "PUT",
     body: JSON.stringify(body),
@@ -52,7 +52,7 @@ export async function deleteSchool(id: string | number) {
   });
 }
 
-export async function postProgress(body: Record<string, unknown>) {
+export async function postProgress(body: unknown) {
   return request("/api/progress", {
     method: "POST",
     body: JSON.stringify(body),

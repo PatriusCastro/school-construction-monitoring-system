@@ -29,11 +29,11 @@ export default function SidebarLayout({ children, title, description }: SidebarL
   return (
     <div className="flex h-screen bg-gray-50">
       {/* Sidebar */}
-      <aside className={`${sidebarOpen ? "w-56" : "w-20"} bg-gray-100 border-r border-gray-200 flex flex-col transition-all duration-300`}>
+      <aside className={`${sidebarOpen ? "w-64" : "w-20"} bg-gray-100 border-r border-gray-200 flex flex-col transition-all duration-300`}>
         <div className="h-20 flex items-center justify-start px-4 border-b border-gray-200">
           <div className="text-center">
             <div className="flex items-center justify-center gap-2">
-              <div className="h-10 w-10 rounded-lg bg-gray-300 flex items-center justify-center">
+              <div className="h-10 w-10 rounded-lg bg-[#1a3a6b] flex items-center justify-center">
                 <span className="text-white font-bold">S</span>
               </div>
               {sidebarOpen && <span className="font-bold text-gray-800">SCMS</span>}
@@ -51,7 +51,7 @@ export default function SidebarLayout({ children, title, description }: SidebarL
                 href={link.href}
                 className={`flex items-center gap-3 px-4 py-3 rounded-lg transition ${
                   isActive
-                    ? "bg-gray-900 text-white font-semibold"
+                    ? "bg-[#1a3a6b] text-white font-semibold"
                     : "text-gray-700 hover:bg-gray-200"
                 }`}
               >

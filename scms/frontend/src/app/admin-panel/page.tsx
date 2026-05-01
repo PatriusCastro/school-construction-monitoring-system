@@ -1,31 +1,17 @@
-'use client';
+'use client'
 
-import { useEffect, useState } from 'react';
-import { createSchool, fetchSchools, updateSchool, deleteSchool } from '@/lib/api';
-import SidebarLayout from '@/components/SidebarLayout';
+import { useEffect, useState } from 'react'
+import {
+  Plus, Pencil, Trash2, Upload, FileSpreadsheet,
+  FileDown, Search, Building2, AlertCircle,
+  CheckCircle2, ChevronRight, Loader2, X,
+  ShieldCheck, Users
+} from 'lucide-react'
+import SidebarLayout from '@/components/layout/SidebarLayout'
+import SchoolForm, { SchoolFormData } from '@/components/forms/SchoolForm'
+import { createSchool, fetchSchools, updateSchool, deleteSchool } from '@/lib/api'
 
-interface School {
-  id?: string | number;
-  school_id: string;
-  school_name: string;
-  municipality: string;
-  legislative_district: string;
-  number_of_sites: number;
-  existing_classrooms: number;
-  proposed_classrooms: number;
-  number_of_units: number;
-  stories: number;
-  funding_year: number;
-  construction_progress_pct: number;
-  materials_delivered_pct: number;
-  budget_allocated_php: number;
-  budget_utilized_php: number;
-  completion_date: string;
-  latitude: number;
-  longitude: number;
-}
-
-const emptySchool: School = {
+const emptySchool: SchoolFormData = {
   school_id: '',
   school_name: '',
   municipality: '',
@@ -33,240 +19,346 @@ const emptySchool: School = {
   number_of_sites: 1,
   existing_classrooms: 0,
   proposed_classrooms: 0,
-  number_of_units: 0,
-  stories: 0,
-  funding_year: new Date().getFullYear(),
+  number_of_units: 1,
+  stories: 1,
+  auto_generated_scope: '',
+  workshop_type: '',
+  design_configuration: '',
+  old_scope: '',
+  funding_year: '',
+  sdo_priority_level: '',
+  ranking: '',
   construction_progress_pct: 0,
   materials_delivered_pct: 0,
   budget_allocated_php: 0,
   budget_utilized_php: 0,
   completion_date: '',
-  latitude: 13.1939,
-  longitude: 123.7437,
-};
+  latitude: '',
+  longitude: '',
+}
+
+type ViewMode = 'list' | 'add' | 'edit'
 
 export default function AdminPanel() {
-  const [schools, setSchools] = useState<School[]>([]);
-  const [school, setSchool] = useState<School>(emptySchool);
-  const [editingId, setEditingId] = useState<string | number | null>(null);
-  const [showForm, setShowForm] = useState(false);
-  const [message, setMessage] = useState('');
-  const [error, setError] = useState('');
-  const [loading, setLoading] = useState(false);
+  const [schools, setSchools] = useState<SchoolFormData[]>([])
+  const [school, setSchool] = useState<SchoolFormData>(emptySchool)
+  const [editingId, setEditingId] = useState<string | number | null>(null)
+  const [viewMode, setViewMode] = useState<ViewMode>('list')
+  const [message, setMessage] = useState('')
+  const [error, setError] = useState('')
+  const [loading, setLoading] = useState(false)
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [search, setSearch] = useState('')
+  const [deleteConfirm, setDeleteConfirm] = useState<string | number | null>(null)
 
-  useEffect(() => {
-    loadSchools();
-  }, []);
+  useEffect(() => { loadSchools() }, [])
 
   const loadSchools = async () => {
     try {
-      setLoading(true);
-      const data = await fetchSchools();
-      setSchools(Array.isArray(data) ? data : []);
-      setError('');
-    } catch (err) {
-      setError('Failed to load schools');
-      console.error(err);
+      setLoading(true)
+      const data = await fetchSchools()
+      setSchools(Array.isArray(data) ? data : [])
+      setError('')
+    } catch {
+      setError('Failed to load schools. Check your connection.')
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
-  };
+  }
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    setMessage('');
-    setError('');
-    setLoading(true);
+  const showMessage = (msg: string) => {
+    setMessage(msg)
+    setTimeout(() => setMessage(''), 3000)
+  }
 
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setIsSubmitting(true)
+    setError('')
     try {
       if (editingId) {
-        await updateSchool(editingId, school);
-        setMessage('✓ School updated');
+        await updateSchool(editingId, school)
+        showMessage('School record updated successfully')
       } else {
-        await createSchool(school);
-        setMessage('✓ School added');
+        await createSchool(school)
+        showMessage('New school record added successfully')
       }
-      setTimeout(() => {
-        setSchool(emptySchool);
-        setEditingId(null);
-        setShowForm(false);
-        loadSchools();
-      }, 500);
+      setSchool(emptySchool)
+      setEditingId(null)
+      setViewMode('list')
+      await loadSchools()
     } catch (err) {
-      setError((err as Error).message || 'Operation failed');
+      setError((err as Error).message || 'Operation failed')
     } finally {
-      setLoading(false);
+      setIsSubmitting(false)
     }
-  };
+  }
 
-  const handleEdit = (s: School) => {
-    setSchool(s);
-    setEditingId(s.id || null);
-    setShowForm(true);
-  };
+  const handleEdit = (s: SchoolFormData) => {
+    setSchool(s)
+    setEditingId(s.id || null)
+    setViewMode('edit')
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+  }
 
   const handleDelete = async (id: string | number) => {
-    if (!window.confirm('Delete this school?')) return;
     try {
-      setLoading(true);
-      await deleteSchool(id);
-      setMessage('✓ School deleted');
-      await loadSchools();
-    } catch (err) {
-      setError((err as Error).message || 'Delete failed');
+      setLoading(true)
+      await deleteSchool(id)
+      showMessage('School record deleted')
+      setDeleteConfirm(null)
+      await loadSchools()
+    } catch {
+      setError('Failed to delete school')
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
-  };
+  }
+
+  const handleCancel = () => {
+    setSchool(emptySchool)
+    setEditingId(null)
+    setViewMode('list')
+    setError('')
+  }
+
+  const filteredSchools = schools.filter(s =>
+    !search ||
+    s.school_name?.toLowerCase().includes(search.toLowerCase()) ||
+    s.municipality?.toLowerCase().includes(search.toLowerCase()) ||
+    s.school_id?.toLowerCase().includes(search.toLowerCase())
+  )
 
   return (
     <SidebarLayout title="Admin Panel" description="Manage schools">
-      <div className="p-6 bg-slate-50 min-h-screen">
-        <div className="max-w-6xl mx-auto">
-          <div className="mb-8">
-            <h1 className="text-4xl font-bold text-slate-950">Schools Management</h1>
-            <p className="text-slate-600 mt-2">Add, edit, and manage school records</p>
-          </div>
+      <div className="min-h-screen bg-slate-50">
 
+        {/* Page Header */}
+        <div className="bg-white border-b border-slate-200 px-6 py-5">
+          <div className="flex items-center justify-between gap-4 flex-wrap">
+            <div className="flex items-center gap-3">
+              {viewMode !== 'list' && (
+                <button
+                  onClick={handleCancel}
+                  className="w-8 h-8 rounded-lg flex items-center justify-center bg-slate-100 hover:bg-slate-200 transition-colors"
+                >
+                  <X size={15} className="text-slate-600" />
+                </button>
+              )}
+              <div>
+                <div className="flex items-center gap-2 text-[11px] text-slate-400 mb-0.5">
+                  <span>Admin Panel</span>
+                  {viewMode !== 'list' && (
+                    <>
+                      <ChevronRight size={10} />
+                      <span className="text-slate-600">
+                        {viewMode === 'add' ? 'Add New School' : 'Edit School'}
+                      </span>
+                    </>
+                  )}
+                </div>
+                <h1 className="text-[18px] font-semibold text-slate-900">
+                  {viewMode === 'list' ? 'Schools Management' : viewMode === 'add' ? 'Add New School' : 'Edit School Record'}
+                </h1>
+              </div>
+            </div>
+
+            {viewMode === 'list' && (
+              <div className="flex items-center gap-2 flex-wrap">
+                <button className="flex items-center gap-1.5 px-3 py-2 text-[12px] font-medium text-slate-600 bg-white border border-slate-200 rounded-lg hover:bg-slate-50 transition-colors">
+                  <Upload size={13} /> Upload Site Plan
+                </button>
+                <button className="flex items-center gap-1.5 px-3 py-2 text-[12px] font-medium text-slate-600 bg-white border border-slate-200 rounded-lg hover:bg-slate-50 transition-colors">
+                  <FileSpreadsheet size={13} /> Export Excel
+                </button>
+                <button className="flex items-center gap-1.5 px-3 py-2 text-[12px] font-medium text-slate-600 bg-white border border-slate-200 rounded-lg hover:bg-slate-50 transition-colors">
+                  <FileDown size={13} /> Export PDF
+                </button>
+                <button
+                  onClick={() => setViewMode('add')}
+                  className="flex items-center gap-1.5 px-4 py-2 text-[12px] font-medium text-white bg-[#1a3a6b] rounded-lg hover:bg-[#163260] transition-colors"
+                >
+                  <Plus size={13} /> Add New School
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
+
+        <div className="px-6 py-6">
+
+          {/* Toast notifications */}
           {message && (
-            <div className="mb-6 p-4 bg-green-100 text-green-800 rounded-lg border border-green-200">
+            <div className="mb-4 flex items-center gap-2.5 px-4 py-3 bg-green-50 border border-green-200 rounded-xl text-[13px] text-green-800">
+              <CheckCircle2 size={15} className="text-green-600 flex-shrink-0" />
               {message}
             </div>
           )}
           {error && (
-            <div className="mb-6 p-4 bg-red-100 text-red-800 rounded-lg border border-red-200">
+            <div className="mb-4 flex items-center gap-2.5 px-4 py-3 bg-red-50 border border-red-200 rounded-xl text-[13px] text-red-800">
+              <AlertCircle size={15} className="text-red-600 flex-shrink-0" />
               {error}
+              <button onClick={() => setError('')} className="ml-auto"><X size={13} /></button>
             </div>
           )}
 
-          {showForm ? (
-            <div className="bg-white p-8 rounded-lg shadow-md mb-8">
-              <h2 className="text-2xl font-bold mb-6 text-slate-950">
-                {editingId ? 'Edit School' : 'Add New School'}
-              </h2>
-              <form onSubmit={handleSubmit}>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
-                  <div>
-                    <label className="block text-sm font-medium text-slate-700 mb-2">School ID *</label>
-                    <input type="text" required value={school.school_id} onChange={(e) => setSchool({ ...school, school_id: e.target.value })} className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-slate-500 focus:border-transparent" />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-slate-700 mb-2">School Name *</label>
-                    <input type="text" required value={school.school_name} onChange={(e) => setSchool({ ...school, school_name: e.target.value })} className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-slate-500 focus:border-transparent" />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-slate-700 mb-2">Municipality *</label>
-                    <input type="text" required value={school.municipality} onChange={(e) => setSchool({ ...school, municipality: e.target.value })} className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-slate-500 focus:border-transparent" />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-slate-700 mb-2">Legislative District</label>
-                    <input type="text" value={school.legislative_district} onChange={(e) => setSchool({ ...school, legislative_district: e.target.value })} className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-slate-500 focus:border-transparent" />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-slate-700 mb-2">Number of Sites</label>
-                    <input type="number" value={school.number_of_sites} onChange={(e) => setSchool({ ...school, number_of_sites: parseInt(e.target.value) || 0 })} className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-slate-500 focus:border-transparent" />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-slate-700 mb-2">Existing Classrooms</label>
-                    <input type="number" value={school.existing_classrooms} onChange={(e) => setSchool({ ...school, existing_classrooms: parseInt(e.target.value) || 0 })} className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-slate-500 focus:border-transparent" />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-slate-700 mb-2">Proposed Classrooms</label>
-                    <input type="number" value={school.proposed_classrooms} onChange={(e) => setSchool({ ...school, proposed_classrooms: parseInt(e.target.value) || 0 })} className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-slate-500 focus:border-transparent" />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-slate-700 mb-2">Number of Units</label>
-                    <input type="number" value={school.number_of_units} onChange={(e) => setSchool({ ...school, number_of_units: parseInt(e.target.value) || 0 })} className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-slate-500 focus:border-transparent" />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-slate-700 mb-2">Stories</label>
-                    <input type="number" value={school.stories} onChange={(e) => setSchool({ ...school, stories: parseInt(e.target.value) || 0 })} className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-slate-500 focus:border-transparent" />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-slate-700 mb-2">Funding Year</label>
-                    <input type="number" value={school.funding_year} onChange={(e) => setSchool({ ...school, funding_year: parseInt(e.target.value) })} className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-slate-500 focus:border-transparent" />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-slate-700 mb-2">Construction Progress %</label>
-                    <input type="number" min="0" max="100" value={school.construction_progress_pct} onChange={(e) => setSchool({ ...school, construction_progress_pct: parseInt(e.target.value) || 0 })} className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-slate-500 focus:border-transparent" />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-slate-700 mb-2">Materials Delivered %</label>
-                    <input type="number" min="0" max="100" value={school.materials_delivered_pct} onChange={(e) => setSchool({ ...school, materials_delivered_pct: parseInt(e.target.value) || 0 })} className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-slate-500 focus:border-transparent" />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-slate-700 mb-2">Budget Allocated (PHP)</label>
-                    <input type="number" value={school.budget_allocated_php} onChange={(e) => setSchool({ ...school, budget_allocated_php: parseFloat(e.target.value) || 0 })} className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-slate-500 focus:border-transparent" />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-slate-700 mb-2">Budget Utilized (PHP)</label>
-                    <input type="number" value={school.budget_utilized_php} onChange={(e) => setSchool({ ...school, budget_utilized_php: parseFloat(e.target.value) || 0 })} className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-slate-500 focus:border-transparent" />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-slate-700 mb-2">Completion Date</label>
-                    <input type="date" value={school.completion_date} onChange={(e) => setSchool({ ...school, completion_date: e.target.value })} className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-slate-500 focus:border-transparent" />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-slate-700 mb-2">Latitude</label>
-                    <input type="number" step="0.0001" value={school.latitude} onChange={(e) => setSchool({ ...school, latitude: parseFloat(e.target.value) })} className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-slate-500 focus:border-transparent" />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-slate-700 mb-2">Longitude</label>
-                    <input type="number" step="0.0001" value={school.longitude} onChange={(e) => setSchool({ ...school, longitude: parseFloat(e.target.value) })} className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-slate-500 focus:border-transparent" />
-                  </div>
-                </div>
-                <div className="flex gap-3">
-                  <button type="submit" disabled={loading} className="flex-1 bg-slate-950 text-white px-6 py-3 rounded-lg font-semibold hover:bg-slate-800 disabled:opacity-50">
-                    {loading ? 'Saving...' : editingId ? 'Update School' : 'Add School'}
-                  </button>
-                  <button type="button" onClick={() => { setShowForm(false); setSchool(emptySchool); setEditingId(null); }} className="flex-1 bg-slate-200 text-slate-950 px-6 py-3 rounded-lg font-semibold hover:bg-slate-300">
-                    Cancel
-                  </button>
-                </div>
-              </form>
-            </div>
+          {/* FORM VIEW */}
+          {viewMode !== 'list' ? (
+            <SchoolForm
+              school={school}
+              editingId={editingId}
+              isSubmitting={isSubmitting}
+              onSubmit={handleSubmit}
+              onCancel={handleCancel}
+              setSchool={setSchool}
+            />
           ) : (
             <>
-              <button onClick={() => setShowForm(true)} className="mb-6 w-full bg-slate-950 text-white px-6 py-3 rounded-lg font-semibold hover:bg-slate-800">
-                + Add New School
-              </button>
-
-              <div className="bg-white rounded-lg shadow-md overflow-hidden">
-                <div className="px-6 py-4 border-b border-slate-200">
-                  <h2 className="text-2xl font-bold text-slate-950">Schools ({schools.length})</h2>
+              {/* Access info banner */}
+              <div className="mb-5 flex items-center gap-3 px-4 py-3 bg-[#1a3a6b]/5 border border-[#1a3a6b]/15 rounded-xl">
+                <ShieldCheck size={15} className="text-[#1a3a6b] flex-shrink-0" />
+                <p className="text-[12px] text-[#1a3a6b]">
+                  <span className="font-semibold">Admin access</span> — You can add, edit, and delete school records. Viewers can only read data.
+                </p>
+                <div className="ml-auto flex items-center gap-1.5 text-[11px] text-slate-400">
+                  <Users size={12} />
+                  <span>SDO Legazpi City</span>
                 </div>
+              </div>
+
+              {/* Stats row */}
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-5">
+                {[
+                  { label: 'Total Schools', value: schools.length, color: 'text-[#1a3a6b]' },
+                  { label: 'High Priority', value: schools.filter(s => s.sdo_priority_level === 'High').length, color: 'text-red-600' },
+                  { label: 'Medium Priority', value: schools.filter(s => s.sdo_priority_level === 'Medium').length, color: 'text-amber-600' },
+                  { label: 'Completed', value: schools.filter(s => s.construction_progress_pct === 100).length, color: 'text-green-600' },
+                ].map(({ label, value, color }) => (
+                  <div key={label} className="bg-white border border-slate-200 rounded-xl px-4 py-3">
+                    <p className="text-[11px] text-slate-400 mb-1">{label}</p>
+                    <p className={`text-[22px] font-semibold ${color}`}>{value}</p>
+                  </div>
+                ))}
+              </div>
+
+              {/* Table card */}
+              <div className="bg-white border border-slate-200 rounded-xl overflow-hidden">
+                <div className="px-5 py-4 border-b border-slate-100 flex items-center justify-between gap-3 flex-wrap">
+                  <div>
+                    <h2 className="text-[14px] font-semibold text-slate-800">
+                      School Records
+                    </h2>
+                    <p className="text-[11px] text-slate-400 mt-0.5">{filteredSchools.length} of {schools.length} schools</p>
+                  </div>
+                  <div className="relative">
+                    <Search size={13} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+                    <input
+                      value={search}
+                      onChange={e => setSearch(e.target.value)}
+                      placeholder="Search schools..."
+                      className="pl-8 pr-3 py-2 text-[12px] border border-slate-200 rounded-lg bg-slate-50 focus:outline-none focus:border-[#1a3a6b] focus:ring-1 focus:ring-[#1a3a6b]/20 w-52"
+                    />
+                  </div>
+                </div>
+
                 {loading ? (
-                  <div className="p-8 text-center text-slate-500">Loading...</div>
-                ) : schools.length === 0 ? (
-                  <div className="p-8 text-center text-slate-500">No schools added yet. Click "Add New School" to create one.</div>
+                  <div className="flex items-center justify-center gap-2 py-16 text-slate-400 text-[13px]">
+                    <Loader2 size={16} className="animate-spin" /> Loading schools...
+                  </div>
+                ) : filteredSchools.length === 0 ? (
+                  <div className="flex flex-col items-center justify-center py-16 gap-3 text-slate-400">
+                    <Building2 size={32} className="text-slate-200" />
+                    <p className="text-[13px]">
+                      {search ? 'No schools match your search' : 'No schools added yet'}
+                    </p>
+                    {!search && (
+                      <button
+                        onClick={() => setViewMode('add')}
+                        className="mt-1 flex items-center gap-1.5 px-4 py-2 text-[12px] font-medium text-white bg-[#1a3a6b] rounded-lg hover:bg-[#163260] transition-colors"
+                      >
+                        <Plus size={13} /> Add First School
+                      </button>
+                    )}
+                  </div>
                 ) : (
                   <div className="overflow-x-auto">
                     <table className="w-full">
-                      <thead className="bg-slate-50 border-b border-slate-200">
-                        <tr>
-                          <th className="px-6 py-3 text-left text-sm font-semibold text-slate-950">ID</th>
-                          <th className="px-6 py-3 text-left text-sm font-semibold text-slate-950">Name</th>
-                          <th className="px-6 py-3 text-left text-sm font-semibold text-slate-950">Municipality</th>
-                          <th className="px-6 py-3 text-left text-sm font-semibold text-slate-950">Progress</th>
-                          <th className="px-6 py-3 text-left text-sm font-semibold text-slate-950">Budget</th>
-                          <th className="px-6 py-3 text-right text-sm font-semibold text-slate-950">Actions</th>
+                      <thead>
+                        <tr className="bg-slate-50 border-b border-slate-100">
+                          {['School ID', 'School Name', 'Municipality', 'Scope', 'Priority', 'Progress', 'Budget Allocated', 'Actions'].map(h => (
+                            <th key={h} className="px-4 py-3 text-left text-[11px] font-semibold text-slate-500 uppercase tracking-wide whitespace-nowrap">
+                              {h}
+                            </th>
+                          ))}
                         </tr>
                       </thead>
-                      <tbody className="divide-y divide-slate-200">
-                        {schools.map((s) => (
-                          <tr key={s.id} className="hover:bg-slate-50">
-                            <td className="px-6 py-4 text-sm text-slate-700">{s.school_id}</td>
-                            <td className="px-6 py-4 text-sm font-medium text-slate-900">{s.school_name}</td>
-                            <td className="px-6 py-4 text-sm text-slate-700">{s.municipality}</td>
-                            <td className="px-6 py-4 text-sm text-slate-700">{s.construction_progress_pct}%</td>
-                            <td className="px-6 py-4 text-sm text-slate-700">₱{(s.budget_allocated_php || 0).toLocaleString()}</td>
-                            <td className="px-6 py-4 text-sm text-right space-x-2">
-                              <button onClick={() => handleEdit(s)} className="text-blue-600 hover:text-blue-800 font-medium">
-                                Edit
-                              </button>
-                              <button onClick={() => handleDelete(s.id || '')} className="text-red-600 hover:text-red-800 font-medium">
-                                Delete
-                              </button>
+                      <tbody className="divide-y divide-slate-50">
+                        {filteredSchools.map((s) => (
+                          <tr key={s.id} className="hover:bg-slate-50 transition-colors group">
+                            <td className="px-4 py-3 text-[12px] text-slate-400 font-mono">{s.school_id || '—'}</td>
+                            <td className="px-4 py-3">
+                              <p className="text-[13px] font-medium text-slate-800">{s.school_name}</p>
+                              <p className="text-[11px] text-slate-400">{s.legislative_district || '—'}</p>
+                            </td>
+                            <td className="px-4 py-3 text-[12px] text-slate-600">{s.municipality || '—'}</td>
+                            <td className="px-4 py-3">
+                              <span className="font-mono text-[11px] bg-blue-50 text-[#1a3a6b] border border-blue-100 px-2 py-0.5 rounded-md">
+                                {s.auto_generated_scope || '—'}
+                              </span>
+                            </td>
+                            <td className="px-4 py-3">
+                              <PriorityBadge priority={s.sdo_priority_level as string} />
+                            </td>
+                            <td className="px-4 py-3">
+                              <div className="flex items-center gap-2">
+                                <div className="w-20 h-1.5 bg-slate-100 rounded-full overflow-hidden">
+                                  <div
+                                    className="h-full rounded-full bg-[#1a3a6b]"
+                                    style={{ width: `${s.construction_progress_pct || 0}%` }}
+                                  />
+                                </div>
+                                <span className="text-[11px] text-slate-500 font-mono min-w-[28px]">
+                                  {s.construction_progress_pct || 0}%
+                                </span>
+                              </div>
+                            </td>
+                            <td className="px-4 py-3 text-[12px] text-slate-600">
+                              {s.budget_allocated_php
+                                ? `₱${Number(s.budget_allocated_php).toLocaleString()}`
+                                : '—'}
+                            </td>
+                            <td className="px-4 py-3">
+                              <div className="flex items-center gap-1 justify-end opacity-0 group-hover:opacity-100 transition-opacity">
+                                <button
+                                  onClick={() => handleEdit(s)}
+                                  className="flex items-center gap-1 px-2.5 py-1.5 text-[11px] font-medium text-[#1a3a6b] bg-blue-50 hover:bg-blue-100 rounded-lg transition-colors"
+                                >
+                                  <Pencil size={11} /> Edit
+                                </button>
+                                {deleteConfirm === s.id ? (
+                                  <div className="flex items-center gap-1">
+                                    <button
+                                      onClick={() => handleDelete(s.id!)}
+                                      className="px-2.5 py-1.5 text-[11px] font-medium text-white bg-red-500 hover:bg-red-600 rounded-lg transition-colors"
+                                    >
+                                      Confirm
+                                    </button>
+                                    <button
+                                      onClick={() => setDeleteConfirm(null)}
+                                      className="px-2.5 py-1.5 text-[11px] font-medium text-slate-600 bg-slate-100 hover:bg-slate-200 rounded-lg transition-colors"
+                                    >
+                                      Cancel
+                                    </button>
+                                  </div>
+                                ) : (
+                                  <button
+                                    onClick={() => setDeleteConfirm(s.id!)}
+                                    className="flex items-center gap-1 px-2.5 py-1.5 text-[11px] font-medium text-red-600 bg-red-50 hover:bg-red-100 rounded-lg transition-colors"
+                                  >
+                                    <Trash2 size={11} /> Delete
+                                  </button>
+                                )}
+                              </div>
                             </td>
                           </tr>
                         ))}
@@ -280,5 +372,19 @@ export default function AdminPanel() {
         </div>
       </div>
     </SidebarLayout>
-  );
+  )
+}
+
+function PriorityBadge({ priority }: { priority?: string }) {
+  if (!priority) return <span className="text-[11px] text-slate-400">—</span>
+  const styles: Record<string, string> = {
+    High: 'bg-red-50 text-red-700 border-red-100',
+    Medium: 'bg-amber-50 text-amber-700 border-amber-100',
+    Low: 'bg-green-50 text-green-700 border-green-100',
+  }
+  return (
+    <span className={`inline-block text-[11px] font-medium px-2 py-0.5 rounded-md border ${styles[priority] ?? 'bg-slate-50 text-slate-600 border-slate-100'}`}>
+      {priority}
+    </span>
+  )
 }

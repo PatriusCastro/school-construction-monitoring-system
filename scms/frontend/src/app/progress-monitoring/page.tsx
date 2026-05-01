@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { fetchReports, postProgress } from "@/lib/api";
-import SidebarLayout from "@/components/SidebarLayout";
+import SidebarLayout from "@/components/layout/SidebarLayout";
 
 export default function ProgressMonitoringPage() {
   const [reports, setReports] = useState<any>(null);

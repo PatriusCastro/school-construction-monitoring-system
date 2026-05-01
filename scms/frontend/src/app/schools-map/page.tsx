@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { MapContainer, TileLayer, CircleMarker, Popup } from "react-leaflet";
 import { fetchReports } from "@/lib/api";
-import SidebarLayout from "@/components/SidebarLayout";
+import SidebarLayout from "@/components/layout/SidebarLayout";
 
 export default function SchoolsMapPage() {
   const [reports, setReports] = useState<any>(null);

@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { fetchReportSummary } from "@/lib/api";
-import SidebarLayout from "@/components/SidebarLayout";
+import SidebarLayout from "@/components/layout/SidebarLayout";
 import html2canvas from "html2canvas";
 import { jsPDF } from "jspdf";
 import * as XLSX from "xlsx";

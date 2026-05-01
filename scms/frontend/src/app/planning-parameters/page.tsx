@@ -1,7 +1,7 @@
 'use client';
 
 import { useMemo, useState } from "react";
-import SidebarLayout from "@/components/SidebarLayout";
+import SidebarLayout from "@/components/layout/SidebarLayout";
 
 export default function PlanningParametersPage() {
   const [students, setStudents] = useState(450);

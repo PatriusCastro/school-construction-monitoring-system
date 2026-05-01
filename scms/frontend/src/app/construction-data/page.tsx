@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { fetchReports } from "@/lib/api";
-import SidebarLayout from "@/components/SidebarLayout";
+import SidebarLayout from "@/components/layout/SidebarLayout";
 
 export default function ConstructionDataPage() {
   const [reports, setReports] = useState<any>(null);
