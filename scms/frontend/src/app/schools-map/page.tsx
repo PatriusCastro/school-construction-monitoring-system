@@ -75,7 +75,7 @@ export default function SchoolsMap() {
       <div className="flex flex-col h-screen bg-slate-50">
 
         {/* Header */}
-        <div className="bg-white border-b border-slate-200 px-6 py-4 flex-shrink-0">
+        <div className="bg-white border-b border-slate-200 px-6 py-4 shrink-0">
           <div className="max-w-full flex items-center justify-between gap-4 flex-wrap">
             <div className="flex items-center gap-3">
               <div className="w-9 h-9 bg-blue-50 rounded-lg flex items-center justify-center">
@@ -110,15 +110,15 @@ export default function SchoolsMap() {
         </div>
 
         {error && (
-          <div className="mx-6 mt-4 px-4 py-3 bg-red-50 border border-red-200 rounded-xl text-[13px] text-red-700 flex-shrink-0">
+          <div className="mx-6 mt-4 px-4 py-3 bg-red-50 border border-red-200 rounded-xl text-[13px] text-red-700 shrink-0">
             {error}
           </div>
         )}
 
         {/* No coordinates warning */}
         {noCoords.length > 0 && !loading && (
-          <div className="mx-6 mt-3 px-4 py-2.5 bg-amber-50 border border-amber-200 rounded-xl flex items-center gap-2 flex-shrink-0">
-            <Info size={13} className="text-amber-600 flex-shrink-0" />
+          <div className="mx-6 mt-3 px-4 py-2.5 bg-amber-50 border border-amber-200 rounded-xl flex items-center gap-2 shrink-0">
+            <Info size={13} className="text-amber-600 shrink-0" />
             <p className="text-[12px] text-amber-700">
               <strong>{noCoords.length} school{noCoords.length > 1 ? 's' : ''}</strong> not shown — missing coordinates.
               Add latitude & longitude in Admin Panel.
@@ -130,7 +130,7 @@ export default function SchoolsMap() {
         <div className="flex flex-1 overflow-hidden gap-0 p-4 pt-3">
 
           {/* School list sidebar */}
-          <div className="w-72 flex-shrink-0 bg-white border border-slate-200 rounded-xl overflow-hidden flex flex-col mr-3">
+          <div className="w-72 shrink-0 bg-white border border-slate-200 rounded-xl overflow-hidden flex flex-col mr-3">
             <div className="px-3 py-3 border-b border-slate-100">
               <div className="relative">
                 <Search size={12} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
@@ -159,7 +159,7 @@ export default function SchoolsMap() {
                   >
                     <div className="flex items-center gap-2.5 min-w-0">
                       <div
-                        className="w-2 h-2 rounded-full flex-shrink-0"
+                        className="w-2 h-2 rounded-full shrink-0"
                         style={{
                           background: s.sdo_priority_level === 'High' ? '#c0392b' :
                             s.sdo_priority_level === 'Medium' ? '#c8a800' : '#27ae60'
@@ -172,7 +172,7 @@ export default function SchoolsMap() {
                         <p className="text-[10px] text-slate-400 truncate">{s.municipality || '—'}</p>
                       </div>
                     </div>
-                    <div className="flex items-center gap-1.5 flex-shrink-0">
+                    <div className="flex items-center gap-1.5 shrink-0">
                       {(!s.latitude || !s.longitude) && (
                         <span className="text-[9px] text-amber-500 bg-amber-50 px-1.5 py-0.5 rounded">No pin</span>
                       )}
@@ -208,11 +208,11 @@ export default function SchoolsMap() {
 
             {/* Selected school info panel */}
             {selectedSchool && (
-              <div className="bg-white border border-slate-200 rounded-xl p-4 flex-shrink-0">
+              <div className="bg-white border border-slate-200 rounded-xl p-4 shrink-0">
                 <div className="flex items-start justify-between gap-3">
                   <div className="flex items-start gap-3">
                     <div
-                      className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 mt-0.5"
+                      className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0 mt-0.5"
                       style={{
                         background: selectedSchool.sdo_priority_level === 'High' ? '#fde8e8' :
                           selectedSchool.sdo_priority_level === 'Medium' ? '#fef3cd' : '#e6f4ea'
