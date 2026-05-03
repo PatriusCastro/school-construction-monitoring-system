@@ -1,11 +1,10 @@
 'use client'
 
 import { useEffect } from 'react'
-import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet'
+import { MapContainer, TileLayer, Marker, useMap } from 'react-leaflet'
 import L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
 
-// Fix Leaflet default marker icons broken in Next.js/Webpack
 delete (L.Icon.Default.prototype as unknown as Record<string, unknown>)._getIconUrl
 L.Icon.Default.mergeOptions({
   iconRetinaUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png',
@@ -13,30 +12,30 @@ L.Icon.Default.mergeOptions({
   shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
 })
 
-// Custom colored marker based on priority
 function createPriorityIcon(priority: string) {
   const color =
     priority === 'High' ? '#c0392b' :
     priority === 'Medium' ? '#c8a800' : '#27ae60'
 
   const svg = `
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 36" width="24" height="36">
-      <path d="M12 0C5.373 0 0 5.373 0 12c0 9 12 24 12 24s12-15 12-24C24 5.373 18.627 0 12 0z"
-        fill="${color}" stroke="white" stroke-width="1.5"/>
-      <circle cx="12" cy="12" r="5" fill="white" opacity="0.9"/>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 48" width="32" height="48">
+      <filter id="shadow${color.replace('#','')}">
+        <feDropShadow dx="0" dy="2" stdDeviation="2" flood-opacity="0.3"/>
+      </filter>
+      <path d="M16 0C7.163 0 0 7.163 0 16c0 12 16 32 16 32s16-20 16-32C32 7.163 24.837 0 16 0z"
+        fill="${color}" filter="url(#shadow${color.replace('#','')})"/>
+      <circle cx="16" cy="16" r="7" fill="white" opacity="0.95"/>
     </svg>
   `
-
   return L.divIcon({
     html: svg,
     className: '',
-    iconSize: [24, 36],
-    iconAnchor: [12, 36],
-    popupAnchor: [0, -36],
+    iconSize: [32, 48],
+    iconAnchor: [16, 48],
   })
 }
 
-interface School {
+export interface School {
   id: string
   school_id: string
   school_name: string
@@ -56,145 +55,138 @@ interface School {
   longitude: number
 }
 
-// Auto-fit map bounds to all school markers
 function FitBounds({ schools }: { schools: School[] }) {
   const map = useMap()
-
   useEffect(() => {
     const valid = schools.filter(s => s.latitude && s.longitude)
     if (valid.length === 0) return
-    if (valid.length === 1) {
-      map.setView([valid[0].latitude, valid[0].longitude], 14)
-      return
-    }
+    if (valid.length === 1) { map.setView([valid[0].latitude, valid[0].longitude], 14); return }
     const bounds = L.latLngBounds(valid.map(s => [s.latitude, s.longitude]))
-    map.fitBounds(bounds, { padding: [40, 40] })
+    map.fitBounds(bounds, { padding: [60, 60] })
   }, [schools, map])
+  return null
+}
+
+// Hover tooltip using Leaflet tooltip (not popup)
+function HoverMarkers({ schools, onSelectSchool }: { schools: School[]; onSelectSchool: (s: School | null) => void }) {
+  const map = useMap()
+
+  useEffect(() => {
+    const markers: L.Marker[] = []
+
+    schools.forEach(school => {
+      if (!school.latitude || !school.longitude) return
+
+      const marker = L.marker([school.latitude, school.longitude], {
+        icon: createPriorityIcon(school.sdo_priority_level),
+      })
+
+      // Build hover tooltip HTML
+      const pct_c = school.construction_progress_pct || 0
+      const pct_m = school.materials_delivered_pct || 0
+      const priorityBg = school.sdo_priority_level === 'High' ? '#fde8e8' : school.sdo_priority_level === 'Medium' ? '#fef3cd' : '#e6f4ea'
+      const priorityColor = school.sdo_priority_level === 'High' ? '#c0392b' : school.sdo_priority_level === 'Medium' ? '#7d5a00' : '#1e6e3a'
+
+      const tooltipHtml = `
+        <div style="font-family:system-ui,sans-serif;width:270px;border-radius:12px;overflow:hidden;box-shadow:0 8px 32px rgba(0,0,0,0.2);">
+          <div style="background:#1a3a6b;padding:14px 16px 12px;">
+            <p style="color:rgba(255,255,255,0.5);font-size:9px;text-transform:uppercase;letter-spacing:0.1em;margin:0 0 4px 0;">${(school.municipality || 'LEGAZPI CITY').toUpperCase()}</p>
+            <p style="color:white;font-size:15px;font-weight:700;line-height:1.2;margin:0 0 4px 0;">${school.school_name}</p>
+            <p style="color:rgba(255,255,255,0.4);font-size:10px;font-family:monospace;margin:0;">ID: ${school.school_id || '—'}</p>
+          </div>
+          <div style="background:white;padding:12px 16px;">
+            <div style="display:flex;gap:6px;margin-bottom:12px;">
+              ${school.sdo_priority_level ? `<span style="font-size:11px;font-weight:600;padding:3px 10px;border-radius:6px;background:${priorityBg};color:${priorityColor};">${school.sdo_priority_level} Priority</span>` : ''}
+              ${school.auto_generated_scope ? `<span style="font-size:11px;font-weight:700;font-family:monospace;padding:3px 10px;border-radius:6px;background:#e8f0fb;color:#1a3a6b;">${school.auto_generated_scope}</span>` : ''}
+            </div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px;">
+              <div><p style="font-size:9px;color:#94a3b8;letter-spacing:0.08em;margin:0 0 2px 0;">CLASSROOMS</p><p style="font-size:20px;font-weight:700;color:#1e293b;margin:0;line-height:1;">${school.proposed_classrooms ?? '—'}</p></div>
+              <div><p style="font-size:9px;color:#94a3b8;letter-spacing:0.08em;margin:0 0 2px 0;">UNITS</p><p style="font-size:20px;font-weight:700;color:#1e293b;margin:0;line-height:1;">${school.number_of_units ?? '—'}</p></div>
+              <div><p style="font-size:9px;color:#94a3b8;letter-spacing:0.08em;margin:0 0 2px 0;">STORIES</p><p style="font-size:20px;font-weight:700;color:#1e293b;margin:0;line-height:1;">${school.stories ?? '—'}</p></div>
+              <div><p style="font-size:9px;color:#94a3b8;letter-spacing:0.08em;margin:0 0 2px 0;">FUNDING YEAR</p><p style="font-size:20px;font-weight:700;color:#1e293b;margin:0;line-height:1;">${school.funding_year ?? '—'}</p></div>
+            </div>
+            <div style="margin-bottom:8px;">
+              <div style="margin-bottom:5px;">
+                <div style="display:flex;justify-content:space-between;margin-bottom:3px;">
+                  <span style="font-size:10px;color:#64748b;">Construction</span>
+                  <span style="font-size:10px;font-weight:700;color:#1a3a6b;">${pct_c}%</span>
+                </div>
+                <div style="height:5px;background:#e2e8f0;border-radius:3px;overflow:hidden;">
+                  <div style="height:100%;width:${pct_c}%;background:#1a3a6b;border-radius:3px;"></div>
+                </div>
+              </div>
+              <div>
+                <div style="display:flex;justify-content:space-between;margin-bottom:3px;">
+                  <span style="font-size:10px;color:#64748b;">Materials</span>
+                  <span style="font-size:10px;font-weight:700;color:#c8a800;">${pct_m}%</span>
+                </div>
+                <div style="height:5px;background:#e2e8f0;border-radius:3px;overflow:hidden;">
+                  <div style="height:100%;width:${pct_m}%;background:#c8a800;border-radius:3px;"></div>
+                </div>
+              </div>
+            </div>
+            ${school.budget_allocated_php ? `<div style="text-align:right;padding-top:6px;border-top:1px solid #f1f5f9;"><span style="font-size:11px;color:#64748b;">Budget: </span><span style="font-size:11px;font-weight:700;color:#1e293b;">₱${Number(school.budget_allocated_php).toLocaleString()}</span></div>` : ''}
+          </div>
+        </div>
+      `
+
+      marker.bindTooltip(tooltipHtml, {
+        permanent: false,
+        direction: 'top',
+        offset: [0, -48],
+        opacity: 1,
+        className: 'school-hover-tooltip',
+      })
+
+      // Click → select school for right panel
+      marker.on('click', () => onSelectSchool(school))
+
+      marker.addTo(map)
+      markers.push(marker)
+    })
+
+    return () => { markers.forEach(m => m.remove()) }
+  }, [schools, map, onSelectSchool])
 
   return null
 }
 
 interface SchoolMapProps {
   schools: School[]
-  onSelectSchool?: (school: School) => void
+  selectedSchool: School | null
+  onSelectSchool: (school: School | null) => void
 }
 
-export default function SchoolMap({ schools, onSelectSchool }: SchoolMapProps) {
+export default function SchoolMap({ schools, selectedSchool, onSelectSchool }: SchoolMapProps) {
   const validSchools = schools.filter(s => s.latitude && s.longitude)
-
-  // Legazpi City center as default
   const defaultCenter: [number, number] = [13.1391, 123.7438]
 
   return (
-    <MapContainer
-      center={defaultCenter}
-      zoom={13}
-      style={{ height: '100%', width: '100%' }}
-      className="z-0"
-    >
-      <TileLayer
-        attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-      />
+    <>
+      <style>{`
+        .school-hover-tooltip {
+          background: transparent !important;
+          border: none !important;
+          box-shadow: none !important;
+          padding: 0 !important;
+        }
+        .school-hover-tooltip::before { display: none !important; }
+        .leaflet-tooltip { pointer-events: none; }
+      `}</style>
 
-      <FitBounds schools={validSchools} />
-
-      {validSchools.map(school => (
-        <Marker
-          key={school.id}
-          position={[school.latitude, school.longitude]}
-          icon={createPriorityIcon(school.sdo_priority_level)}
-          eventHandlers={{
-            click: () => onSelectSchool?.(school),
-          }}
-        >
-          <Popup className="school-popup" maxWidth={260}>
-            <div style={{ fontFamily: 'sans-serif', padding: '4px 2px' }}>
-              {/* Popup header */}
-              <div style={{
-                background: '#1a3a6b',
-                margin: '-10px -10px 10px -10px',
-                padding: '10px 12px',
-                borderRadius: '6px 6px 0 0'
-              }}>
-                <p style={{ color: 'rgba(255,255,255,0.6)', fontSize: '9px', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '2px' }}>
-                  {school.municipality || 'Legazpi City'}
-                </p>
-                <p style={{ color: 'white', fontSize: '13px', fontWeight: 600, lineHeight: 1.3 }}>
-                  {school.school_name}
-                </p>
-                {school.school_id && (
-                  <p style={{ color: 'rgba(255,255,255,0.5)', fontSize: '10px', fontFamily: 'monospace', marginTop: '2px' }}>
-                    ID: {school.school_id}
-                  </p>
-                )}
-              </div>
-
-              {/* Priority + scope */}
-              <div style={{ display: 'flex', gap: '6px', marginBottom: '8px' }}>
-                {school.sdo_priority_level && (
-                  <span style={{
-                    fontSize: '10px', fontWeight: 500, padding: '2px 7px', borderRadius: '4px',
-                    background: school.sdo_priority_level === 'High' ? '#fde8e8' :
-                      school.sdo_priority_level === 'Medium' ? '#fef3cd' : '#e6f4ea',
-                    color: school.sdo_priority_level === 'High' ? '#9b2335' :
-                      school.sdo_priority_level === 'Medium' ? '#7d5a00' : '#1e6e3a',
-                  }}>
-                    {school.sdo_priority_level} Priority
-                  </span>
-                )}
-                {school.auto_generated_scope && (
-                  <span style={{ fontSize: '10px', fontWeight: 600, fontFamily: 'monospace', padding: '2px 7px', borderRadius: '4px', background: '#e8f0fb', color: '#1a3a6b' }}>
-                    {school.auto_generated_scope}
-                  </span>
-                )}
-              </div>
-
-              {/* Details grid */}
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '4px', marginBottom: '8px' }}>
-                {[
-                  { label: 'Classrooms', value: school.proposed_classrooms },
-                  { label: 'Units', value: school.number_of_units },
-                  { label: 'Stories', value: school.stories },
-                  { label: 'Funding Year', value: school.funding_year },
-                ].map(({ label, value }) => (
-                  <div key={label} style={{ background: '#f8fafc', borderRadius: '6px', padding: '5px 8px' }}>
-                    <p style={{ fontSize: '9px', color: '#94a3b8', textTransform: 'uppercase', marginBottom: '1px' }}>{label}</p>
-                    <p style={{ fontSize: '12px', fontWeight: 600, color: '#1e293b' }}>{value ?? '—'}</p>
-                  </div>
-                ))}
-              </div>
-
-              {/* Progress bars */}
-              <div style={{ marginBottom: '6px' }}>
-                <ProgressBar label="Construction" value={school.construction_progress_pct} color="#1a3a6b" />
-                <ProgressBar label="Materials" value={school.materials_delivered_pct} color="#c8a800" />
-              </div>
-
-              {school.budget_allocated_php ? (
-                <p style={{ fontSize: '10px', color: '#64748b', textAlign: 'right', marginTop: '4px' }}>
-                  Budget: <strong>₱{Number(school.budget_allocated_php).toLocaleString()}</strong>
-                </p>
-              ) : null}
-            </div>
-          </Popup>
-        </Marker>
-      ))}
-    </MapContainer>
-  )
-}
-
-function ProgressBar({ label, value, color }: { label: string; value?: number; color: string }) {
-  const pct = value || 0
-  return (
-    <div style={{ marginBottom: '4px' }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '2px' }}>
-        <span style={{ fontSize: '9px', color: '#94a3b8' }}>{label}</span>
-        <span style={{ fontSize: '9px', fontWeight: 600, color }}>{pct}%</span>
-      </div>
-      <div style={{ height: '4px', background: '#f1f5f9', borderRadius: '2px', overflow: 'hidden' }}>
-        <div style={{ height: '100%', width: `${pct}%`, background: color, borderRadius: '2px', transition: 'width 0.3s' }} />
-      </div>
-    </div>
+      <MapContainer
+        center={defaultCenter}
+        zoom={13}
+        style={{ height: '100%', width: '100%' }}
+        className="z-0"
+      >
+        <TileLayer
+          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+        />
+        <FitBounds schools={validSchools} />
+        <HoverMarkers schools={validSchools} onSelectSchool={onSelectSchool} />
+      </MapContainer>
+    </>
   )
 }

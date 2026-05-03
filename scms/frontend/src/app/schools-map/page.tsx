@@ -2,42 +2,22 @@
 
 import { useEffect, useState } from 'react'
 import dynamic from 'next/dynamic'
-import {
-  MapPin, RefreshCw, Building2, Search,
-  X, ChevronRight, Info
-} from 'lucide-react'
+import { MapPin, RefreshCw, Search, X, Info } from 'lucide-react'
 import SidebarLayout from '@/components/layout/SidebarLayout'
 import { fetchSchools } from '@/lib/api'
+import type { School } from '@/components/map/SchoolMap'
 
-// Leaflet MUST be dynamically imported — it breaks SSR
 const SchoolMap = dynamic(() => import('@/components/map/SchoolMap'), {
   ssr: false,
   loading: () => (
     <div className="h-full flex items-center justify-center bg-slate-100 text-[13px] text-slate-400">
-      Loading map...
+      <div className="text-center">
+        <div className="w-8 h-8 border-2 border-[#1a3a6b] border-t-transparent rounded-full animate-spin mx-auto mb-2" />
+        <p>Loading map...</p>
+      </div>
     </div>
   ),
 })
-
-interface School {
-  id: string
-  school_id: string
-  school_name: string
-  municipality: string
-  legislative_district: string
-  proposed_classrooms: number
-  number_of_units: number
-  stories: number
-  auto_generated_scope: string
-  sdo_priority_level: string
-  funding_year: number
-  construction_progress_pct: number
-  materials_delivered_pct: number
-  budget_allocated_php: number
-  completion_date: string
-  latitude: number
-  longitude: number
-}
 
 export default function SchoolsMap() {
   const [schools, setSchools] = useState<School[]>([])
@@ -72,65 +52,27 @@ export default function SchoolsMap() {
 
   return (
     <SidebarLayout title="Schools Map" description="School locations">
-      <div className="flex flex-col h-screen bg-slate-50">
+      <div className="flex flex-col bg-slate-50 overflow-hidden" style={{ height: 'calc(100vh - 0px)' }}>
 
-        {/* Header */}
-        <div className="bg-white border-b border-slate-200 px-6 py-4 shrink-0">
-          <div className="max-w-full flex items-center justify-between gap-4 flex-wrap">
-            <div className="flex items-center gap-3">
-              <div className="w-9 h-9 bg-blue-50 rounded-lg flex items-center justify-center">
-                <MapPin size={17} className="text-[#1a3a6b]" />
-              </div>
-              <div>
-                <h1 className="text-[18px] font-semibold text-slate-900">Schools Map</h1>
-                <p className="text-[12px] text-slate-400 mt-0.5">
-                  {validSchools.length} of {schools.length} schools plotted — Legazpi City
-                </p>
-              </div>
-            </div>
-            <div className="flex items-center gap-2">
-              {/* Legend */}
-              <div className="hidden md:flex items-center gap-3 px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg">
-                {[['High', '#c0392b'], ['Medium', '#c8a800'], ['Low', '#27ae60']].map(([label, color]) => (
-                  <span key={label} className="flex items-center gap-1.5 text-[11px] text-slate-500">
-                    <span className="w-2.5 h-2.5 rounded-full" style={{ background: color }} />
-                    {label}
-                  </span>
-                ))}
-              </div>
-              <button
-                onClick={loadSchools}
-                disabled={loading}
-                className="flex items-center gap-1.5 px-3 py-2 text-[12px] font-medium text-slate-600 bg-white border border-slate-200 rounded-lg hover:bg-slate-50 transition-colors disabled:opacity-50"
-              >
-                <RefreshCw size={12} className={loading ? 'animate-spin' : ''} />
-              </button>
-            </div>
-          </div>
-        </div>
-
-        {error && (
-          <div className="mx-6 mt-4 px-4 py-3 bg-red-50 border border-red-200 rounded-xl text-[13px] text-red-700 shrink-0">
-            {error}
-          </div>
-        )}
-
-        {/* No coordinates warning */}
         {noCoords.length > 0 && !loading && (
-          <div className="mx-6 mt-3 px-4 py-2.5 bg-amber-50 border border-amber-200 rounded-xl flex items-center gap-2 shrink-0">
+          <div className="mx-4 mt-3 px-4 py-2.5 bg-amber-50 border border-amber-200 rounded-xl flex items-center gap-2 shrink-0">
             <Info size={13} className="text-amber-600 shrink-0" />
             <p className="text-[12px] text-amber-700">
-              <strong>{noCoords.length} school{noCoords.length > 1 ? 's' : ''}</strong> not shown — missing coordinates.
-              Add latitude & longitude in Admin Panel.
+              <strong>{noCoords.length} school{noCoords.length > 1 ? 's' : ''}</strong> not shown — missing coordinates. Add in Admin Panel.
             </p>
           </div>
         )}
 
-        {/* Main content — map + sidebar */}
-        <div className="flex flex-1 overflow-hidden gap-0 p-4 pt-3">
+        {error && (
+          <div className="mx-4 mt-3 px-4 py-2.5 bg-red-50 border border-red-200 rounded-xl text-[12px] text-red-700 shrink-0">
+            {error}
+          </div>
+        )}
 
-          {/* School list sidebar */}
-          <div className="w-72 shrink-0 bg-white border border-slate-200 rounded-xl overflow-hidden flex flex-col mr-3">
+        <div className="flex flex-1 overflow-hidden p-4 pt-3 gap-3">
+
+          {/* Left school list */}
+          <div className="w-60 shrink-0 bg-white border border-slate-200 rounded-xl overflow-hidden flex flex-col shadow-sm">
             <div className="px-3 py-3 border-b border-slate-100">
               <div className="relative">
                 <Search size={12} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
@@ -153,130 +95,168 @@ export default function SchoolsMap() {
                   <button
                     key={s.id}
                     onClick={() => setSelectedSchool(selectedSchool?.id === s.id ? null : s)}
-                    className={`w-full text-left px-3 py-3 border-b border-slate-50 hover:bg-slate-50 transition-colors flex items-center justify-between gap-2 group ${
+                    className={`w-full text-left px-3 py-3 border-b border-slate-50 hover:bg-slate-50 transition-colors flex items-center gap-2.5 ${
                       selectedSchool?.id === s.id ? 'bg-blue-50 border-l-2 border-l-[#1a3a6b]' : ''
                     }`}
                   >
-                    <div className="flex items-center gap-2.5 min-w-0">
-                      <div
-                        className="w-2 h-2 rounded-full shrink-0"
-                        style={{
-                          background: s.sdo_priority_level === 'High' ? '#c0392b' :
-                            s.sdo_priority_level === 'Medium' ? '#c8a800' : '#27ae60'
-                        }}
-                      />
-                      <div className="min-w-0">
-                        <p className={`text-[12px] font-medium truncate ${selectedSchool?.id === s.id ? 'text-[#1a3a6b]' : 'text-slate-700'}`}>
-                          {s.school_name}
-                        </p>
-                        <p className="text-[10px] text-slate-400 truncate">{s.municipality || '—'}</p>
-                      </div>
+                    <div
+                      className="w-2.5 h-2.5 rounded-full shrink-0"
+                      style={{
+                        background: s.sdo_priority_level === 'High' ? '#c0392b' :
+                          s.sdo_priority_level === 'Medium' ? '#c8a800' : '#27ae60'
+                      }}
+                    />
+                    <div className="min-w-0 flex-1">
+                      <p className={`text-[12px] font-medium truncate leading-tight ${selectedSchool?.id === s.id ? 'text-[#1a3a6b]' : 'text-slate-700'}`}>
+                        {s.school_name}
+                      </p>
+                      <p className="text-[10px] text-slate-400 truncate mt-0.5">{s.municipality || '—'}</p>
                     </div>
-                    <div className="flex items-center gap-1.5 shrink-0">
-                      {(!s.latitude || !s.longitude) && (
-                        <span className="text-[9px] text-amber-500 bg-amber-50 px-1.5 py-0.5 rounded">No pin</span>
-                      )}
-                      <ChevronRight size={12} className="text-slate-300 group-hover:text-slate-500 transition-colors" />
-                    </div>
+                    {(!s.latitude || !s.longitude) && (
+                      <span className="text-[9px] text-amber-500 bg-amber-50 px-1.5 py-0.5 rounded shrink-0">No pin</span>
+                    )}
                   </button>
                 ))
               )}
             </div>
 
-            {/* List footer */}
-            <div className="px-3 py-2.5 border-t border-slate-100 bg-slate-50">
-              <p className="text-[10px] text-slate-400 text-center">
-                {validSchools.length} pinned · {noCoords.length} missing coords
-              </p>
+            <div className="px-3 py-2 border-t border-slate-100 bg-slate-50 flex items-center justify-between">
+              <p className="text-[10px] text-slate-400">{validSchools.length} pinned · {noCoords.length} missing</p>
+              <button onClick={loadSchools} disabled={loading} className="flex items-center gap-1 text-[10px] text-slate-400 hover:text-slate-600 transition-colors">
+                <RefreshCw size={10} className={loading ? 'animate-spin' : ''} /> Refresh
+              </button>
             </div>
           </div>
 
-          {/* Map area */}
-          <div className="flex-1 flex flex-col gap-3 min-w-0">
-            <div className="flex-1 bg-white border border-slate-200 rounded-xl overflow-hidden relative">
-              {loading ? (
-                <div className="h-full flex items-center justify-center">
-                  <div className="text-center">
-                    <div className="w-8 h-8 border-2 border-[#1a3a6b] border-t-transparent rounded-full animate-spin mx-auto mb-2" />
-                    <p className="text-[12px] text-slate-400">Loading map...</p>
-                  </div>
-                </div>
-              ) : (
-                <SchoolMap schools={schools} onSelectSchool={setSelectedSchool} />
-              )}
+          {/* Map — takes remaining space, relative for floating panel */}
+          <div className="flex-1 relative rounded-xl overflow-hidden border border-slate-200 shadow-sm">
+
+            {/* Priority legend — top left overlay */}
+            <div className="absolute top-3 left-3 z-999 bg-white/95 backdrop-blur-sm border border-slate-200 rounded-xl px-3 py-2.5 shadow-sm">
+              <p className="text-[9px] text-slate-400 uppercase tracking-wider mb-1.5">Priority</p>
+              <div className="flex flex-col gap-1.5">
+                {[['High', '#c0392b'], ['Medium', '#c8a800'], ['Low', '#27ae60']].map(([label, color]) => (
+                  <span key={label} className="flex items-center gap-2 text-[11px] text-slate-600">
+                    <span className="w-2.5 h-2.5 rounded-full shrink-0" style={{ background: color }} />
+                    {label}
+                  </span>
+                ))}
+              </div>
             </div>
 
-            {/* Selected school info panel */}
+            {/* Floating right info panel */}
             {selectedSchool && (
-              <div className="bg-white border border-slate-200 rounded-xl p-4 shrink-0">
-                <div className="flex items-start justify-between gap-3">
-                  <div className="flex items-start gap-3">
-                    <div
-                      className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0 mt-0.5"
-                      style={{
-                        background: selectedSchool.sdo_priority_level === 'High' ? '#fde8e8' :
-                          selectedSchool.sdo_priority_level === 'Medium' ? '#fef3cd' : '#e6f4ea'
-                      }}
-                    >
-                      <Building2
-                        size={15}
-                        style={{
-                          color: selectedSchool.sdo_priority_level === 'High' ? '#c0392b' :
-                            selectedSchool.sdo_priority_level === 'Medium' ? '#c8a800' : '#27ae60'
-                        }}
-                      />
-                    </div>
-                    <div>
-                      <h3 className="text-[14px] font-semibold text-slate-800">{selectedSchool.school_name}</h3>
-                      <p className="text-[11px] text-slate-400 mt-0.5">{selectedSchool.municipality} · {selectedSchool.legislative_district || '—'}</p>
-                    </div>
-                  </div>
-                  <button onClick={() => setSelectedSchool(null)} className="w-6 h-6 rounded-md bg-slate-100 hover:bg-slate-200 flex items-center justify-center transition-colors">
-                    <X size={12} className="text-slate-500" />
+              <div className="absolute top-3 right-3 z-999 w-72 bg-white rounded-2xl overflow-hidden shadow-2xl border border-slate-200">
+                {/* Header */}
+                <div className="bg-[#1a3a6b] px-4 py-4 relative">
+                  <button
+                    onClick={() => setSelectedSchool(null)}
+                    className="absolute top-3 right-3 w-6 h-6 bg-white/15 hover:bg-white/25 rounded-md flex items-center justify-center transition-colors"
+                  >
+                    <X size={12} className="text-white" />
                   </button>
+                  <p className="text-[9px] text-white/50 uppercase tracking-widest mb-1">
+                    {selectedSchool.municipality?.toUpperCase() || 'LEGAZPI CITY'} · {selectedSchool.legislative_district || '—'}
+                  </p>
+                  <h3 className="text-[15px] font-bold text-white leading-tight pr-8">{selectedSchool.school_name}</h3>
+                  {selectedSchool.school_id && (
+                    <p className="text-[10px] text-white/40 font-mono mt-1">ID: {selectedSchool.school_id}</p>
+                  )}
                 </div>
 
-                <div className="mt-3 grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-2">
-                  {[
-                    { label: 'Priority', value: selectedSchool.sdo_priority_level },
-                    { label: 'Scope', value: selectedSchool.auto_generated_scope, mono: true },
-                    { label: 'Classrooms', value: selectedSchool.proposed_classrooms },
-                    { label: 'Units', value: selectedSchool.number_of_units },
-                    { label: 'Funding Year', value: selectedSchool.funding_year },
-                    { label: 'Budget', value: selectedSchool.budget_allocated_php ? `₱${Number(selectedSchool.budget_allocated_php).toLocaleString()}` : '—' },
-                  ].map(({ label, value, mono }) => (
-                    <div key={label} className="bg-slate-50 rounded-lg px-2.5 py-2">
-                      <p className="text-[9px] text-slate-400 uppercase tracking-wide mb-0.5">{label}</p>
-                      <p className={`text-[12px] font-semibold text-slate-700 ${mono ? 'font-mono' : ''}`}>{value ?? '—'}</p>
-                    </div>
-                  ))}
-                </div>
+                <div className="p-4 space-y-4">
+                  {/* Badges */}
+                  <div className="flex gap-2 flex-wrap">
+                    {selectedSchool.sdo_priority_level && (
+                      <span className={`text-[11px] font-semibold px-3 py-1 rounded-lg ${
+                        selectedSchool.sdo_priority_level === 'High' ? 'bg-red-50 text-red-700' :
+                        selectedSchool.sdo_priority_level === 'Medium' ? 'bg-amber-50 text-amber-700' :
+                        'bg-green-50 text-green-700'
+                      }`}>
+                        {selectedSchool.sdo_priority_level} Priority
+                      </span>
+                    )}
+                    {selectedSchool.auto_generated_scope && (
+                      <span className="text-[11px] font-bold font-mono px-3 py-1 rounded-lg bg-blue-50 text-[#1a3a6b]">
+                        {selectedSchool.auto_generated_scope}
+                      </span>
+                    )}
+                  </div>
 
-                <div className="mt-3 grid grid-cols-2 gap-2">
-                  <div>
-                    <div className="flex justify-between text-[10px] mb-1">
-                      <span className="text-slate-400">Construction</span>
-                      <span className="font-mono text-[#1a3a6b] font-semibold">{selectedSchool.construction_progress_pct || 0}%</span>
-                    </div>
-                    <div className="h-1.5 bg-slate-100 rounded-full overflow-hidden">
-                      <div className="h-full bg-[#1a3a6b] rounded-full" style={{ width: `${selectedSchool.construction_progress_pct || 0}%` }} />
-                    </div>
+                  {/* Stats grid */}
+                  <div className="grid grid-cols-2 gap-x-4 gap-y-3">
+                    {[
+                      { label: 'CLASSROOMS',   value: selectedSchool.proposed_classrooms },
+                      { label: 'UNITS',         value: selectedSchool.number_of_units },
+                      { label: 'STORIES',       value: selectedSchool.stories },
+                      { label: 'FUNDING YEAR',  value: selectedSchool.funding_year },
+                    ].map(({ label, value }) => (
+                      <div key={label}>
+                        <p className="text-[9px] text-slate-400 uppercase tracking-widest mb-1">{label}</p>
+                        <p className="text-[22px] font-bold text-slate-800 leading-none">{value ?? '—'}</p>
+                      </div>
+                    ))}
                   </div>
-                  <div>
-                    <div className="flex justify-between text-[10px] mb-1">
-                      <span className="text-slate-400">Materials</span>
-                      <span className="font-mono text-amber-600 font-semibold">{selectedSchool.materials_delivered_pct || 0}%</span>
-                    </div>
-                    <div className="h-1.5 bg-slate-100 rounded-full overflow-hidden">
-                      <div className="h-full bg-amber-400 rounded-full" style={{ width: `${selectedSchool.materials_delivered_pct || 0}%` }} />
-                    </div>
+
+                  {/* Progress bars */}
+                  <div className="space-y-2.5 pt-2 border-t border-slate-100">
+                    <ProgressBar label="Construction" value={selectedSchool.construction_progress_pct} color="#1a3a6b" />
+                    <ProgressBar label="Materials" value={selectedSchool.materials_delivered_pct} color="#c8a800" />
                   </div>
+
+                  {/* Budget */}
+                  {selectedSchool.budget_allocated_php ? (
+                    <div className="text-right pt-2 border-t border-slate-100">
+                      <span className="text-[12px] text-slate-500">Budget: </span>
+                      <span className="text-[13px] font-bold text-slate-800">
+                        ₱{Number(selectedSchool.budget_allocated_php).toLocaleString()}
+                      </span>
+                    </div>
+                  ) : null}
+
+                  {/* Coordinates */}
+                  {(selectedSchool.latitude || selectedSchool.longitude) && (
+                    <div className="flex items-center gap-1.5 text-[10px] text-slate-400 font-mono">
+                      <MapPin size={10} />
+                      {selectedSchool.latitude}, {selectedSchool.longitude}
+                    </div>
+                  )}
                 </div>
               </div>
+            )}
+
+            {loading ? (
+              <div className="h-full flex items-center justify-center bg-slate-100">
+                <div className="text-center">
+                  <div className="w-8 h-8 border-2 border-[#1a3a6b] border-t-transparent rounded-full animate-spin mx-auto mb-2" />
+                  <p className="text-[12px] text-slate-400">Loading map...</p>
+                </div>
+              </div>
+            ) : (
+              <SchoolMap
+                schools={schools}
+                selectedSchool={selectedSchool}
+                onSelectSchool={setSelectedSchool}
+              />
             )}
           </div>
         </div>
       </div>
     </SidebarLayout>
+  )
+}
+
+function ProgressBar({ label, value, color }: { label: string; value?: number; color: string }) {
+  const pct = value || 0
+  return (
+    <div>
+      <div className="flex justify-between mb-1">
+        <span className="text-[11px] text-slate-500">{label}</span>
+        <span className="text-[11px] font-bold" style={{ color }}>{pct}%</span>
+      </div>
+      <div className="h-1.5 bg-slate-100 rounded-full overflow-hidden">
+        <div className="h-full rounded-full" style={{ width: `${pct}%`, background: color }} />
+      </div>
+    </div>
   )
 }
