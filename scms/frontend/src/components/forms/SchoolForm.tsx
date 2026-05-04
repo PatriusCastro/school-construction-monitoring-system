@@ -50,7 +50,7 @@ interface SchoolFormProps {
 }
 
 const DISTRICTS = ['1st District', '2nd District', '3rd District']
-const WORKSHOP_TYPES = ['Shop A', 'Shop B', 'Shop C']
+const WORKSHOP_TYPES = ['Science Laboratory', 'Computer Laboratory', 'Library', 'Home Economics Laboratory', 'TLE Workshop', ]
 const DESIGN_CONFIGS = ['Config-1', 'Config-2', 'Config-3', 'Config-4']
 const FUNDING_YEARS = [2026, 2027, 2028, 2029]
 
