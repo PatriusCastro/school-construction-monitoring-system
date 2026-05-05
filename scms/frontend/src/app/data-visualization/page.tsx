@@ -1,27 +1,25 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import {
-  BarChart3, RefreshCw, Building2,
-  PieChart, TrendingUp, AlertCircle
-} from 'lucide-react'
+import { BarChart3, RefreshCw, Building2, PieChart, TrendingUp, AlertCircle } from 'lucide-react'
 import SidebarLayout from '@/components/layout/SidebarLayout'
 import { fetchSchools } from '@/lib/api'
 import type { TooltipItem } from 'chart.js'
 import {
   Chart as ChartJS,
-  CategoryScale, LinearScale, BarElement,
-  ArcElement, Tooltip, Legend as ChartJSLegend, Title
+  CategoryScale, LinearScale, BarElement, Filler,
+  ArcElement, PointElement, LineElement, Tooltip, Legend as ChartJSLegend, Title
 } from 'chart.js'
-import { Bar, Doughnut } from 'react-chartjs-2'
+import { Bar, Doughnut, Line } from 'react-chartjs-2'
 
-ChartJS.register(CategoryScale, LinearScale, BarElement, ArcElement, Tooltip, ChartJSLegend, Title)
+ChartJS.register(CategoryScale, LinearScale, BarElement, Filler, PointElement, LineElement, ArcElement, Tooltip, ChartJSLegend, Title)
 
 interface School {
   id: string
   school_name: string
   municipality: string
   proposed_classrooms: number
+  existing_classrooms?: number
   number_of_units: number
   sdo_priority_level: string
   funding_year: number
@@ -265,6 +263,71 @@ export default function DataVisualization() {
     }
   } as const
 
+  // ── Chart 5: Classroom Demand vs Existing Supply ────────────────
+  const classroomComparison = {
+    labels: schools.map(s =>
+      s.school_name
+        ?.replace('Elementary School', 'ES')
+        .replace('National High School', 'NHS')
+        .replace('High School', 'HS')
+      || '—'
+    ),
+    datasets: [
+      {
+        label: 'Existing (Supply)',
+        data: schools.map(s => s.existing_classrooms || 0),
+        borderColor: '#c0392b',
+        backgroundColor: 'rgba(192, 57, 43, 0.08)',
+        borderWidth: 2.5,
+        pointRadius: 4,
+        pointBackgroundColor: '#c0392b',
+        pointBorderColor: '#fff',
+        pointBorderWidth: 2,
+        tension: 0.3,
+        fill: true,
+      },
+      {
+        label: 'Proposed (Demand)',
+        data: schools.map(s => s.proposed_classrooms || 0),
+        borderColor: '#1a3a6b',
+        backgroundColor: 'rgba(26, 58, 107, 0.08)',
+        borderWidth: 2.5,
+        pointRadius: 4,
+        pointBackgroundColor: '#1a3a6b',
+        pointBorderColor: '#fff',
+        pointBorderWidth: 2,
+        tension: 0.3,
+        fill: true,
+      }
+    ]
+  }
+
+  const classroomComparisonOptions = {
+    responsive: true,
+    maintainAspectRatio: false,
+    interaction: { intersect: false, mode: 'index' as const },
+    plugins: {
+      legend: { display: false },
+      tooltip: {
+        callbacks: {
+          label: (ctx: TooltipItem<'line'>) => ` ${ctx.dataset.label}: ${ctx.parsed.y ?? 0} classrooms`,
+          title: (items: TooltipItem<'line'>[]) => schools[items[0].dataIndex]?.school_name || ''
+        }
+      }
+    },
+    scales: {
+      x: {
+        ticks: { font: { size: 10 }, maxRotation: 45, color: COLORS.text },
+        grid: { display: false },
+      },
+      y: {
+        beginAtZero: true,
+        ticks: { stepSize: 4, font: { size: 10 }, color: COLORS.text },
+        grid: { color: COLORS.grid },
+      }
+    }
+  } as const
+
   const totalClassrooms = schools.reduce((s, x) => s + (x.proposed_classrooms || 0), 0)
   const avgProgress = schools.length
     ? Math.round(schools.reduce((s, x) => s + (x.construction_progress_pct || 0), 0) / schools.length)
@@ -334,7 +397,7 @@ export default function DataVisualization() {
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
 
             {/* Chart 1 — Classrooms per school */}
-            <div className="lg:col-span-2 bg-white border border-slate-200 rounded-xl p-5">
+            <div className="lg:col-span-1 bg-white border border-slate-200 rounded-xl p-5">
               <ChartHeader
                 title="Proposed Classrooms per School"
                 sub="Color coded by SDO priority level"
@@ -390,6 +453,25 @@ export default function DataVisualization() {
                 })}
               </div>
             </div>
+
+            {/* Chart 5 — Classroom Demand vs Existing Supply */}
+            <div className="bg-white border border-slate-200 rounded-xl p-5">
+              <ChartHeader
+                title="Classroom Demand vs Existing Supply"
+                sub="Proposed (demand) vs existing classrooms per school"
+                icon={BarChart3}
+              />
+              <div className="flex items-center gap-4 mb-4">
+                <Legend label="Existing (Supply)" color={COLORS.High} />
+                <Legend label="Proposed (Demand)" color={COLORS.blue} />
+              </div>
+              <ChartWrap loading={loading} empty={schools.length === 0} height={250}>
+                <Line data={classroomComparison} options={classroomComparisonOptions} />
+              </ChartWrap>
+              <ChartFooter>
+                Shows the gap between existing classroom capacity and proposed construction needs
+              </ChartFooter>
+            </div>
           </div>
 
           {/* Row 2: Funding year + Progress grouped */}
@@ -433,6 +515,9 @@ export default function DataVisualization() {
               </ChartFooter>
             </div>
           </div>
+
+          {/* Row 3: Classroom Demand vs Existing Supply */}
+          
 
           {/* Summary table */}
           <div className="bg-white border border-slate-200 rounded-xl overflow-hidden">
