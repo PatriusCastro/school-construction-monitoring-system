@@ -1,13 +1,13 @@
 'use client'
 
-import { useEffect, useState, useRef } from 'react'
+import { useEffect, useState } from 'react'
 import {
-  TrendingUp, RefreshCw, Building2, Pencil,
-  Check, X, Save, AlertTriangle, Clock,
-  CheckCircle2, Loader2, CalendarDays, ChevronUp, ChevronDown
+  TrendingUp, RefreshCw, Building2, X,
+  AlertTriangle, Clock,
+  CheckCircle2, CalendarDays, ChevronUp, ChevronDown
 } from 'lucide-react'
 import SidebarLayout from '@/components/layout/SidebarLayout'
-import { fetchSchools, updateSchool } from '@/lib/api'
+import { fetchSchools } from '@/lib/api'
 
 interface School {
   id: string
@@ -22,12 +22,6 @@ interface School {
   funding_year: number
   budget_allocated_php: number
   budget_utilized_php: number
-}
-
-interface EditState {
-  construction_progress_pct: number
-  materials_delivered_pct: number
-  completion_date: string
 }
 
 function getStatus(pct: number): { label: string; color: string; bg: string; icon: React.ElementType } {
@@ -52,26 +46,10 @@ export default function ProgressMonitoring() {
   const [schools, setSchools] = useState<School[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
-  const [editingId, setEditingId] = useState<string | null>(null)
-  const [editState, setEditState] = useState<EditState>({ construction_progress_pct: 0, materials_delivered_pct: 0, completion_date: '' })
-  const [savingId, setSavingId] = useState<string | null>(null)
-  const [savedId, setSavedId] = useState<string | null>(null)
   const [sortField, setSortField] = useState<'school_name' | 'construction_progress_pct' | 'sdo_priority_level'>('construction_progress_pct')
   const [sortDir, setSortDir] = useState<'asc' | 'desc'>('desc')
-  const editRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => { loadSchools() }, [])
-
-  // Close edit on outside click
-  useEffect(() => {
-    const handler = (e: MouseEvent) => {
-      if (editRef.current && !editRef.current.contains(e.target as Node)) {
-        setEditingId(null)
-      }
-    }
-    document.addEventListener('mousedown', handler)
-    return () => document.removeEventListener('mousedown', handler)
-  }, [])
 
   const loadSchools = async () => {
     try {
@@ -83,32 +61,6 @@ export default function ProgressMonitoring() {
       setError('Failed to load progress data')
     } finally {
       setLoading(false)
-    }
-  }
-
-  const startEdit = (school: School) => {
-    setEditingId(school.id)
-    setEditState({
-      construction_progress_pct: school.construction_progress_pct || 0,
-      materials_delivered_pct: school.materials_delivered_pct || 0,
-      completion_date: school.completion_date || '',
-    })
-  }
-
-  const cancelEdit = () => setEditingId(null)
-
-  const saveEdit = async (id: string) => {
-    setSavingId(id)
-    try {
-      await updateSchool(id, editState)
-      setSchools(prev => prev.map(s => s.id === id ? { ...s, ...editState } : s))
-      setEditingId(null)
-      setSavedId(id)
-      setTimeout(() => setSavedId(null), 2000)
-    } catch {
-      setError('Failed to save changes')
-    } finally {
-      setSavingId(null)
     }
   }
 
@@ -154,7 +106,7 @@ export default function ProgressMonitoring() {
               <div>
                 <h1 className="text-[18px] font-semibold text-slate-900">Progress Monitoring</h1>
                 <p className="text-[12px] text-slate-400 mt-0.5">
-                  Construction and materials delivery progress — click Edit to update percentages
+                  View construction and materials delivery progress across all schools
                 </p>
               </div>
             </div>
@@ -210,7 +162,7 @@ export default function ProgressMonitoring() {
           <div className="bg-white border border-slate-200 rounded-xl overflow-hidden">
             <div className="px-5 py-4 border-b border-slate-100">
               <h2 className="text-[13px] font-semibold text-slate-800">Construction Progress per School</h2>
-              <p className="text-[11px] text-slate-400 mt-0.5">Click the Edit button on any row to update progress. Admin only.</p>
+              <p className="text-[11px] text-slate-400 mt-0.5">Track progress for construction and materials delivery across your schools.</p>
             </div>
 
             {loading ? (
@@ -221,7 +173,7 @@ export default function ProgressMonitoring() {
                 <p className="text-[13px] text-slate-400">No schools added yet</p>
               </div>
             ) : (
-              <div className="overflow-x-auto" ref={editRef}>
+              <div className="overflow-x-auto">
                 <table className="w-full">
                   <thead>
                     <tr className="bg-slate-50 border-b border-slate-100">
@@ -255,21 +207,15 @@ export default function ProgressMonitoring() {
                       <th className="px-4 py-3 text-left text-[10px] font-semibold text-slate-400 uppercase tracking-wide whitespace-nowrap">
                         Target Date
                       </th>
-                      <th className="px-4 py-3 text-right text-[10px] font-semibold text-slate-400 uppercase tracking-wide whitespace-nowrap">
-                        Actions
-                      </th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-50">
                     {sorted.map(s => {
-                      const isEditing = editingId === s.id
-                      const isSaving = savingId === s.id
-                      const isSaved = savedId === s.id
-                      const status = getStatus(isEditing ? editState.construction_progress_pct : (s.construction_progress_pct || 0))
+                      const status = getStatus(s.construction_progress_pct || 0)
                       const StatusIcon = status.icon
 
                       return (
-                        <tr key={s.id} className={`transition-colors ${isEditing ? 'bg-blue-50/40' : 'hover:bg-slate-50'}`}>
+                        <tr key={s.id} className="hover:bg-slate-50 transition-colors">
 
                           {/* School */}
                           <td className="px-4 py-3">
@@ -291,62 +237,12 @@ export default function ProgressMonitoring() {
 
                           {/* Construction % */}
                           <td className="px-4 py-3">
-                            {isEditing ? (
-                              <div className="flex flex-col gap-1.5">
-                                <div className="flex items-center gap-2">
-                                  <input
-                                    type="range"
-                                    min={0} max={100}
-                                    value={editState.construction_progress_pct}
-                                    onChange={e => setEditState(p => ({ ...p, construction_progress_pct: parseInt(e.target.value) }))}
-                                    className="flex-1 h-1.5 accent-[#1a3a6b] cursor-pointer"
-                                  />
-                                  <input
-                                    type="number"
-                                    min={0} max={100}
-                                    value={editState.construction_progress_pct}
-                                    onChange={e => setEditState(p => ({ ...p, construction_progress_pct: Math.min(100, Math.max(0, parseInt(e.target.value) || 0)) }))}
-                                    className="w-14 text-center text-[12px] font-mono font-semibold border border-[#1a3a6b]/30 rounded-lg px-2 py-1 bg-white focus:outline-none focus:border-[#1a3a6b]"
-                                  />
-                                  <span className="text-[11px] text-slate-400">%</span>
-                                </div>
-                                <div className="h-1.5 bg-slate-100 rounded-full overflow-hidden">
-                                  <div className="h-full bg-[#1a3a6b] rounded-full transition-all" style={{ width: `${editState.construction_progress_pct}%` }} />
-                                </div>
-                              </div>
-                            ) : (
-                              <ProgressCell value={s.construction_progress_pct} color="#1a3a6b" />
-                            )}
+                            <ProgressCell value={s.construction_progress_pct} color="#1a3a6b" />
                           </td>
 
                           {/* Materials % */}
                           <td className="px-4 py-3">
-                            {isEditing ? (
-                              <div className="flex flex-col gap-1.5">
-                                <div className="flex items-center gap-2">
-                                  <input
-                                    type="range"
-                                    min={0} max={100}
-                                    value={editState.materials_delivered_pct}
-                                    onChange={e => setEditState(p => ({ ...p, materials_delivered_pct: parseInt(e.target.value) }))}
-                                    className="flex-1 h-1.5 accent-[#c8a800] cursor-pointer"
-                                  />
-                                  <input
-                                    type="number"
-                                    min={0} max={100}
-                                    value={editState.materials_delivered_pct}
-                                    onChange={e => setEditState(p => ({ ...p, materials_delivered_pct: Math.min(100, Math.max(0, parseInt(e.target.value) || 0)) }))}
-                                    className="w-14 text-center text-[12px] font-mono font-semibold border border-amber-300 rounded-lg px-2 py-1 bg-white focus:outline-none focus:border-amber-400"
-                                  />
-                                  <span className="text-[11px] text-slate-400">%</span>
-                                </div>
-                                <div className="h-1.5 bg-slate-100 rounded-full overflow-hidden">
-                                  <div className="h-full bg-amber-400 rounded-full transition-all" style={{ width: `${editState.materials_delivered_pct}%` }} />
-                                </div>
-                              </div>
-                            ) : (
-                              <ProgressCell value={s.materials_delivered_pct} color="#c8a800" />
-                            )}
+                            <ProgressCell value={s.materials_delivered_pct} color="#c8a800" />
                           </td>
 
                           {/* Status */}
@@ -359,59 +255,15 @@ export default function ProgressMonitoring() {
 
                           {/* Target date */}
                           <td className="px-4 py-3">
-                            {isEditing ? (
-                              <input
-                                type="date"
-                                value={editState.completion_date}
-                                onChange={e => setEditState(p => ({ ...p, completion_date: e.target.value }))}
-                                className="text-[12px] border border-slate-200 rounded-lg px-2 py-1.5 bg-white focus:outline-none focus:border-[#1a3a6b] w-36"
-                              />
-                            ) : (
-                              <div>
-                                <p className="text-[12px] text-slate-600">{formatDate(s.completion_date)}</p>
-                                {s.completion_date && (() => {
-                                  const days = getDaysRemaining(s.completion_date)
-                                  if (days === null) return null
-                                  if (days < 0) return <p className="text-[10px] text-red-500 mt-0.5">{Math.abs(days)}d overdue</p>
-                                  if (days <= 30) return <p className="text-[10px] text-amber-500 mt-0.5">{days}d left</p>
-                                  return <p className="text-[10px] text-slate-400 mt-0.5">{days}d remaining</p>
-                                })()}
-                              </div>
-                            )}
-                          </td>
-
-                          {/* Actions */}
-                          <td className="px-4 py-3">
-                            <div className="flex items-center gap-1.5 justify-end">
-                              {isEditing ? (
-                                <>
-                                  <button
-                                    onClick={() => saveEdit(s.id)}
-                                    disabled={isSaving}
-                                    className="flex items-center gap-1 px-2.5 py-1.5 text-[11px] font-medium text-white bg-[#1a3a6b] hover:bg-[#163260] rounded-lg transition-colors disabled:opacity-50"
-                                  >
-                                    {isSaving ? <Loader2 size={11} className="animate-spin" /> : <Save size={11} />}
-                                    {isSaving ? 'Saving' : 'Save'}
-                                  </button>
-                                  <button
-                                    onClick={cancelEdit}
-                                    className="flex items-center gap-1 px-2.5 py-1.5 text-[11px] font-medium text-slate-600 bg-slate-100 hover:bg-slate-200 rounded-lg transition-colors"
-                                  >
-                                    <X size={11} /> Cancel
-                                  </button>
-                                </>
-                              ) : isSaved ? (
-                                <span className="flex items-center gap-1 text-[11px] text-green-600 font-medium px-2.5 py-1.5">
-                                  <Check size={11} /> Saved
-                                </span>
-                              ) : (
-                                <button
-                                  onClick={() => startEdit(s)}
-                                  className="flex items-center gap-1 px-2.5 py-1.5 text-[11px] font-medium text-[#1a3a6b] bg-blue-50 hover:bg-blue-100 rounded-lg transition-colors"
-                                >
-                                  <Pencil size={11} /> Edit
-                                </button>
-                              )}
+                            <div>
+                              <p className="text-[12px] text-slate-600">{formatDate(s.completion_date)}</p>
+                              {s.completion_date && (() => {
+                                const days = getDaysRemaining(s.completion_date)
+                                if (days === null) return null
+                                if (days < 0) return <p className="text-[10px] text-red-500 mt-0.5">{Math.abs(days)}d overdue</p>
+                                if (days <= 30) return <p className="text-[10px] text-amber-500 mt-0.5">{days}d left</p>
+                                return <p className="text-[10px] text-slate-400 mt-0.5">{days}d remaining</p>
+                              })()}
                             </div>
                           </td>
                         </tr>
