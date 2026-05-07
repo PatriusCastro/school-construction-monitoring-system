@@ -27,16 +27,16 @@ export default function SidebarLayout({ children, title, description }: SidebarL
   const pathname = usePathname();
 
   return (
-    <div className="flex h-screen bg-gray-50">
+    <div className="flex h-screen bg-white">
       {/* Sidebar */}
-      <aside className={`${sidebarOpen ? "w-64" : "w-20"} bg-gray-100 border-r border-gray-200 flex flex-col transition-all duration-300`}>
-        <div className="h-20 flex items-center justify-start px-4 border-b border-gray-200">
+      <aside className={`${sidebarOpen ? "w-64" : "w-20"} bg-white border-r border-slate-200 flex flex-col transition-all duration-300`}>
+        <div className="h-20 flex items-center justify-start px-4 border-b border-slate-200">
           <div className="text-center">
             <div className="flex items-center justify-center gap-2">
               <div className="h-10 w-10 rounded-lg bg-[#1a3a6b] flex items-center justify-center">
-                <span className="text-white font-bold">S</span>
+                <span className="text-white font-bold text-sm">S</span>
               </div>
-              {sidebarOpen && <span className="font-bold text-gray-800">SCMS</span>}
+              {sidebarOpen && <span className="font-semibold text-slate-900 text-sm">SCMS</span>}
             </div>
           </div>
         </div>
@@ -49,10 +49,10 @@ export default function SidebarLayout({ children, title, description }: SidebarL
               <Link
                 key={link.href}
                 href={link.href}
-                className={`flex items-center gap-3 px-4 py-3 rounded-lg transition ${
+                className={`flex items-center gap-3 px-4 py-2.5 rounded-lg transition-all ${
                   isActive
-                    ? "bg-[#1a3a6b] text-white font-semibold"
-                    : "text-gray-700 hover:bg-gray-200"
+                    ? "bg-[#1a3a6b] text-white font-medium"
+                    : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"
                 }`}
               >
                 <Icon size={20} />
@@ -66,20 +66,20 @@ export default function SidebarLayout({ children, title, description }: SidebarL
       {/* Main Content */}
       <div className="flex-1 flex flex-col overflow-hidden">
         {/* Top Bar */}
-        <div className="h-20 bg-white border-b border-gray-200 px-8 flex items-center justify-between">
+        <div className="h-20 bg-white border-b border-slate-200 px-8 flex items-center justify-between">
           <div className="flex items-center gap-4">
-            <button onClick={() => setSidebarOpen(!sidebarOpen)} className="p-2 hover:bg-gray-100 rounded-lg transition">
-              <Menu size={20} className="text-gray-600" />
+            <button onClick={() => setSidebarOpen(!sidebarOpen)} className="p-2 hover:bg-slate-50 rounded-lg transition">
+              <Menu size={20} className="text-slate-600" />
             </button>
             <div>
-              <h1 className="text-lg font-semibold text-gray-800">{title}</h1>
-              {description && <p className="text-sm text-gray-500">{description}</p>}
+              <h1 className="text-lg font-semibold text-slate-900">{title}</h1>
+              {description && <p className="text-sm text-slate-500">{description}</p>}
             </div>
           </div>
         </div>
 
         {/* Content */}
-        <div className="flex-1 overflow-auto bg-gray-50">
+        <div className="flex-1 overflow-auto bg-slate-50">
           {children}
         </div>
       </div>

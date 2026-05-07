@@ -131,11 +131,10 @@ export default function AdminPanel() {
 
   return (
     <SidebarLayout title="Admin Panel" description="Manage schools">
-      <div className="min-h-screen bg-slate-50">
+      <div className="min-h-screen bg-white">
 
-        {/* Page Header */}
-        <div className="bg-white border-b border-slate-200 px-6 py-5">
-          <div className="flex items-center justify-between gap-4 flex-wrap">
+        <div className="px-6 py-6">
+          <div className="flex items-center justify-between gap-4 flex-wrap mb-6">
             <div className="flex items-center gap-3">
               {viewMode !== 'list' && (
                 <button
@@ -146,19 +145,17 @@ export default function AdminPanel() {
                 </button>
               )}
               <div>
-                <div className="flex items-center gap-2 text-[11px] text-slate-400 mb-0.5">
-                  <span>Admin Panel</span>
-                  {viewMode !== 'list' && (
-                    <>
-                      <ChevronRight size={10} />
-                      <span className="text-slate-600">
-                        {viewMode === 'add' ? 'Add New School' : 'Edit School'}
-                      </span>
-                    </>
-                  )}
-                </div>
-                <h1 className="text-[18px] font-semibold text-slate-900">
-                  {viewMode === 'list' ? 'Schools Management' : viewMode === 'add' ? 'Add New School' : 'Edit School Record'}
+                {viewMode !== 'list' && (
+                  <div className="flex items-center gap-2 text-[11px] text-slate-400 mb-1">
+                    <span>Admin Panel</span>
+                    <ChevronRight size={10} />
+                    <span className="text-slate-600">
+                      {viewMode === 'add' ? 'Add New School' : 'Edit School'}
+                    </span>
+                  </div>
+                )}
+                <h1 className="text-lg font-semibold text-slate-900">
+                  {viewMode === 'list' ? 'Manage Schools' : viewMode === 'add' ? 'Add New School' : 'Edit School Record'}
                 </h1>
               </div>
             </div>

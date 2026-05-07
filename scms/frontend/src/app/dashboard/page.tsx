@@ -211,17 +211,12 @@ export default function Dashboard() {
 
   return (
     <SidebarLayout title="Dashboard" description="Overview">
-      <div className="min-h-screen bg-slate-50">
+      <div className="min-h-screen bg-white">
 
-        {/* Header */}
-        <div className="bg-white border-b border-slate-200 px-6 py-5">
+        <div className="px-6 py-6 space-y-6">
+          {/* Action bar */}
           <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-[18px] font-semibold text-slate-900">Dashboard</h1>
-              <p className="text-[12px] text-slate-400 mt-0.5">
-                Overview of school construction monitoring — Legazpi City
-              </p>
-            </div>
+            <div />
             <div className="flex items-center gap-3">
               {lastUpdated && (
                 <span className="text-[11px] text-slate-400">
@@ -238,9 +233,6 @@ export default function Dashboard() {
               </button>
             </div>
           </div>
-        </div>
-
-        <div className="px-6 py-6 space-y-6">
 
           {error && (
             <div className="px-4 py-3 bg-red-50 border border-red-200 rounded-xl text-[13px] text-red-700">

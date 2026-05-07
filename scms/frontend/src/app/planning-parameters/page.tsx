@@ -91,33 +91,20 @@ export default function PlanningParameters() {
 
   return (
     <SidebarLayout title="Planning Parameters" description="DepEd standards and calculator">
-      <div className="min-h-screen bg-slate-100">
-        {/* Header */}
-        <div className="bg-white border-b border-slate-200 px-6 py-5">
-          <div className="flex items-center gap-3">
-            <div className="w-9 h-9 bg-blue-50 rounded-lg flex items-center justify-center">
-              <Calculator size={17} className="text-[#1a3a6b]" />
-            </div>
-            <div>
-              <h1 className="text-[18px] font-semibold text-slate-900">Planning Parameters</h1>
-              <p className="text-[12px] text-slate-400 mt-0.5">Standards, guidelines, and automated planning calculator — DepEd Region V</p>
-            </div>
-          </div>
-        </div>
-
+      <div className="min-h-screen bg-white">
         <div className="px-6 py-6 space-y-5">
 
           {/* ── Automated Planning Calculator ── */}
-          <div className="bg-white rounded-2xl overflow-hidden shadow-sm border border-slate-200">
+          <div className="bg-white rounded-xl overflow-hidden border border-slate-200">
 
             {/* Calculator header */}
-            <div className="bg-[#1a3a6b] px-6 py-4 flex items-center gap-3">
-              <div className="w-8 h-8 bg-white/10 rounded-lg flex items-center justify-center">
-                <Calculator size={15} className="text-white" />
+            <div className="px-6 py-4 border-b border-slate-200 flex items-center gap-3 bg-slate-50">
+              <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
+                <Calculator size={15} className="text-[#1a3a6b]" />
               </div>
               <div>
-                <h2 className="text-[14px] font-semibold text-white">Automated Planning Calculator</h2>
-                <p className="text-[11px] text-white/55 mt-0.5">Compute required classrooms, teachers & facilities based on enrollment</p>
+                <h2 className="text-[14px] font-semibold text-slate-900">Automated Planning Calculator</h2>
+                <p className="text-[11px] text-slate-500 mt-0.5">Compute required classrooms, teachers & facilities based on enrollment</p>
               </div>
             </div>
 
@@ -237,7 +224,7 @@ export default function PlanningParameters() {
                     ? 'bg-green-50 border-green-200'
                     : 'bg-red-50 border-red-200'
                 }`}>
-                  <Building2 size={18} className={result.status === 'deficit' ? 'text-red-500 flex-shrink-0 mt-0.5' : 'text-green-500 flex-shrink-0 mt-0.5'} />
+                  <Building2 size={18} className={result.status === 'deficit' ? 'text-red-500 shrink-0 mt-0.5' : 'text-green-500 shrink-0 mt-0.5'} />
                   <div>
                     <p className="text-[13px] font-semibold text-slate-800 mb-0.5">Recommended Building</p>
                     {result.status === 'surplus' || result.status === 'exact' ? (
@@ -262,10 +249,10 @@ export default function PlanningParameters() {
           </div>
 
           {/* ── Classroom Standards Table ── */}
-          <div className="bg-white rounded-2xl overflow-hidden shadow-sm border border-slate-200">
-            <div className="bg-[#1a3a6b] px-5 py-3 flex items-center gap-2">
-              <BookOpen size={14} className="text-white/70" />
-              <h2 className="text-[13px] font-semibold text-white">Classroom Standards (Learner-Classroom Ratio)</h2>
+          <div className="bg-white rounded-xl overflow-hidden border border-slate-200">
+            <div className="bg-slate-50 px-5 py-3 border-b border-slate-200 flex items-center gap-2">
+              <BookOpen size={14} className="text-slate-600" />
+              <h2 className="text-[13px] font-semibold text-slate-900">Classroom Standards (Learner-Classroom Ratio)</h2>
             </div>
             <table className="w-full">
               <thead>
@@ -293,10 +280,10 @@ export default function PlanningParameters() {
           </div>
 
           {/* ── Teacher Requirements Table ── */}
-          <div className="bg-white rounded-2xl overflow-hidden shadow-sm border border-slate-200">
-            <div className="bg-[#1a3a6b] px-5 py-3 flex items-center gap-2">
-              <Users size={14} className="text-white/70" />
-              <h2 className="text-[13px] font-semibold text-white">Teacher Requirements</h2>
+          <div className="bg-white rounded-xl overflow-hidden border border-slate-200">
+            <div className="bg-slate-50 px-5 py-3 border-b border-slate-200 flex items-center gap-2">
+              <Users size={14} className="text-slate-600" />
+              <h2 className="text-[13px] font-semibold text-slate-900">Teacher Requirements (Teacher Ratio)</h2>
             </div>
             <table className="w-full">
               <thead>
@@ -322,10 +309,10 @@ export default function PlanningParameters() {
           </div>
 
           {/* ── Infrastructure Standards ── */}
-          <div className="bg-white rounded-2xl overflow-hidden shadow-sm border border-slate-200">
-            <div className="bg-[#1a3a6b] px-5 py-3 flex items-center gap-2">
-              <Layers size={14} className="text-white/70" />
-              <h2 className="text-[13px] font-semibold text-white">Infrastructure Standards & Facility Requirements</h2>
+          <div className="bg-white rounded-xl overflow-hidden border border-slate-200">
+            <div className="bg-slate-50 px-5 py-3 border-b border-slate-200 flex items-center gap-2">
+              <Layers size={14} className="text-slate-600" />
+              <h2 className="text-[13px] font-semibold text-slate-900">Infrastructure Standards & Facility Requirements</h2>
             </div>
             <table className="w-full">
               <thead>
@@ -342,7 +329,7 @@ export default function PlanningParameters() {
                     <tr key={row.facility} className="hover:bg-slate-50 transition-colors">
                       <td className="px-5 py-3.5">
                         <div className="flex items-center gap-2">
-                          <div className="w-6 h-6 bg-blue-50 rounded-md flex items-center justify-center flex-shrink-0">
+                          <div className="w-6 h-6 bg-blue-50 rounded-md flex items-center justify-center shrink-0">
                             <Icon size={12} className="text-[#1a3a6b]" />
                           </div>
                           <span className="text-[13px] font-medium text-slate-800">{row.facility}</span>

@@ -335,23 +335,11 @@ export default function DataVisualization() {
 
   return (
     <SidebarLayout title="Data Visualization" description="Analytical charts">
-      <div className="min-h-screen bg-slate-50">
-
-        {/* Header */}
-        <div className="bg-white border-b border-slate-200 px-6 py-5">
-          <div className="flex items-center justify-between gap-4 flex-wrap">
-            <div className="flex items-center gap-3">
-              <div className="w-9 h-9 bg-blue-50 rounded-lg flex items-center justify-center">
-                <BarChart3 size={17} className="text-[#1a3a6b]" />
-              </div>
-              <div>
-                <h1 className="text-[18px] font-semibold text-slate-900">Data Visualization</h1>
-                <p className="text-[12px] text-slate-400 mt-0.5">
-                  Analytical charts — all schools overview
-                  {lastUpdated && ` · Updated ${lastUpdated.toLocaleTimeString('en-PH', { hour: '2-digit', minute: '2-digit' })}`}
-                </p>
-              </div>
-            </div>
+      <div className="min-h-screen bg-white">
+        <div className="px-6 py-6 space-y-5">
+          {/* Action bar */}
+          <div className="flex items-center justify-between gap-4 flex-wrap mb-6">
+            <div />
             <button
               onClick={loadData}
               disabled={loading}
@@ -361,9 +349,6 @@ export default function DataVisualization() {
               Refresh
             </button>
           </div>
-        </div>
-
-        <div className="px-6 py-6 space-y-5">
 
           {error && (
             <div className="px-4 py-3 bg-red-50 border border-red-200 rounded-xl text-[13px] text-red-700 flex items-center gap-2">

@@ -52,7 +52,7 @@ export default function SchoolsMap() {
 
   return (
     <SidebarLayout title="Schools Map" description="School locations">
-      <div className="flex flex-col bg-slate-50 overflow-hidden" style={{ height: 'calc(100vh - 0px)' }}>
+      <div className="flex flex-col bg-white overflow-hidden" style={{ height: 'calc(100vh - 0px)' }}>
 
         {noCoords.length > 0 && !loading && (
           <div className="mx-4 mt-3 px-4 py-2.5 bg-amber-50 border border-amber-200 rounded-xl flex items-center gap-2 shrink-0">

@@ -87,18 +87,9 @@ export default function ConstructionData() {
 
   return (
     <SidebarLayout title="Construction Data" description="All school construction info">
-      <div className="min-h-screen bg-slate-50">
-        <div className="bg-white border-b border-slate-200 px-6 py-5">
-          <div className="flex items-center justify-between gap-4 flex-wrap">
-            <div className="flex items-center gap-3">
-              <div className="w-9 h-9 bg-blue-50 rounded-lg flex items-center justify-center">
-                <HardHat size={17} className="text-[#1a3a6b]" />
-              </div>
-              <div>
-                <h1 className="text-[18px] font-semibold text-slate-900">Construction Data</h1>
-                <p className="text-[12px] text-slate-400 mt-0.5">Full construction parameters and details per school</p>
-              </div>
-            </div>
+      <div className="min-h-screen bg-white">
+        <div className="px-6 py-6">
+          <div className="flex items-center justify-between gap-4 flex-wrap mb-6">
             <div className="flex items-center gap-2">
               <div className="flex items-center bg-slate-100 rounded-lg p-0.5">
                 <button onClick={() => setViewMode('table')} className={`flex items-center gap-1.5 px-3 py-1.5 text-[12px] font-medium rounded-md transition-all ${viewMode === 'table' ? 'bg-white text-slate-800 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}>

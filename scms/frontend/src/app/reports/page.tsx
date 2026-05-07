@@ -1,8 +1,8 @@
 'use client'
 
 import { useEffect, useRef, useState } from 'react'
+import { RefreshCw } from 'lucide-react'
 import SidebarLayout from '@/components/layout/SidebarLayout'
-import ReportsHeader from '@/components/reports/ReportsHeader'
 import ReportCards from '@/components/reports/ReportCards'
 import OverallReportSection from '@/components/reports/OverallReportSection'
 import ErrorAlert from '@/components/reports/ErrorAlert'
@@ -604,26 +604,40 @@ export default function Reports() {
 
   return (
     <SidebarLayout title="Reports" description="Generate and export construction reports">
-      <div className="min-h-screen bg-slate-50">
-        <ReportsHeader loading={loading} onRefresh={loadSchools} />
-        <div className="px-6 py-6 space-y-6">
+      <div className="min-h-screen bg-white">
+        <div className="px-6 py-6">
+          {/* Action bar */}
+          <div className="flex items-center justify-end mb-6">
+            <button
+              onClick={loadSchools}
+              disabled={loading}
+              className="flex items-center gap-1.5 px-3 py-2 text-[12px] font-medium text-slate-600 bg-white border border-slate-200 rounded-lg hover:bg-slate-50 transition-colors disabled:opacity-50"
+            >
+              <RefreshCw size={12} className={loading ? 'animate-spin' : ''} />
+              Refresh
+            </button>
+          </div>
+
           {error && <ErrorAlert message={error} />}
-          <ReportCards
-            schools={schools}
-            loading={loading}
-            exporting={exporting}
-            onExportPriority={exportPriorityPDF}
-            onExportShortage={exportShortagePDF}
-            onExportSYIP={exportSYIPExcel}
-          />
-          <OverallReportSection
-            schools={schools}
-            loading={loading}
-            exporting={exporting}
-            onExportExcel={exportExcel}
-            onExportPDF={exportPDF}
-            reportRef={reportRef as React.RefObject<HTMLDivElement>}
-          />
+
+          <div className="space-y-6">
+            <ReportCards
+              schools={schools}
+              loading={loading}
+              exporting={exporting}
+              onExportPriority={exportPriorityPDF}
+              onExportShortage={exportShortagePDF}
+              onExportSYIP={exportSYIPExcel}
+            />
+            <OverallReportSection
+              schools={schools}
+              loading={loading}
+              exporting={exporting}
+              onExportExcel={exportExcel}
+              onExportPDF={exportPDF}
+              reportRef={reportRef as React.RefObject<HTMLDivElement>}
+            />
+          </div>
         </div>
       </div>
     </SidebarLayout>
