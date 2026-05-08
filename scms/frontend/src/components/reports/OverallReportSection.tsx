@@ -85,15 +85,15 @@ export default function OverallReportSection({
   return (
     <div ref={reportRef} className="space-y-5">
       {/* Report header card */}
-      <div className="bg-[#1a3a6b] rounded-2xl p-6 text-white">
+      <div className="bg-gray-100 rounded-2xl p-6 text-black shadow-lg">
         <div className="flex items-start justify-between flex-wrap gap-4">
           <div>
-            <p className="text-[10px] text-white/50 uppercase tracking-widest mb-1">Department of Education</p>
+            <p className="text-[10px] text-black/50 uppercase tracking-widest mb-1">Department of Education</p>
             <h2 className="text-[20px] font-bold">Overall Construction Report</h2>
-            <p className="text-[13px] text-white/60 mt-1">Legazpi City, Albay — Region V</p>
+            <p className="text-[13px] text-black/60 mt-1">Legazpi City, Albay — Region V</p>
           </div>
           <div className="text-right">
-            <p className="text-[10px] text-white/50 uppercase tracking-widest mb-1">Generated</p>
+            <p className="text-[10px] text-black/50 uppercase tracking-widest mb-1">Generated</p>
             <p className="text-[13px] font-semibold">
               {new Date().toLocaleDateString('en-PH', { year: 'numeric', month: 'long', day: 'numeric' })}
             </p>

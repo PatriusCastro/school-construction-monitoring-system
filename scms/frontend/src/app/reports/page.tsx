@@ -621,14 +621,6 @@ export default function Reports() {
           {error && <ErrorAlert message={error} />}
 
           <div className="space-y-6">
-            <ReportCards
-              schools={schools}
-              loading={loading}
-              exporting={exporting}
-              onExportPriority={exportPriorityPDF}
-              onExportShortage={exportShortagePDF}
-              onExportSYIP={exportSYIPExcel}
-            />
             <OverallReportSection
               schools={schools}
               loading={loading}
@@ -636,6 +628,14 @@ export default function Reports() {
               onExportExcel={exportExcel}
               onExportPDF={exportPDF}
               reportRef={reportRef as React.RefObject<HTMLDivElement>}
+            />
+            <ReportCards
+              schools={schools}
+              loading={loading}
+              exporting={exporting}
+              onExportPriority={exportPriorityPDF}
+              onExportShortage={exportShortagePDF}
+              onExportSYIP={exportSYIPExcel}
             />
           </div>
         </div>
