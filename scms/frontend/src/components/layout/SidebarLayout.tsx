@@ -1,19 +1,20 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { Menu, Home, BarChart3, FileText, Calendar, MessageSquare, Bell, HelpCircle, LogOut, MapPin } from "lucide-react";
+import { createClient } from "../../lib/supabase/client";
 
 const sidebarLinks = [
-  { href: "/dashboard", label: "Dashboard", icon: Home },
-  { href: "/schools-map", label: "Schools Map", icon: MapPin },
-  { href: "/data-visualization", label: "Data Visualization", icon: BarChart3 },
-  { href: "/construction-data", label: "Construction Data", icon: FileText },
-  { href: "/planning-parameters", label: "Planning Parameters", icon: Calendar },
-  { href: "/progress-monitoring", label: "Progress Monitoring", icon: MessageSquare },
-  { href: "/admin-panel", label: "Admin Panel", icon: Bell },
-  { href: "/reports", label: "Reports", icon: HelpCircle },
+  { href: "/dashboard",             label: "Dashboard",            icon: Home,          adminOnly: false },
+  { href: "/schools-map",           label: "Schools Map",          icon: MapPin,        adminOnly: false },
+  { href: "/data-visualization",    label: "Data Visualization",   icon: BarChart3,     adminOnly: false },
+  { href: "/construction-data",     label: "Construction Data",    icon: FileText,      adminOnly: false },
+  { href: "/planning-parameters",   label: "Planning Parameters",  icon: Calendar,      adminOnly: false },
+  { href: "/progress-monitoring",   label: "Progress Monitoring",  icon: MessageSquare, adminOnly: false },
+  { href: "/admin-panel",           label: "Admin Panel",          icon: Bell,          adminOnly: true  },
+  { href: "/reports",               label: "Reports",              icon: HelpCircle,    adminOnly: true  },
 ];
 
 interface SidebarLayoutProps {
@@ -24,7 +25,31 @@ interface SidebarLayoutProps {
 
 export default function SidebarLayout({ children, title, description }: SidebarLayoutProps) {
   const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [role, setRole] = useState<"admin" | "viewer" | null>(null);
   const pathname = usePathname();
+  const router = useRouter();
+  const supabase = createClient();
+
+  useEffect(() => {
+    async function fetchRole() {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+      const { data } = await supabase
+        .from("profiles")
+        .select("role")
+        .eq("id", user.id)
+        .single();
+      setRole(data?.role ?? "viewer");
+    }
+    fetchRole();
+  }, []);
+
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+    router.push("/login");
+  };
+
+  const visibleLinks = sidebarLinks.filter(link => !link.adminOnly || role === "admin");
 
   return (
     <div className="flex h-screen bg-white">
@@ -42,7 +67,7 @@ export default function SidebarLayout({ children, title, description }: SidebarL
         </div>
 
         <nav className="flex-1 overflow-y-auto py-6 space-y-2 px-3">
-          {sidebarLinks.map((link) => {
+          {visibleLinks.map((link) => {
             const Icon = link.icon;
             const isActive = pathname === link.href || pathname.startsWith(link.href + "/");
             return (
@@ -61,6 +86,17 @@ export default function SidebarLayout({ children, title, description }: SidebarL
             );
           })}
         </nav>
+
+        {/* Logout button */}
+        <div className="px-3 py-4 border-t border-slate-200">
+          <button
+            onClick={handleLogout}
+            className="flex items-center gap-3 px-4 py-2.5 rounded-lg w-full text-slate-600 hover:bg-slate-50 hover:text-slate-900 transition-all"
+          >
+            <LogOut size={20} />
+            {sidebarOpen && <span className="text-sm font-medium">Log out</span>}
+          </button>
+        </div>
       </aside>
 
       {/* Main Content */}
@@ -76,6 +112,17 @@ export default function SidebarLayout({ children, title, description }: SidebarL
               {description && <p className="text-sm text-slate-500">{description}</p>}
             </div>
           </div>
+
+          {/* Role badge in top bar */}
+          {role && (
+            <div className={`px-3 py-1 rounded-full text-xs font-medium ${
+              role === "admin"
+                ? "bg-blue-100 text-blue-700"
+                : "bg-slate-100 text-slate-600"
+            }`}>
+              {role === "admin" ? "Admin" : "Viewer"}
+            </div>
+          )}
         </div>
 
         {/* Content */}
