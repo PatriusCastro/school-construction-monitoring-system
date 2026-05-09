@@ -10,7 +10,7 @@ const sanitizeSchool = (body: Record<string, unknown>) => {
     'design_configuration', 'old_scope', 'funding_year', 'sdo_priority_level',
     'ranking', 'construction_progress_pct', 'materials_delivered_pct',
     'budget_allocated_php', 'budget_utilized_php', 'completion_date',
-    'latitude', 'longitude',
+    'latitude', 'longitude', 'site_map_url',
   ]
   return Object.fromEntries(
     Object.entries(body).filter(([key]) => allowed.includes(key))
@@ -123,4 +123,70 @@ export const getDashboardStats = async (req: Request, res: Response) => {
   }
 
   return res.json(stats)
+}
+
+export const uploadSiteMap = async (req: Request, res: Response) => {
+  const { id } = req.params
+
+  if (!req.file) {
+    return res.status(400).json({ error: 'No file uploaded' })
+  }
+
+  const file = req.file
+  const fileExt = file.originalname.split('.').pop()
+  const fileName = `school-${id}-${Date.now()}.${fileExt}`
+
+  // Upload to Supabase Storage
+  const { error: uploadError } = await supabase.storage
+    .from('site-maps')
+    .upload(fileName, file.buffer, {
+      contentType: file.mimetype,
+      upsert: true,
+    })
+
+  if (uploadError) return res.status(500).json({ error: uploadError.message })
+
+  // Get public URL
+  const { data: urlData } = supabase.storage
+    .from('site-maps')
+    .getPublicUrl(fileName)
+
+  const site_map_url = urlData.publicUrl
+
+  // Save URL to school record
+  const { data, error } = await supabase
+    .from('schools')
+    .update({ site_map_url })
+    .eq('id', id)
+    .select()
+
+  if (error) return res.status(500).json({ error: error.message })
+  return res.json({ site_map_url, school: data[0] })
+}
+
+// DELETE site map photo
+export const deleteSiteMap = async (req: Request, res: Response) => {
+  const { id } = req.params
+
+  // Get current URL to extract filename
+  const { data: school } = await supabase
+    .from('schools')
+    .select('site_map_url')
+    .eq('id', id)
+    .single()
+
+  if (school?.site_map_url) {
+    const fileName = school.site_map_url.split('/').pop()
+    if (fileName) {
+      await supabase.storage.from('site-maps').remove([fileName])
+    }
+  }
+
+  const { error } = await supabase
+    .from('schools')
+    .update({ site_map_url: null })
+    .eq('id', id)
+
+  if (error) return res.status(500).json({ error: error.message })
+  return res.json({ message: 'Site map removed' })
 }

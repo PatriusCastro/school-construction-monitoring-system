@@ -1,7 +1,10 @@
 'use client'
 
-import { useEffect, useState } from 'react'
-import { Building2, HardHat, BarChart3, MapPin, X, Check, Loader2 } from 'lucide-react'
+import { useEffect, useRef, useState } from 'react'
+import {
+  Building2, HardHat, BarChart3, MapPin, X, Check,
+  Loader2, ImagePlus, Trash2, ZoomIn, Map as MapIcon
+} from 'lucide-react'
 import { generateScope } from '../../utils/scopeGenerator'
 
 export interface SchoolFormData {
@@ -23,13 +26,14 @@ export interface SchoolFormData {
   funding_year: number | ''
   construction_progress_pct: number
   sdo_priority_level: string
-  ranking: number | '' 
+  ranking: number | ''
   materials_delivered_pct: number
   budget_allocated_php: number
   budget_utilized_php: number
   completion_date: string
   latitude: number | ''
   longitude: number | ''
+  site_map_url?: string
 }
 
 interface FieldError {
@@ -50,9 +54,18 @@ interface SchoolFormProps {
 }
 
 const DISTRICTS = ['1st District', '2nd District', '3rd District']
-const WORKSHOP_TYPES = ['Science Laboratory', 'Computer Laboratory', 'Library', 'Home Economics Laboratory', 'TLE Workshop', ]
+const WORKSHOP_TYPES = [
+  'Science Laboratory', 'Computer Laboratory', 'Library',
+  'Home Economics Laboratory', 'TLE Workshop',
+]
 const DESIGN_CONFIGS = ['Config-1', 'Config-2', 'Config-3', 'Config-4']
 const FUNDING_YEARS = [2026, 2027, 2028, 2029]
+
+const MAX_FILE_SIZE_MB = 10
+const MAX_FILE_SIZE_BYTES = MAX_FILE_SIZE_MB * 1024 * 1024
+const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/gif']
+
+const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000'
 
 export default function SchoolForm({
   school, editingId, isSubmitting = false, onSubmit, onCancel, setSchool,
@@ -60,10 +73,25 @@ export default function SchoolForm({
   const [errors, setErrors] = useState<FieldError>({})
   const [touched, setTouched] = useState<Partial<Record<keyof SchoolFormData, boolean>>>({})
 
+  // Site map state — preview is always a URL string, never base64
+  const [siteMapPreview, setSiteMapPreview] = useState<string | null>(school.site_map_url || null)
+  const [uploadingMap, setUploadingMap] = useState(false)
+  const [deletingMap, setDeletingMap] = useState(false)
+  const [mapError, setMapError] = useState<string | null>(null)
+  const [lightboxOpen, setLightboxOpen] = useState(false)
+  const fileInputRef = useRef<HTMLInputElement>(null)
+
+  // Sync preview when switching between edit targets
+  useEffect(() => {
+    setSiteMapPreview(school.site_map_url || null)
+    setMapError(null)
+  }, [school.id])
+
   // Auto-generate scope when stories or classrooms change
   useEffect(() => {
     const scope = generateScope(school.stories, school.proposed_classrooms)
     setSchool({ ...school, auto_generated_scope: scope })
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [school.stories, school.proposed_classrooms])
 
   const validate = (): boolean => {
@@ -81,7 +109,10 @@ export default function SchoolForm({
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
-    setTouched({ school_name: true, municipality: true, funding_year: true, proposed_classrooms: true, stories: true })
+    setTouched({
+      school_name: true, municipality: true,
+      funding_year: true, proposed_classrooms: true, stories: true,
+    })
     if (validate()) onSubmit(e)
   }
 
@@ -92,6 +123,80 @@ export default function SchoolForm({
 
   const set = <K extends keyof SchoolFormData>(key: K, value: SchoolFormData[K]) =>
     setSchool({ ...school, [key]: value })
+
+  // ── Site map upload ────────────────────────────────────────────────
+  // File is sent as multipart/form-data to its own endpoint.
+  // Only the resulting short URL is stored in the school record.
+  // The main PUT /schools/:id payload never contains image data.
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    // Reset input immediately so re-selecting the same file works
+    if (fileInputRef.current) fileInputRef.current.value = ''
+    if (!file) return
+
+    setMapError(null)
+
+    // ── Client-side validation ──
+    if (!ALLOWED_TYPES.includes(file.type)) {
+      setMapError('Invalid file type. Please upload a JPG, PNG, WEBP, or GIF.')
+      return
+    }
+    if (file.size > MAX_FILE_SIZE_BYTES) {
+      setMapError(
+        `File is too large (${(file.size / 1024 / 1024).toFixed(1)} MB). Maximum allowed size is ${MAX_FILE_SIZE_MB} MB.`
+      )
+      return
+    }
+
+    setUploadingMap(true)
+    try {
+      const formData = new FormData()
+      formData.append('file', file)
+
+      // POST to the dedicated site-map endpoint — NOT bundled with PUT
+      const res = await fetch(`${API_BASE}/api/schools/${editingId}/site-map`, {
+        method: 'POST',
+        body: formData,
+        // ⚠️ Do NOT set Content-Type header — browser sets it automatically
+        //    with the correct multipart boundary when using FormData
+      })
+
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}))
+        throw new Error(err.error || `Upload failed (${res.status})`)
+      }
+
+      const data = await res.json()
+      // Store only the short URL — never base64
+      setSiteMapPreview(data.site_map_url)
+      setSchool({ ...school, site_map_url: data.site_map_url })
+    } catch (err) {
+      setMapError((err as Error).message)
+    } finally {
+      setUploadingMap(false)
+    }
+  }
+
+  const handleDeleteMap = async () => {
+    if (!editingId) return
+    setDeletingMap(true)
+    setMapError(null)
+    try {
+      const res = await fetch(`${API_BASE}/api/schools/${editingId}/site-map`, {
+        method: 'DELETE',
+      })
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}))
+        throw new Error(err.error || `Delete failed (${res.status})`)
+      }
+      setSiteMapPreview(null)
+      setSchool({ ...school, site_map_url: undefined })
+    } catch (err) {
+      setMapError((err as Error).message)
+    } finally {
+      setDeletingMap(false)
+    }
+  }
 
   return (
     <section className="rounded-2xl bg-white shadow-sm overflow-hidden">
@@ -110,7 +215,10 @@ export default function SchoolForm({
             </p>
           </div>
         </div>
-        <button onClick={onCancel} className="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center transition-colors">
+        <button
+          onClick={onCancel}
+          className="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center transition-colors"
+        >
           <X size={14} className="text-white" />
         </button>
       </div>
@@ -144,7 +252,12 @@ export default function SchoolForm({
               />
             </Field>
             <Field label="Legislative District">
-              <Select value={school.legislative_district} onChange={v => set('legislative_district', v)} options={DISTRICTS} placeholder="Select district" />
+              <Select
+                value={school.legislative_district}
+                onChange={v => set('legislative_district', v)}
+                options={DISTRICTS}
+                placeholder="Select district"
+              />
             </Field>
             <Field label="Funding Year" required error={touched.funding_year ? errors.funding_year : undefined}>
               <Select
@@ -189,8 +302,6 @@ export default function SchoolForm({
             <Field label="Number of Units">
               <NumberInput value={school.number_of_units} onChange={v => set('number_of_units', v)} min={1} />
             </Field>
-
-            {/* Auto scope */}
             <Field label="Auto-generated Scope" hint="Computed from stories × classrooms">
               <div className="flex items-center gap-2 px-3 py-2.5 bg-blue-50 border border-[#1a3a6b] rounded-xl">
                 <span className="font-mono text-[13px] font-semibold text-[#1a3a6b] tracking-wider">
@@ -225,11 +336,7 @@ export default function SchoolForm({
               />
             </Field>
             <Field label="Ranking">
-              <NumberInput
-                value={school.ranking}
-                onChange={v => set('ranking', v)}
-                min={1}
-              />
+              <NumberInput value={school.ranking} onChange={v => set('ranking', v)} min={1} />
             </Field>
           </div>
         </Section>
@@ -252,10 +359,20 @@ export default function SchoolForm({
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
             <Field label="Budget Allocated (PHP)">
-              <Input type="number" value={school.budget_allocated_php ? String(school.budget_allocated_php) : ''} onChange={v => set('budget_allocated_php', parseFloat(v) || 0)} placeholder="e.g. 5000000" />
+              <Input
+                type="number"
+                value={school.budget_allocated_php ? String(school.budget_allocated_php) : ''}
+                onChange={v => set('budget_allocated_php', parseFloat(v) || 0)}
+                placeholder="e.g. 5000000"
+              />
             </Field>
             <Field label="Budget Utilized (PHP)">
-              <Input type="number" value={school.budget_utilized_php ? String(school.budget_utilized_php) : ''} onChange={v => set('budget_utilized_php', parseFloat(v) || 0)} placeholder="e.g. 2500000" />
+              <Input
+                type="number"
+                value={school.budget_utilized_php ? String(school.budget_utilized_php) : ''}
+                onChange={v => set('budget_utilized_php', parseFloat(v) || 0)}
+                placeholder="e.g. 2500000"
+              />
             </Field>
           </div>
         </Section>
@@ -264,16 +381,145 @@ export default function SchoolForm({
         <Section icon={<MapPin size={14} className="text-red-700" />} label="Map Coordinates" color="bg-red-50">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <Field label="Latitude" hint="Legazpi City ≈ 13.1391">
-              <Input type="number" value={school.latitude ? String(school.latitude) : ''} onChange={v => set('latitude', parseFloat(v) || '')} placeholder="e.g. 13.1391" step="0.0001" />
+              <Input
+                type="number"
+                value={school.latitude ? String(school.latitude) : ''}
+                onChange={v => set('latitude', parseFloat(v) || '')}
+                placeholder="e.g. 13.1391"
+                step="0.0001"
+              />
             </Field>
             <Field label="Longitude" hint="Legazpi City ≈ 123.7438">
-              <Input type="number" value={school.longitude ? String(school.longitude) : ''} onChange={v => set('longitude', parseFloat(v) || '')} placeholder="e.g. 123.7438" step="0.0001" />
+              <Input
+                type="number"
+                value={school.longitude ? String(school.longitude) : ''}
+                onChange={v => set('longitude', parseFloat(v) || '')}
+                placeholder="e.g. 123.7438"
+                step="0.0001"
+              />
             </Field>
           </div>
           <p className="text-[11px] text-slate-400 mt-3 flex items-center gap-1.5">
             <MapPin size={11} /> Used to render this school as a pin on the School Map page.
           </p>
         </Section>
+
+        {/* Site Development Map — edit mode only */}
+        {editingId ? (
+          <Section icon={<MapIcon size={14} className="text-teal-700" />} label="Site Development Map" color="bg-teal-50">
+            <p className="text-[11px] text-slate-400 mb-3">
+              Upload a site development map photo. It will be shown on the School Map page when this school is selected.
+              Accepted: JPG, PNG, WEBP · Max {MAX_FILE_SIZE_MB} MB.
+            </p>
+
+            {siteMapPreview ? (
+              /* ── Preview card ── */
+              <div className="rounded-xl border border-slate-200 overflow-hidden">
+                <div className="relative group">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={siteMapPreview}
+                    alt="Site development map"
+                    className="w-full max-h-72 object-cover"
+                  />
+                  {/* Hover overlay */}
+                  <div className="absolute inset-0 bg-black/0 group-hover:bg-black/35 transition-all duration-200 flex items-center justify-center gap-2 opacity-0 group-hover:opacity-100">
+                    <button
+                      type="button"
+                      onClick={() => setLightboxOpen(true)}
+                      className="flex items-center gap-1.5 px-3 py-2 bg-white rounded-lg text-[12px] font-medium text-slate-800 shadow hover:bg-slate-50 transition-colors"
+                    >
+                      <ZoomIn size={13} /> View Full
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => fileInputRef.current?.click()}
+                      disabled={uploadingMap}
+                      className="flex items-center gap-1.5 px-3 py-2 bg-white rounded-lg text-[12px] font-medium text-slate-800 shadow hover:bg-slate-50 transition-colors disabled:opacity-60"
+                    >
+                      <ImagePlus size={13} /> Replace
+                    </button>
+                    <button
+                      type="button"
+                      onClick={handleDeleteMap}
+                      disabled={deletingMap}
+                      className="flex items-center gap-1.5 px-3 py-2 bg-red-500 rounded-lg text-[12px] font-medium text-white shadow hover:bg-red-600 transition-colors disabled:opacity-60"
+                    >
+                      {deletingMap
+                        ? <Loader2 size={13} className="animate-spin" />
+                        : <Trash2 size={13} />}
+                      {deletingMap ? 'Removing…' : 'Remove'}
+                    </button>
+                  </div>
+                </div>
+                {/* Footer bar */}
+                <div className="px-4 py-2.5 bg-slate-50 border-t border-slate-100 flex items-center justify-between">
+                  <span className="text-[11px] text-slate-400 flex items-center gap-1.5">
+                    <MapIcon size={11} /> Site development map uploaded
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => fileInputRef.current?.click()}
+                    disabled={uploadingMap}
+                    className="text-[11px] text-[#1a3a6b] font-medium hover:underline disabled:opacity-50"
+                  >
+                    Replace photo
+                  </button>
+                </div>
+              </div>
+            ) : (
+              /* ── Upload dropzone ── */
+              <button
+                type="button"
+                onClick={() => fileInputRef.current?.click()}
+                disabled={uploadingMap}
+                className="w-full flex flex-col items-center justify-center gap-3 rounded-xl border-2 border-dashed border-slate-200 hover:border-teal-400 bg-slate-50 hover:bg-teal-50/40 py-12 transition-all group disabled:opacity-60 disabled:cursor-not-allowed"
+              >
+                {uploadingMap ? (
+                  <>
+                    <Loader2 size={24} className="text-teal-600 animate-spin" />
+                    <span className="text-[12px] text-slate-500">Uploading…</span>
+                  </>
+                ) : (
+                  <>
+                    <div className="w-11 h-11 rounded-xl bg-teal-50 group-hover:bg-teal-100 flex items-center justify-center transition-colors">
+                      <ImagePlus size={22} className="text-teal-600" />
+                    </div>
+                    <div className="text-center">
+                      <p className="text-[13px] font-medium text-slate-700">Click to upload site map</p>
+                      <p className="text-[11px] text-slate-400 mt-0.5">JPG, PNG, WEBP · Max {MAX_FILE_SIZE_MB} MB</p>
+                    </div>
+                  </>
+                )}
+              </button>
+            )}
+
+            {/* Error message */}
+            {mapError && (
+              <div className="mt-2 flex items-start gap-2 px-3 py-2.5 bg-red-50 border border-red-200 rounded-lg">
+                <X size={13} className="text-red-500 mt-0.5 shrink-0" />
+                <p className="text-[12px] text-red-700">{mapError}</p>
+              </div>
+            )}
+
+            {/* Hidden file input */}
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/jpeg,image/png,image/webp,image/gif"
+              className="hidden"
+              onChange={handleFileChange}
+            />
+          </Section>
+        ) : (
+          /* Add mode — upload available after save */
+          <div className="flex items-center gap-2.5 px-4 py-3 bg-teal-50 border border-teal-100 rounded-xl">
+            <MapIcon size={14} className="text-teal-600 shrink-0" />
+            <p className="text-[12px] text-teal-700">
+              You can upload a <strong>Site Development Map</strong> photo after saving this school record.
+            </p>
+          </div>
+        )}
 
         {/* Footer buttons */}
         <div className="flex gap-3 pt-2">
@@ -297,11 +543,34 @@ export default function SchoolForm({
           </button>
         </div>
       </form>
+
+      {/* Lightbox */}
+      {lightboxOpen && siteMapPreview && (
+        <div
+          className="fixed inset-0 z-[9999] bg-black/85 backdrop-blur-sm flex items-center justify-center p-6"
+          onClick={() => setLightboxOpen(false)}
+        >
+          <div className="relative max-w-5xl w-full" onClick={e => e.stopPropagation()}>
+            <button
+              onClick={() => setLightboxOpen(false)}
+              className="absolute -top-10 right-0 flex items-center gap-1.5 text-[12px] text-white/70 hover:text-white transition-colors"
+            >
+              <X size={15} /> Close
+            </button>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={siteMapPreview}
+              alt="Site development map — full view"
+              className="w-full rounded-2xl shadow-2xl object-contain max-h-[85vh]"
+            />
+          </div>
+        </div>
+      )}
     </section>
   )
 }
 
-// Sub-components
+// ── Sub-components ────────────────────────────────────────────────────
 
 function Section({ icon, label, color, children }: {
   icon: React.ReactNode; label: string; color: string; children: React.ReactNode
