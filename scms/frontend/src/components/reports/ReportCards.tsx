@@ -43,31 +43,31 @@ export default function ReportCards({
     .slice(0, 4)
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+    <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
       {/* 1. School Construction Priority Report */}
-      <div className="bg-white border border-slate-200 rounded-2xl overflow-hidden flex flex-col">
-        <div className="p-5 pb-4">
-          <div className="flex items-start gap-3 mb-3">
-            <div className="w-9 h-9 bg-red-50 rounded-xl flex items-center justify-center shrink-0 mt-0.5">
-              <AlertTriangle size={16} className="text-red-600" />
+      <div className="bg-white border border-slate-200/80 rounded-2xl overflow-hidden flex flex-col hover:shadow-md hover:border-slate-300 transition-all">
+        <div className="p-5 pb-4 bg-linear-to-br from-slate-50 to-transparent">
+          <div className="flex items-start gap-3 mb-4">
+            <div className="w-10 h-10 bg-linear-to-br from-red-100 to-red-50 rounded-2xl flex items-center justify-center shrink-0">
+              <AlertTriangle size={18} className="text-red-600" />
             </div>
-            <div>
-              <div className="flex items-center gap-2 flex-wrap">
-                <h2 className="text-[14px] font-semibold text-slate-900 leading-snug">
+            <div className="flex-1">
+              <div className="flex items-start gap-2 flex-wrap">
+                <h2 className="text-[14px] font-bold text-slate-900 leading-snug">
                   School Construction Priority Report
                 </h2>
-                <span className="text-[10px] font-semibold px-2 py-0.5 rounded-md bg-red-50 text-red-700 border border-red-100">
+                <span className="text-[9px] font-bold px-2.5 py-1 rounded-lg bg-red-100 text-red-700 uppercase tracking-wide">
                   PDF
                 </span>
               </div>
-              <p className="text-[12px] text-slate-400 mt-1 leading-relaxed">
+              <p className="text-[12px] text-slate-500 mt-2 leading-relaxed">
                 Comprehensive list of schools ranked by SDO priority level with construction details, scope of work, and funding year.
               </p>
             </div>
           </div>
 
-          <div className="bg-slate-50 border border-slate-100 rounded-xl p-3">
-            <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-widest mb-2">
+          <div className="bg-slate-50/80 border border-slate-100 rounded-xl p-3.5">
+            <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-widest mb-3">
               Preview: Top 3 Priority Schools
             </p>
             {loading ? (
@@ -100,11 +100,11 @@ export default function ReportCards({
           <button
             onClick={onExportPriority}
             disabled={!!exporting || loading || schools.length === 0}
-            className="w-full flex items-center justify-center gap-2 px-4 py-2.5 text-[12px] font-semibold text-white bg-[#1a3a6b] rounded-xl hover:bg-[#163260] transition-colors disabled:opacity-50"
+            className="w-full flex items-center justify-center gap-1.5 px-3.5 py-2 text-[12px] font-medium text-slate-700 bg-white border border-slate-200 rounded-lg hover:bg-slate-50 hover:border-slate-300 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
           >
             {exporting === 'pdf'
-              ? <Loader2 size={13} className="animate-spin" />
-              : <FileDown size={13} />
+              ? <Loader2 size={13} className="animate-spin text-red-500" />
+              : <FileDown size={13} className="text-red-500" />
             }
             Generate Report
           </button>
@@ -112,29 +112,29 @@ export default function ReportCards({
       </div>
 
       {/* 2. Classroom Shortage Report */}
-      <div className="bg-white border border-slate-200 rounded-2xl overflow-hidden flex flex-col">
-        <div className="p-5 pb-4">
-          <div className="flex items-start gap-3 mb-3">
-            <div className="w-9 h-9 bg-blue-50 rounded-xl flex items-center justify-center shrink-0 mt-0.5">
-              <BarChart3 size={16} className="text-[#1a3a6b]" />
+      <div className="bg-white border border-slate-200/80 rounded-2xl overflow-hidden flex flex-col hover:shadow-md hover:border-slate-300 transition-all">
+        <div className="p-5 pb-4 bg-linear-to-br from-slate-50 to-transparent">
+          <div className="flex items-start gap-3 mb-4">
+            <div className="w-10 h-10 bg-linear-to-br from-blue-100 to-blue-50 rounded-2xl flex items-center justify-center shrink-0">
+              <BarChart3 size={18} className="text-blue-600" />
             </div>
-            <div>
-              <div className="flex items-center gap-2 flex-wrap">
-                <h2 className="text-[14px] font-semibold text-slate-900 leading-snug">
+            <div className="flex-1">
+              <div className="flex items-start gap-2 flex-wrap">
+                <h2 className="text-[14px] font-bold text-slate-900 leading-snug">
                   Classroom Shortage Report
                 </h2>
-                <span className="text-[10px] font-semibold px-2 py-0.5 rounded-md bg-red-50 text-red-700 border border-red-100">
+                <span className="text-[9px] font-bold px-2.5 py-1 rounded-lg bg-blue-100 text-blue-700 uppercase tracking-wide">
                   PDF
                 </span>
               </div>
-              <p className="text-[12px] text-slate-400 mt-1 leading-relaxed">
+              <p className="text-[12px] text-slate-500 mt-2 leading-relaxed">
                 Analysis of existing vs. proposed classrooms showing the deficit per school, municipality, and legislative district.
               </p>
             </div>
           </div>
 
-          <div className="bg-slate-50 border border-slate-100 rounded-xl p-3">
-            <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-widest mb-2">
+          <div className="bg-slate-50/80 border border-slate-100 rounded-xl p-3.5">
+            <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-widest mb-3">
               Preview: Classroom Shortage Analysis
             </p>
             {loading ? (
@@ -162,11 +162,11 @@ export default function ReportCards({
           <button
             onClick={onExportShortage}
             disabled={!!exporting || loading || schools.length === 0}
-            className="w-full flex items-center justify-center gap-2 px-4 py-2.5 text-[12px] font-semibold text-white bg-[#1a3a6b] rounded-xl hover:bg-[#163260] transition-colors disabled:opacity-50"
+            className="w-full flex items-center justify-center gap-1.5 px-3.5 py-2 text-[12px] font-medium text-slate-700 bg-white border border-slate-200 rounded-lg hover:bg-slate-50 hover:border-slate-300 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
           >
             {exporting === 'pdf'
-              ? <Loader2 size={13} className="animate-spin" />
-              : <FileDown size={13} />
+              ? <Loader2 size={13} className="animate-spin text-blue-500" />
+              : <FileDown size={13} className="text-blue-500"/>
             }
             Generate Report
           </button>
@@ -174,30 +174,30 @@ export default function ReportCards({
       </div>
 
       {/* 3. Six-Year Infrastructure Plan */}
-      <div className="bg-white border border-slate-200 rounded-2xl overflow-hidden flex flex-col">
-        <div className="p-5 pb-4">
-          <div className="flex items-start gap-3 mb-3">
-            <div className="w-9 h-9 bg-amber-50 rounded-xl flex items-center justify-center shrink-0 mt-0.5">
-              <CalendarDays size={16} className="text-amber-600" />
+      <div className="bg-white border border-slate-200/80 rounded-2xl overflow-hidden flex flex-col hover:shadow-md hover:border-slate-300 transition-all">
+        <div className="p-5 pb-4 bg-linear-to-br from-slate-50 to-transparent">
+          <div className="flex items-start gap-3 mb-4">
+            <div className="w-10 h-10 bg-linear-to-br from-amber-100 to-amber-50 rounded-2xl flex items-center justify-center shrink-0">
+              <CalendarDays size={18} className="text-amber-600" />
             </div>
-            <div>
-              <div className="flex items-center gap-2 flex-wrap">
-                <h2 className="text-[14px] font-semibold text-slate-900 leading-snug">
+            <div className="flex-1">
+              <div className="flex items-start gap-2 flex-wrap">
+                <h2 className="text-[14px] font-bold text-slate-900 leading-snug">
                   Six-Year Infrastructure Plan (SYIP)
                 </h2>
-                <span className="text-[10px] font-semibold px-2 py-0.5 rounded-md bg-green-50 text-green-700 border border-green-100">
+                <span className="text-[9px] font-bold px-2.5 py-1 rounded-lg bg-green-100 text-green-700 uppercase tracking-wide">
                   Excel
                 </span>
                 <CheckCircle2 size={13} className="text-green-600" />
               </div>
-              <p className="text-[12px] text-slate-400 mt-1 leading-relaxed">
+              <p className="text-[12px] text-slate-500 mt-2 leading-relaxed">
                 Multi-year construction roadmap from 2025–2030 including proposed classrooms, structures, funding allocation, and implementation timeline.
               </p>
             </div>
           </div>
 
-          <div className="bg-slate-50 border border-slate-100 rounded-xl p-3">
-            <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-widest mb-2">
+          <div className="bg-slate-50/80 border border-slate-100 rounded-xl p-3.5">
+            <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-widest mb-3">
               Preview: Six-Year Infrastructure Plan
             </p>
             {loading ? (
@@ -225,21 +225,13 @@ export default function ReportCards({
           <button
             onClick={onExportSYIP}
             disabled={!!exporting || loading || schools.length === 0}
-            className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 text-[12px] font-semibold text-white bg-[#1a3a6b] rounded-xl hover:bg-[#163260] transition-colors disabled:opacity-50"
+            className="w-full flex items-center justify-center gap-1.5 px-3.5 py-2 text-[12px] font-medium text-slate-700 bg-white border border-slate-200 rounded-lg hover:bg-slate-50 hover:border-slate-300 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
           >
             {exporting === 'excel'
-              ? <Loader2 size={13} className="animate-spin" />
-              : <FileDown size={13} />
+              ? <Loader2 size={13} className="animate-spin text-yellow-500" />
+              : <FileDown size={13} className="text-yellow-500" />
             }
             Generate Report
-          </button>
-          <button
-            onClick={onExportSYIP}
-            disabled={!!exporting || loading || schools.length === 0}
-            className="flex items-center justify-center gap-1.5 px-3 py-2.5 text-[12px] font-medium text-slate-600 bg-white border border-slate-200 rounded-xl hover:bg-slate-50 transition-colors disabled:opacity-50"
-          >
-            <Download size={13} />
-            Download
           </button>
         </div>
       </div>

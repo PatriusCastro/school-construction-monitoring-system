@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useRef, useState } from 'react'
-import { RefreshCw } from 'lucide-react'
+import { RefreshCw, FileText } from 'lucide-react'
 import SidebarLayout from '@/components/layout/SidebarLayout'
 import ReportCards from '@/components/reports/ReportCards'
 import OverallReportSection from '@/components/reports/OverallReportSection'
@@ -604,20 +604,35 @@ export default function Reports() {
 
   return (
     <SidebarLayout title="Reports" description="Generate and export construction reports">
-      <div className="min-h-screen bg-white">
-        <div className="px-6 py-6">
-          {/* Action bar */}
-          <div className="flex items-center justify-end mb-6">
-            <button
-              onClick={loadSchools}
-              disabled={loading}
-              className="flex items-center gap-1.5 px-3 py-2 text-[12px] font-medium text-slate-600 bg-white border border-slate-200 rounded-lg hover:bg-slate-50 transition-colors disabled:opacity-50"
-            >
-              <RefreshCw size={12} className={loading ? 'animate-spin' : ''} />
-              Refresh
-            </button>
-          </div>
+      <div className="min-h-screen bg-slate-50/40">
+        
+        {/* Page Header */}
+        {/* <div className="bg-white border-b border-slate-200">
+          <div className="px-6 py-5 flex items-start justify-between gap-4 flex-wrap">
+            <div>
+              <div className="flex items-center gap-2 mb-0.5">
+                <div className="w-6 h-6 rounded-md bg-[#1a3a6b] flex items-center justify-center">
+                  <FileText size={13} className="text-white" />
+                </div>
+                <h1 className="text-[16px] font-bold text-slate-900 tracking-tight">Reports & Analytics</h1>
+              </div>
+              <p className="text-[12px] text-slate-400 ml-8">Generate comprehensive construction reports for monitoring and planning</p>
+            </div>
 
+            <div className="flex items-center gap-2 flex-wrap">
+              <button
+                onClick={loadSchools}
+                disabled={loading}
+                className="w-8 h-8 flex items-center justify-center rounded-lg text-slate-500 bg-white border border-slate-200 hover:bg-slate-50 transition-colors disabled:opacity-50"
+                title="Refresh"
+              >
+                <RefreshCw size={13} className={loading ? 'animate-spin' : ''} />
+              </button>
+            </div>
+          </div>
+        </div> */}
+
+        <div className="px-6 py-6">
           {error && <ErrorAlert message={error} />}
 
           <div className="space-y-6">

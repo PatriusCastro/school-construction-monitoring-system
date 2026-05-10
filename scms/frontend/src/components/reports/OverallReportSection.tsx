@@ -83,66 +83,78 @@ export default function OverallReportSection({
   const budgetUtil        = totalBudget > 0 ? Math.round((totalUtilized / totalBudget) * 100) : 0
 
   return (
-    <div ref={reportRef} className="space-y-5">
+    <div ref={reportRef} className="space-y-6">
       {/* Report header card */}
-      <div className="bg-gray-100 rounded-2xl p-6 text-black shadow-lg">
-        <div className="flex items-start justify-between flex-wrap gap-4">
+      <div className="bg-white border border-slate-200 rounded-2xl p-6">
+        <div className="flex items-start justify-between gap-4 flex-wrap">
           <div>
-            <p className="text-[10px] text-black/50 uppercase tracking-widest mb-1">Department of Education</p>
-            <h2 className="text-[20px] font-bold">Overall Construction Report</h2>
-            <p className="text-[13px] text-black/60 mt-1">Legazpi City, Albay — Region V</p>
+            <p className="text-[10px] text-slate-400 uppercase tracking-widest mb-2 font-semibold">Department of Education</p>
+            <h2 className="text-[22px] font-bold text-slate-900 leading-tight">Overall Construction Report</h2>
+            <p className="text-[12px] text-slate-500 mt-2">Legazpi City, Albay — Region V</p>
           </div>
-          <div className="text-right">
-            <p className="text-[10px] text-black/50 uppercase tracking-widest mb-1">Generated</p>
-            <p className="text-[13px] font-semibold">
-              {new Date().toLocaleDateString('en-PH', { year: 'numeric', month: 'long', day: 'numeric' })}
-            </p>
-            <div className="flex items-center gap-2 mt-3 flex-wrap justify-end">
-              <span className="text-[10px] bg-white/10 px-2 py-1 rounded-md">SDO Legazpi City</span>
-              <span className="text-[10px] bg-white/10 px-2 py-1 rounded-md">AY 2025–2026</span>
+          <div className="text-right ju">
+            <div className="flex items-center gap-2 flex-wrap">
+              <button
+                onClick={onExportExcel}
+                disabled={!!exporting || loading || schools.length === 0}
+                className="flex items-center gap-1.5 px-3.5 py-2 text-[12px] font-medium text-slate-700 bg-white border border-slate-200 rounded-lg hover:bg-slate-50 hover:border-slate-300 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+              >
+                {exporting === 'excel' ? <Loader2 size={13} className="animate-spin text-emerald-600" /> : <FileSpreadsheet size={13} className="text-emerald-600" />}
+                Export Excel
+              </button>
+              <button
+                onClick={onExportPDF}
+                disabled={!!exporting || loading || schools.length === 0}
+                className="flex items-center gap-1.5 px-3.5 py-2 text-[12px] font-medium text-slate-700 bg-white border border-slate-200 rounded-lg hover:bg-slate-50 hover:border-slate-300 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+              >
+                {exporting === 'pdf' ? <Loader2 size={13} className="animate-spin text-red-500" /> : <FileDown size={13} className="text-red-500" />}
+                Export PDF
+              </button>
             </div>
           </div>
         </div>
       </div>
 
       {/* Summary metric cards */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         {[
-          { icon: Building2,     label: 'Total Schools',     value: schools.length,        color: 'text-[#1a3a6b]', bg: 'bg-blue-50' },
-          { icon: BarChart3,     label: 'Total Classrooms',  value: totalClassrooms,        color: 'text-amber-600', bg: 'bg-amber-50' },
-          { icon: CheckCircle2,  label: 'Completed',         value: completed,              color: 'text-green-600', bg: 'bg-green-50' },
+          { icon: Building2,     label: 'Total Schools',     value: schools.length,        color: 'text-[#1a3a6b]', bg: 'bg-slate-50' },
+          { icon: BarChart3,     label: 'Total Classrooms',  value: totalClassrooms,        color: 'text-[#1a3a6b]', bg: 'bg-slate-50' },
+          { icon: CheckCircle2,  label: 'Completed',         value: completed,              color: 'text-[#1a3a6b]', bg: 'bg-slate-50' },
           { icon: AlertTriangle, label: 'Delayed',           value: delayed,                color: 'text-red-600',   bg: 'bg-red-50' },
-          { icon: TrendingUp,    label: 'Avg. Construction',  value: `${avgConstruction}%`, color: 'text-[#1a3a6b]', bg: 'bg-blue-50' },
-          { icon: TrendingUp,    label: 'Avg. Materials',     value: `${avgMaterials}%`,    color: 'text-amber-600', bg: 'bg-amber-50' },
-          { icon: Banknote,      label: 'Total Budget',       value: totalBudget ? `₱${(totalBudget / 1_000_000).toFixed(1)}M` : '—', color: 'text-[#1a3a6b]', bg: 'bg-blue-50' },
-          { icon: CalendarDays,  label: 'Funding Years',      value: [...new Set(schools.map(s => s.funding_year).filter(Boolean))].length, color: 'text-[#1a3a6b]', bg: 'bg-blue-50' },
+          { icon: TrendingUp,    label: 'Avg. Construction',  value: `${avgConstruction}%`, color: 'text-[#1a3a6b]', bg: 'bg-slate-50' },
+          { icon: TrendingUp,    label: 'Avg. Materials',     value: `${avgMaterials}%`,    color: 'text-[#1a3a6b]', bg: 'bg-slate-50' },
+          { icon: Banknote,      label: 'Total Budget',       value: totalBudget ? `₱${(totalBudget / 1_000_000).toFixed(1)}M` : '—', color: 'text-[#1a3a6b]', bg: 'bg-slate-50' },
+          { icon: CalendarDays,  label: 'Funding Years',      value: [...new Set(schools.map(s => s.funding_year).filter(Boolean))].length, color: 'text-[#1a3a6b]', bg: 'bg-slate-50' },
         ].map(({ icon: Icon, label, value, color, bg }) => (
-          <div key={label} className="bg-white border border-slate-200 rounded-xl p-4">
-            <div className="flex items-center justify-between mb-2">
-              <p className="text-[10px] text-slate-400 uppercase tracking-wide">{label}</p>
-              <div className={`w-7 h-7 ${bg} rounded-lg flex items-center justify-center`}>
-                <Icon size={13} className={color} />
+          <div key={label} className="relative bg-white border border-slate-200/80 rounded-2xl p-5 overflow-hidden hover:border-slate-300 hover:shadow-sm transition-all">
+            <div className="flex items-center justify-between gap-3">
+              <p className="text-[11px] font-semibold uppercase tracking-widest text-slate-400">{label}</p>
+              <div className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 ${bg}`}>
+                <Icon size={16} className={color} />
               </div>
             </div>
-            <p className={`text-[22px] font-semibold ${color}`}>
+            <p className={`text-[24px] font-bold tabular-nums ${color}`}>
               {loading ? <span className="text-slate-200 animate-pulse">—</span> : value}
             </p>
           </div>
         ))}
       </div>
 
-      {/* Status breakdown */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div className="bg-white border border-slate-200 rounded-xl p-5">
-          <h3 className="text-[13px] font-semibold text-slate-800 mb-4">Priority Distribution</h3>
+      {/* Status & Priority Overview */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+        {/* Construction Status */}
+        <div className="bg-white border border-slate-200 rounded-2xl p-5">
+          <h3 className="text-[13px] font-semibold text-slate-900 mb-4">Construction Status</h3>
           <div className="space-y-3">
             {[
-              { label: 'High Priority',   count: highPriority, color: '#c0392b', bg: 'bg-red-500' },
-              { label: 'Medium Priority', count: medPriority,  color: '#c8a800', bg: 'bg-amber-400' },
-              { label: 'Low Priority',    count: schools.filter(s => s.sdo_priority_level === 'Low').length, color: '#27ae60', bg: 'bg-green-500' },
+              { label: 'Complete',    count: completed,  color: '#27ae60', bg: 'bg-emerald-500' },
+              { label: 'On Track',    count: onTrack,    color: '#1a3a6b', bg: 'bg-[#1a3a6b]' },
+              { label: 'In Progress', count: inProgress, color: '#f59e0b', bg: 'bg-amber-400' },
+              { label: 'Delayed',     count: delayed,    color: '#dc2626', bg: 'bg-red-500' },
             ].map(({ label, count, color, bg }) => (
               <div key={label}>
-                <div className="flex justify-between mb-1">
+                <div className="flex justify-between mb-1.5">
                   <span className="text-[12px] text-slate-600">{label}</span>
                   <span className="text-[12px] font-semibold" style={{ color }}>{count} schools</span>
                 </div>
@@ -154,80 +166,36 @@ export default function OverallReportSection({
           </div>
         </div>
 
-        <div className="bg-white border border-slate-200 rounded-xl p-5">
-          <h3 className="text-[13px] font-semibold text-slate-800 mb-4">Construction Status</h3>
+        {/* Budget Overview */}
+        <div className="bg-white border border-slate-200 rounded-2xl p-5">
+          <h3 className="text-[13px] font-semibold text-slate-900 mb-4">Budget Overview</h3>
           <div className="space-y-3">
             {[
-              { label: 'Complete',    count: completed,  color: '#27ae60', bg: 'bg-green-500' },
-              { label: 'On Track',    count: onTrack,    color: '#1a3a6b', bg: 'bg-blue-700' },
-              { label: 'In Progress', count: inProgress, color: '#c8a800', bg: 'bg-amber-400' },
-              { label: 'Delayed',     count: delayed,    color: '#c0392b', bg: 'bg-red-500' },
-            ].map(({ label, count, color, bg }) => (
-              <div key={label}>
-                <div className="flex justify-between mb-1">
-                  <span className="text-[12px] text-slate-600">{label}</span>
-                  <span className="text-[12px] font-semibold" style={{ color }}>{count} schools</span>
-                </div>
-                <div className="h-2 bg-slate-100 rounded-full overflow-hidden">
-                  <div className={`h-full rounded-full ${bg}`} style={{ width: schools.length ? `${(count / schools.length) * 100}%` : '0%' }} />
-                </div>
+              { label: 'Total Allocated',  value: formatPHP(totalBudget),   color: '#1a3a6b' },
+              { label: 'Total Utilized',   value: formatPHP(totalUtilized), color: '#f59e0b' },
+              { label: 'Utilization Rate', value: `${budgetUtil}%`,         color: budgetUtil >= 70 ? '#27ae60' : '#f59e0b' },
+            ].map(({ label, value, color }) => (
+              <div key={label} className="flex justify-between items-center pb-3 border-b border-slate-100 last:border-b-0 last:pb-0">
+                <span className="text-[12px] text-slate-600">{label}</span>
+                <span className="text-[13px] font-semibold" style={{ color }}>{value}</span>
               </div>
             ))}
-          </div>
-        </div>
-      </div>
-
-      {/* Budget summary */}
-      <div className="bg-white border border-slate-200 rounded-xl p-5">
-        <h3 className="text-[13px] font-semibold text-slate-800 mb-4">Budget Overview</h3>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
-          {[
-            { label: 'Total Allocated',  value: formatPHP(totalBudget),   color: 'text-[#1a3a6b]' },
-            { label: 'Total Utilized',   value: formatPHP(totalUtilized), color: 'text-amber-600' },
-            { label: 'Utilization Rate', value: `${budgetUtil}%`,         color: budgetUtil >= 70 ? 'text-green-600' : 'text-amber-600' },
-          ].map(({ label, value, color }) => (
-            <div key={label} className="bg-slate-50 rounded-xl px-4 py-3">
-              <p className="text-[10px] text-slate-400 uppercase tracking-wide mb-1">{label}</p>
-              <p className={`text-[18px] font-semibold ${color}`}>{value}</p>
+            <div className="pt-2">
+              <div className="h-2 bg-slate-100 rounded-full overflow-hidden">
+                <div className="h-full bg-[#1a3a6b] rounded-full transition-all" style={{ width: `${budgetUtil}%` }} />
+              </div>
+              <p className="text-[10px] text-slate-400 mt-2">{budgetUtil}% of total budget utilized</p>
             </div>
-          ))}
-        </div>
-        <div className="h-2 bg-slate-100 rounded-full overflow-hidden">
-          <div className="h-full bg-[#1a3a6b] rounded-full transition-all" style={{ width: `${budgetUtil}%` }} />
-        </div>
-        <p className="text-[10px] text-slate-400 mt-1">{budgetUtil}% of total budget utilized</p>
-      </div>
-
-      {/* Export actions */}
-      <div className="bg-white border border-slate-200 rounded-xl p-5">
-        <h3 className="text-[13px] font-semibold text-slate-800 mb-1">Export Overall Report</h3>
-        <p className="text-[11px] text-slate-400 mb-4">Download the complete construction report for all {schools.length} monitored schools</p>
-        <div className="flex items-center gap-2 flex-wrap">
-          <button
-            onClick={onExportExcel}
-            disabled={!!exporting || loading || schools.length === 0}
-            className="flex items-center gap-1.5 px-4 py-2 text-[12px] font-medium text-slate-700 bg-white border border-slate-200 rounded-lg hover:bg-slate-50 transition-colors disabled:opacity-50"
-          >
-            {exporting === 'excel' ? <Loader2 size={13} className="animate-spin" /> : <FileSpreadsheet size={13} className="text-green-600" />}
-            Export Excel
-          </button>
-          <button
-            onClick={onExportPDF}
-            disabled={!!exporting || loading || schools.length === 0}
-            className="flex items-center gap-1.5 px-4 py-2 text-[12px] font-medium text-white bg-[#1a3a6b] rounded-lg hover:bg-[#163260] transition-colors disabled:opacity-50"
-          >
-            {exporting === 'pdf' ? <Loader2 size={13} className="animate-spin" /> : <FileDown size={13} />}
-            Export PDF
-          </button>
+          </div>
         </div>
       </div>
 
       {/* Full details table */}
-      <div className="bg-white border border-slate-200 rounded-xl overflow-hidden">
-        <div className="px-5 py-4 border-b border-slate-100 flex items-center justify-between flex-wrap gap-3">
+      <div className="bg-white border border-slate-200 rounded-2xl overflow-hidden">
+        <div className="px-5 py-4 border-b border-slate-100 flex items-center justify-between flex-wrap gap-3 bg-slate-50">
           <div>
-            <h3 className="text-[13px] font-semibold text-slate-800">School Construction Details</h3>
-            <p className="text-[11px] text-slate-400 mt-0.5">Complete record of all {schools.length} monitored schools</p>
+            <h3 className="text-[13px] font-semibold text-slate-900">School Construction Details</h3>
+            <p className="text-[11px] text-slate-500 mt-0.5">Complete record of all {schools.length} monitored schools</p>
           </div>
           <div className="flex items-center gap-1.5 text-[11px] text-slate-400">
             <ChevronDown size={12} /> Scroll to view all columns
@@ -243,7 +211,7 @@ export default function OverallReportSection({
           </div>
         ) : (
           <div className="overflow-x-auto">
-            <table className="w-full text-[12px]">
+            <table className="w-full text-[11px]">
               <thead>
                 <tr className="bg-slate-50 border-b border-slate-100">
                   {[
@@ -253,7 +221,7 @@ export default function OverallReportSection({
                     'Budget Allocated', 'Budget Utilized',
                     'Funding Year', 'Completion Date'
                   ].map(h => (
-                    <th key={h} className="px-3 py-3 text-left text-[10px] font-semibold text-slate-400 uppercase tracking-wide whitespace-nowrap">
+                    <th key={h} className="px-3 py-3 text-left text-[9px] font-semibold text-slate-500 uppercase tracking-wide whitespace-nowrap">
                       {h}
                     </th>
                   ))}
@@ -273,7 +241,7 @@ export default function OverallReportSection({
                       <td className="px-3 py-3 text-slate-400 font-mono text-[11px] whitespace-nowrap">{s.school_id || '—'}</td>
                       <td className="px-3 py-3 text-slate-600 whitespace-nowrap">{s.municipality || '—'}</td>
                       <td className="px-3 py-3">
-                        <span className="font-mono text-[11px] bg-blue-50 text-[#1a3a6b] border border-blue-100 px-2 py-0.5 rounded-md whitespace-nowrap">
+                        <span className="font-mono text-[10px] bg-slate-100 text-slate-700 border border-slate-200 px-2 py-0.5 rounded-md whitespace-nowrap">
                           {s.auto_generated_scope || '—'}
                         </span>
                       </td>
@@ -299,8 +267,8 @@ export default function OverallReportSection({
                         </div>
                       </td>
                       <td className="px-3 py-3">
-                        <span className={`inline-flex items-center gap-1 text-[10px] font-medium px-2 py-0.5 rounded-md border ${status.bg} ${status.color}`}>
-                          <StatusIcon size={9} />
+                        <span className={`inline-flex items-center gap-1 text-[9px] font-medium px-2 py-0.5 rounded-md border ${status.bg} ${status.color}`}>
+                          <StatusIcon size={8} />
                           {status.label}
                         </span>
                       </td>
@@ -308,7 +276,7 @@ export default function OverallReportSection({
                       <td className="px-3 py-3 text-slate-600 whitespace-nowrap">{formatPHP(s.budget_utilized_php)}</td>
                       <td className="px-3 py-3">
                         {s.funding_year
-                          ? <span className="text-[11px] font-medium px-2 py-0.5 bg-[#1a3a6b]/10 text-[#1a3a6b] rounded-md">{s.funding_year}</span>
+                          ? <span className="text-[10px] font-medium px-2 py-0.5 bg-slate-100 text-slate-700 rounded-md">{s.funding_year}</span>
                           : <span className="text-slate-300">—</span>
                         }
                       </td>
@@ -318,15 +286,15 @@ export default function OverallReportSection({
                 })}
               </tbody>
               <tfoot>
-                <tr className="bg-[#1a3a6b]/5 border-t-2 border-[#1a3a6b]/20">
-                  <td colSpan={6} className="px-3 py-3 text-[11px] font-semibold text-[#1a3a6b]">TOTALS / AVERAGES</td>
+                <tr className="bg-slate-100 border-t border-slate-200">
+                  <td colSpan={6} className="px-3 py-3 text-[10px] font-semibold text-slate-900">TOTALS / AVERAGES</td>
                   <td className="px-3 py-3 text-center font-bold text-[#1a3a6b]">{totalClassrooms}</td>
                   <td className="px-3 py-3 text-center font-bold text-[#1a3a6b]">{totalUnits}</td>
-                  <td className="px-3 py-3"><span className="font-mono text-[11px] font-bold text-[#1a3a6b]">{avgConstruction}% avg</span></td>
-                  <td className="px-3 py-3"><span className="font-mono text-[11px] font-bold text-amber-600">{avgMaterials}% avg</span></td>
+                  <td className="px-3 py-3"><span className="font-mono text-[10px] font-bold text-[#1a3a6b]">{avgConstruction}% avg</span></td>
+                  <td className="px-3 py-3"><span className="font-mono text-[10px] font-bold text-[#1a3a6b]">{avgMaterials}% avg</span></td>
                   <td className="px-3 py-3" />
-                  <td className="px-3 py-3 font-bold text-[#1a3a6b] whitespace-nowrap text-[11px]">{formatPHP(totalBudget)}</td>
-                  <td className="px-3 py-3 font-bold text-amber-600 whitespace-nowrap text-[11px]">{formatPHP(totalUtilized)}</td>
+                  <td className="px-3 py-3 font-bold text-[#1a3a6b] whitespace-nowrap text-[10px]">{formatPHP(totalBudget)}</td>
+                  <td className="px-3 py-3 font-bold text-[#1a3a6b] whitespace-nowrap text-[10px]">{formatPHP(totalUtilized)}</td>
                   <td colSpan={2} />
                 </tr>
               </tfoot>
@@ -335,8 +303,8 @@ export default function OverallReportSection({
         )}
       </div>
 
-      <p className="text-center text-[11px] text-slate-400 pb-4">
-        Use the report cards above or the export buttons to download reports. · SCMS — SDO Legazpi City
+      <p className="text-center text-[10px] text-slate-400 pb-4">
+        SCMS — SDO Legazpi City
       </p>
     </div>
   )

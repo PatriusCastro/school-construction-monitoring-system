@@ -21,11 +21,11 @@ export default function StatCard({ label, value, accent, icon: Icon, sublabel }:
   const a = accentMap[accent]
   return (
     <div className="relative bg-white border border-slate-200/80 rounded-2xl p-5 overflow-hidden hover:border-slate-300 hover:shadow-sm transition-all">
-      <div className={`absolute left-0 top-4 bottom-4 w-0.75 rounded-r-full ${a.bar}`} />
+      {/* <div className={`absolute left-0 top-4 bottom-4 w-0.75 rounded-r-full ${a.bar}`} /> */}
       <div className="flex items-start justify-between gap-3">
         <div>
           <p className="text-[11px] font-semibold uppercase tracking-widest text-slate-400 mb-2">{label}</p>
-          <p className={`text-[26px] font-bold leading-none tabular-nums ${a.text}`}>{value}</p>
+          <p className={`text-[24px] font-bold leading-none tabular-nums ${a.text}`}>{value}</p>
           {sublabel && <p className="text-[11px] text-slate-400 mt-1.5">{sublabel}</p>}
         </div>
         <div className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 ${a.iconBg}`}>
