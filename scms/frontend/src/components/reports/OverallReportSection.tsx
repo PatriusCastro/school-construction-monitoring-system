@@ -92,7 +92,7 @@ export default function OverallReportSection({
             <h2 className="text-[22px] font-bold text-slate-900 leading-tight">Overall Construction Report</h2>
             <p className="text-[12px] text-slate-500 mt-2">Legazpi City, Albay — Region V</p>
           </div>
-          <div className="text-right ju">
+          <div className="text-right justify-end">
             <div className="flex items-center gap-2 flex-wrap">
               <button
                 onClick={onExportExcel}

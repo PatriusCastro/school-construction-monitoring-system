@@ -215,22 +215,22 @@ export default function Dashboard() {
 
         <div className="px-6 py-6 space-y-6">
           {/* Action bar */}
-          <div className="flex items-center justify-between">
-            <div />
-            <div className="flex items-center gap-3">
-              {lastUpdated && (
-                <span className="text-[11px] text-slate-400">
-                  Updated {lastUpdated.toLocaleTimeString('en-PH', { hour: '2-digit', minute: '2-digit' })}
-                </span>
-              )}
-              <button
-                onClick={loadData}
-                disabled={loading}
-                className="flex items-center gap-1.5 px-3 py-2 text-[12px] font-medium text-slate-600 bg-white border border-slate-200 rounded-lg hover:bg-slate-50 transition-colors disabled:opacity-50"
-              >
-                <RefreshCw size={12} className={loading ? 'animate-spin' : ''} />
-                Refresh
-              </button>
+          <div className="bg-white border border-slate-200 rounded-2xl p-6">
+            <div className="flex items-start justify-between gap-4 flex-wrap">
+              <div>
+                <p className="text-[10px] text-slate-400 uppercase tracking-widest mb-2 font-semibold">Department of Education</p>
+                <h2 className="text-[22px] font-bold text-slate-900 leading-tight">Dashboard Overview</h2>
+                <p className="text-[12px] text-slate-500 mt-2">Legazpi City, Albay — Region V</p>
+              </div>
+              <div className="text-right justify-end">
+                <button
+                  onClick={loadData}
+                  disabled={loading}
+                  className="flex items-center gap-1.5 px-3 py-3 text-[12px] font-medium text-slate-600 bg-white border border-slate-200 rounded-lg hover:bg-slate-50 transition-colors disabled:opacity-50"
+                >
+                  <RefreshCw size={12} className={loading ? 'animate-spin' : ''} />
+                </button>
+              </div>
             </div>
           </div>
 

@@ -78,10 +78,6 @@ export default function ProgressMonitoring() {
   })
 
   // Summary stats
-  const completed = schools.filter(s => (s.construction_progress_pct || 0) >= 100).length
-  const onTrack = schools.filter(s => { const p = s.construction_progress_pct || 0; return p >= 60 && p < 100 }).length
-  const inProgress = schools.filter(s => { const p = s.construction_progress_pct || 0; return p >= 20 && p < 60 }).length
-  const delayed = schools.filter(s => (s.construction_progress_pct || 0) < 20).length
   const avgConstruction = schools.length ? Math.round(schools.reduce((s, x) => s + (x.construction_progress_pct || 0), 0) / schools.length) : 0
   const avgMaterials = schools.length ? Math.round(schools.reduce((s, x) => s + (x.materials_delivered_pct || 0), 0) / schools.length) : 0
 
@@ -97,17 +93,24 @@ export default function ProgressMonitoring() {
       <div className="min-h-screen bg-white">
 
         <div className="px-6 py-6 space-y-5">
-          {/* Action bar */}
-          <div className="flex items-center justify-between">
-            <div />
-            <button
-              onClick={loadSchools}
-              disabled={loading}
-              className="flex items-center gap-1.5 px-3 py-2 text-[12px] font-medium text-slate-600 bg-white border border-slate-200 rounded-lg hover:bg-slate-50 transition-colors disabled:opacity-50"
-            >
-              <RefreshCw size={12} className={loading ? 'animate-spin' : ''} />
-              Refresh
-            </button>
+
+          <div className="bg-white border border-slate-200 rounded-2xl p-6">
+            <div className="flex items-start justify-between gap-4 flex-wrap">
+              <div>
+                <p className="text-[10px] text-slate-400 uppercase tracking-widest mb-2 font-semibold">Department of Education</p>
+                <h2 className="text-[22px] font-bold text-slate-900 leading-tight">Progress Monitoring</h2>
+                <p className="text-[12px] text-slate-500 mt-2">Legazpi City, Albay — Region V</p>
+              </div>
+              <div className="text-right justify-end">
+                <button
+                  onClick={loadSchools}
+                  disabled={loading}
+                  className="flex items-center gap-1.5 px-3 py-3 text-[12px] font-medium text-slate-600 bg-white border border-slate-200 rounded-lg hover:bg-slate-50 transition-colors disabled:opacity-50"
+                >
+                  <RefreshCw size={12} className={loading ? 'animate-spin' : ''} />
+                </button>
+              </div>
+            </div>
           </div>
 
           {error && (
@@ -116,25 +119,6 @@ export default function ProgressMonitoring() {
               <button onClick={() => setError('')} className="ml-auto"><X size={12} /></button>
             </div>
           )}
-
-          {/* Summary stats */}
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
-            {[
-              { label: 'Total Schools', value: schools.length, color: 'text-[#1a3a6b]', bg: 'bg-blue-50' },
-              { label: 'Completed', value: completed, color: 'text-green-700', bg: 'bg-green-50' },
-              { label: 'On Track', value: onTrack, color: 'text-blue-700', bg: 'bg-blue-50' },
-              { label: 'In Progress', value: inProgress, color: 'text-amber-700', bg: 'bg-amber-50' },
-              { label: 'Delayed', value: delayed, color: 'text-red-700', bg: 'bg-red-50' },
-              { label: 'Avg. Construction', value: `${avgConstruction}%`, color: 'text-[#1a3a6b]', bg: 'bg-blue-50' },
-            ].map(({ label, value, color, bg }) => (
-              <div key={label} className="bg-white border border-slate-200 rounded-xl p-4">
-                <p className="text-[10px] text-slate-400 uppercase tracking-wide mb-1">{label}</p>
-                <p className={`text-[22px] font-semibold ${color}`}>
-                  {loading ? <span className="text-slate-200 animate-pulse">—</span> : value}
-                </p>
-              </div>
-            ))}
-          </div>
 
           {/* Overall progress bars */}
           <div className="bg-white border border-slate-200 rounded-xl p-5">

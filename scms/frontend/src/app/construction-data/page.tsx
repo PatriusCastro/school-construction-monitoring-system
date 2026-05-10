@@ -89,7 +89,28 @@ export default function ConstructionData() {
     <SidebarLayout title="Construction Data" description="All school construction info">
       <div className="min-h-screen bg-white">
         <div className="px-6 py-6">
-          <div className="flex items-center justify-between gap-4 flex-wrap mb-6">
+          <div className="bg-white border border-slate-200 rounded-2xl p-6">
+            <div className="flex items-start justify-between gap-4 flex-wrap">
+              <div>
+                <p className="text-[10px] text-slate-400 uppercase tracking-widest mb-2 font-semibold">Department of Education</p>
+                <h2 className="text-[22px] font-bold text-slate-900 leading-tight">Construction Data</h2>
+                <p className="text-[12px] text-slate-500 mt-2">Legazpi City, Albay — Region V</p>
+              </div>
+              <div className="text-right flex gap-3 justify-end">
+                <button onClick={() => setViewMode('table')} className={`flex items-center gap-1.5 px-3 py-1.5 text-[12px] font-medium rounded-md transition-all ${viewMode === 'table' ? 'bg-[#1a3a6b] text-white shadow-sm' : 'bg-white border border-slate-200 text-slate-500 hover:text-slate-700'}`}>
+                  <LayoutList size={13} /> Table
+                </button>
+                <button onClick={() => setViewMode('card')} 
+                  className={`flex items-center gap-1.5 px-3 py-1.5 text-[12px] font-medium rounded-md transition-all ${viewMode === 'card' ? 'bg-[#1a3a6b] text-white shadow-sm' : 'bg-white border border-slate-200 text-slate-500 hover:text-slate-700'}`}>
+                  <LayoutGrid size={13} /> Parameter View
+                </button>
+                <button onClick={loadSchools} disabled={loading} className="flex items-center gap-1.5 px-3 py-2 text-[12px] font-medium text-slate-600 bg-white border border-slate-200 rounded-lg hover:bg-slate-50 transition-colors disabled:opacity-50">
+                  <RefreshCw size={12} className={loading ? 'animate-spin' : ''} />
+                </button>
+              </div>
+            </div>
+          </div>
+          {/* <div className="flex items-center justify-between gap-4 flex-wrap mb-6">
             <div className="flex items-center gap-2">
               <div className="flex items-center bg-slate-100 rounded-lg p-0.5">
                 <button onClick={() => setViewMode('table')} className={`flex items-center gap-1.5 px-3 py-1.5 text-[12px] font-medium rounded-md transition-all ${viewMode === 'table' ? 'bg-white text-slate-800 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}>
@@ -103,17 +124,17 @@ export default function ConstructionData() {
                 <RefreshCw size={12} className={loading ? 'animate-spin' : ''} />
               </button>
             </div>
-          </div>
+          </div> */}
         </div>
 
-        <div className="px-6 py-6">
+        <div className="px-6">
           {error && <div className="mb-4 px-4 py-3 bg-red-50 border border-red-200 rounded-xl text-[13px] text-red-700">{error}</div>}
 
           <div className="bg-white border border-slate-200 rounded-xl px-4 py-3 mb-4 flex items-center gap-3 flex-wrap">
             <SlidersHorizontal size={13} className="text-slate-400 shrink-0" />
             <div className="relative flex-1 min-w-45">
               <Search size={12} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
-              <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search by name, ID, or municipality..." className="w-full pl-8 pr-3 py-2 text-[12px] border border-slate-200 rounded-lg bg-slate-50 focus:outline-none focus:border-[#1a3a6b]" />
+              <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search by name, ID, or municipality..." className="w-full pl-8 pr-3 py-2 text-[12px] text-black border border-slate-200 rounded-lg bg-slate-50 focus:outline-none focus:border-[#1a3a6b]" />
             </div>
             <div className="relative">
               <select value={priority} onChange={e => setPriority(e.target.value)} className="appearance-none pl-3 pr-8 py-2 text-[12px] border border-slate-200 rounded-lg bg-white focus:outline-none text-slate-600 cursor-pointer">
@@ -273,7 +294,7 @@ function SchoolDrawer({ school: s, onClose }: { school: School; onClose: () => v
           </DrawerSection>
           <DrawerSection title="Progress & Budget" icon={TrendingUp}>
             <DrawerProgress label="Construction Progress" value={s.construction_progress_pct} color="#1a3a6b" />
-            <DrawerProgress label="Materials Delivered" value={s.materials_delivered_pct} color="#c8a800" />
+            <DrawerProgress label="Materials Delivered" value={s.materials_delivered_pct} color="#f59e0b" />
             <DrawerRow label="Budget Allocated" value={s.budget_allocated_php ? `₱${Number(s.budget_allocated_php).toLocaleString()}` : undefined} />
             <DrawerRow label="Budget Utilized" value={s.budget_utilized_php ? `₱${Number(s.budget_utilized_php).toLocaleString()}` : undefined} />
             <DrawerRow label="Completion Date" value={s.completion_date ? new Date(s.completion_date).toLocaleDateString('en-PH', { year: 'numeric', month: 'long', day: 'numeric' }) : undefined} />

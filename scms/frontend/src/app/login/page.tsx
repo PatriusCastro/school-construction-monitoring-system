@@ -54,7 +54,7 @@ export default function LoginPage() {
               Track progress, monitor budgets, and coordinate projects across every district — all in one place.
             </p>
           </div>
-
+{/* 
           <div className="flex items-center gap-6 bg-white/5 border border-white/10 rounded-xl px-6 py-5">
             <div className="flex flex-col gap-1">
               <span className="text-[#4a9fd4] text-2xl font-bold">847</span>
@@ -70,7 +70,7 @@ export default function LoginPage() {
               <span className="text-[#4a9fd4] text-2xl font-bold">17</span>
               <span className="text-[#7fb3d3] text-[11px] uppercase tracking-widest">Regions</span>
             </div>
-          </div>
+          </div> */}
         </div>
       </div>
 

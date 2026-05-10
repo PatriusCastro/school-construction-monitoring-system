@@ -314,67 +314,61 @@ export default function AdminPanel() {
         />
       )}
 
-      <div className="min-h-screen bg-slate-50/40">
+      <div className="min-h-screen bg-slate-50/40 p-6">
 
         {/* Page Header */}
-        <div className="bg-white border-b border-slate-200">
-          <div className="px-6 py-5 flex items-start justify-between gap-4 flex-wrap">
+        <div className="bg-white border border-slate-200 rounded-2xl p-6">
+          <div className="flex items-start justify-between gap-4 flex-wrap">
             <div>
-              <div className="flex items-center gap-2 mb-0.5">
-                <div className="w-6 h-6 rounded-md bg-[#1a3a6b] flex items-center justify-center">
-                  <Building2 size={13} className="text-white" />
-                </div>
-                <h1 className="text-[16px] font-bold text-slate-900 tracking-tight">Administrator Panel</h1>
-              </div>
-              <p className="text-[12px] text-slate-400 ml-8">Manage school records, construction status, and generate exports</p>
+              <p className="text-[10px] text-slate-400 uppercase tracking-widest mb-2 font-semibold">Department of Education</p>
+              <h2 className="text-[22px] font-bold text-slate-900 leading-tight">Admin Panel</h2>
+              <p className="text-[12px] text-slate-500 mt-2">Legazpi City, Albay — Region V</p>
             </div>
+            <div className="text-right justify-end">
+              <div className="flex items-center gap-2 flex-wrap">
+                <button
+                  onClick={loadSchools}
+                  className="w-10 h-10 flex items-center justify-center rounded-lg text-slate-500 bg-white border border-slate-200 hover:bg-slate-50 transition-colors"
+                  title="Refresh"
+                >
+                  <RefreshCw size={13} className={loading ? 'animate-spin' : ''} />
+                </button>
 
-            <div className="flex items-center gap-2 flex-wrap">
-              <button
-                onClick={loadSchools}
-                className="w-8 h-8 flex items-center justify-center rounded-lg text-slate-500 bg-white border border-slate-200 hover:bg-slate-50 transition-colors"
-                title="Refresh"
-              >
-                <RefreshCw size={13} className={loading ? 'animate-spin' : ''} />
-              </button>
+                <button
+                  onClick={handleExportExcel}
+                  disabled={exportingXlsx || schools.length === 0}
+                  className="flex items-center gap-1.5 px-3.5 py-2 text-[12px] font-medium text-slate-700 bg-white border border-slate-200 rounded-lg hover:bg-slate-50 hover:border-slate-300 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                >
+                  {exportingXlsx
+                    ? <Loader2 size={13} className="animate-spin text-emerald-600" />
+                    : <FileSpreadsheet size={13} className="text-emerald-600" />}
+                  Export Excel
+                </button>
 
-              <div className="w-px h-5 bg-slate-200" />
+                <button
+                  onClick={handleExportPDF}
+                  disabled={exportingPdf || schools.length === 0}
+                  className="flex items-center gap-1.5 px-3.5 py-2 text-[12px] font-medium text-slate-700 bg-white border border-slate-200 rounded-lg hover:bg-slate-50 hover:border-slate-300 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                >
+                  {exportingPdf
+                    ? <Loader2 size={13} className="animate-spin text-red-500" />
+                    : <FileDown size={13} className="text-red-500" />}
+                  Export PDF
+                </button>
 
-              <button
-                onClick={handleExportExcel}
-                disabled={exportingXlsx || schools.length === 0}
-                className="flex items-center gap-1.5 px-3.5 py-2 text-[12px] font-medium text-slate-700 bg-white border border-slate-200 rounded-lg hover:bg-slate-50 hover:border-slate-300 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
-              >
-                {exportingXlsx
-                  ? <Loader2 size={13} className="animate-spin text-emerald-600" />
-                  : <FileSpreadsheet size={13} className="text-emerald-600" />}
-                Export Excel
-              </button>
-
-              <button
-                onClick={handleExportPDF}
-                disabled={exportingPdf || schools.length === 0}
-                className="flex items-center gap-1.5 px-3.5 py-2 text-[12px] font-medium text-slate-700 bg-white border border-slate-200 rounded-lg hover:bg-slate-50 hover:border-slate-300 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
-              >
-                {exportingPdf
-                  ? <Loader2 size={13} className="animate-spin text-red-500" />
-                  : <FileDown size={13} className="text-red-500" />}
-                Export PDF
-              </button>
-
-              <div className="w-px h-5 bg-slate-200" />
-
-              <button
-                onClick={() => setViewMode('add')}
-                className="flex items-center gap-1.5 px-4 py-2 text-[12px] font-semibold text-white bg-[#1a3a6b] rounded-lg hover:bg-[#163260] transition-colors shadow-sm shadow-[#1a3a6b]/20"
-              >
-                <Plus size={13} /> Add School
-              </button>
+                
+                <button
+                  onClick={() => setViewMode('add')}
+                  className="flex items-center gap-1.5 px-4 py-2 text-[12px] font-semibold text-white bg-[#1a3a6b] rounded-lg hover:bg-[#163260] transition-colors shadow-sm shadow-[#1a3a6b]/20"
+                >
+                  <Plus size={13} /> Add School
+                </button>
+              </div>
             </div>
           </div>
         </div>
 
-        <div className="px-6 py-6 space-y-5">
+        <div className="pt-4 space-y-5">
 
           {/* Toasts */}
           {message && (
