@@ -2,56 +2,131 @@
 
 import { useEffect, useState } from 'react'
 import {
-  Plus, Pencil, Trash2, Upload, FileSpreadsheet,
-  FileDown, Search, Building2, AlertCircle,
-  CheckCircle2, ChevronRight, Loader2, X,
-  ShieldCheck, Users
+  Plus, FileSpreadsheet, FileDown,
+  Building2, AlertCircle, CheckCircle2,
+  Loader2, X, RefreshCw, SlidersHorizontal,
 } from 'lucide-react'
+import * as XLSX from 'xlsx'
+import jsPDF from 'jspdf'
+import autoTable from 'jspdf-autotable'
+
 import SidebarLayout from '@/components/layout/SidebarLayout'
 import SchoolForm, { SchoolFormData } from '@/components/forms/SchoolForm'
 import { createSchool, fetchSchools, updateSchool, deleteSchool } from '@/lib/api'
 
+import StatCard          from '@/components/admin/StatCard'
+import SchoolRow         from '@/components/admin/SchoolRow'
+import SchoolListToolbar from '@/components/admin/SchoolListToolbar'
+import SchoolDetailModal from '@/components/admin/SchoolDetailModal'
+import Pagination        from '@/components/admin/Pagination'
+
+// ─── Constants ────────────────────────────────────────────────────────────────
+
+const PAGE_SIZE = 15
+
 const emptySchool: SchoolFormData = {
-  school_id: '',
-  school_name: '',
-  municipality: '',
-  legislative_district: '',
-  number_of_sites: 1,
-  existing_classrooms: 0,
-  proposed_classrooms: 0,
-  number_of_units: 1,
-  stories: 1,
-  auto_generated_scope: '',
-  workshop_type: '',
-  design_configuration: '',
-  old_scope: '',
-  funding_year: '',
-  sdo_priority_level: '',
-  ranking: '',
-  construction_progress_pct: 0,
-  materials_delivered_pct: 0,
-  budget_allocated_php: 0,
-  budget_utilized_php: 0,
-  completion_date: '',
-  latitude: '',
-  longitude: '',
+  school_id: '', school_name: '', municipality: '', legislative_district: '',
+  number_of_sites: 1, existing_classrooms: 0, proposed_classrooms: 0,
+  number_of_units: 1, stories: 1, auto_generated_scope: '', workshop_type: '',
+  design_configuration: '', old_scope: '', funding_year: '', sdo_priority_level: '',
+  ranking: '', construction_progress_pct: 0, materials_delivered_pct: 0,
+  budget_allocated_php: 0, budget_utilized_php: 0, completion_date: '',
+  latitude: '', longitude: '',
 }
 
 type ViewMode = 'list' | 'add' | 'edit'
 
+// ─── Export helpers ───────────────────────────────────────────────────────────
+
+function exportToExcel(schools: SchoolFormData[]) {
+  const rows = schools.map((s, i) => ({
+    '#': i + 1,
+    'School ID': s.school_id ?? '',
+    'School Name': s.school_name ?? '',
+    'Municipality': s.municipality ?? '',
+    'Legislative District': s.legislative_district ?? '',
+    'Scope': s.auto_generated_scope ?? '',
+    'Priority': s.sdo_priority_level ?? '',
+    'Construction Progress (%)': s.construction_progress_pct ?? 0,
+    'Materials Delivered (%)': s.materials_delivered_pct ?? 0,
+    'Budget Allocated (PHP)': s.budget_allocated_php ?? 0,
+    'Budget Utilized (PHP)': s.budget_utilized_php ?? 0,
+    'Funding Year': s.funding_year ?? '',
+    'Completion Date': s.completion_date ?? '',
+    'Existing Classrooms': s.existing_classrooms ?? 0,
+    'Proposed Classrooms': s.proposed_classrooms ?? 0,
+    'Stories': s.stories ?? '',
+    'Design Configuration': s.design_configuration ?? '',
+    'Workshop Type': s.workshop_type ?? '',
+    'Latitude': s.latitude ?? '',
+    'Longitude': s.longitude ?? '',
+  }))
+  const ws = XLSX.utils.json_to_sheet(rows)
+  ws['!cols'] = Object.keys(rows[0] ?? {}).map(k => ({
+    wch: Math.max(k.length, ...rows.map(r => String((r as Record<string, unknown>)[k] ?? '').length)) + 2,
+  }))
+  const wb = XLSX.utils.book_new()
+  XLSX.utils.book_append_sheet(wb, ws, 'School Records')
+  XLSX.writeFile(wb, `SDO-Legazpi-Schools-${new Date().toISOString().slice(0, 10)}.xlsx`)
+}
+
+function exportToPDF(schools: SchoolFormData[]) {
+  const doc = new jsPDF({ orientation: 'landscape', unit: 'pt', format: 'a4' })
+  doc.setFontSize(13)
+  doc.setFont('helvetica', 'bold')
+  doc.text('SDO Legazpi City — School Records', 40, 40)
+  doc.setFontSize(9)
+  doc.setFont('helvetica', 'normal')
+  doc.setTextColor(120)
+  doc.text(
+    `Exported: ${new Date().toLocaleDateString('en-PH', { year: 'numeric', month: 'long', day: 'numeric' })}   Total: ${schools.length} schools`,
+    40, 56,
+  )
+  autoTable(doc, {
+    startY: 70,
+    head: [['#', 'School Name', 'Municipality', 'Scope', 'Priority', 'Progress', 'Budget (PHP)', 'FY']],
+    body: schools.map((s, i) => [
+      i + 1,
+      s.school_name ?? '',
+      s.municipality ?? '',
+      s.auto_generated_scope ?? '—',
+      s.sdo_priority_level ?? '—',
+      `${s.construction_progress_pct ?? 0}%`,
+      s.budget_allocated_php ? `₱${Number(s.budget_allocated_php).toLocaleString()}` : '—',
+      s.funding_year ?? '—',
+    ]),
+    styles: { fontSize: 8, cellPadding: 5 },
+    headStyles: { fillColor: [26, 58, 107], textColor: 255, fontStyle: 'bold' },
+    alternateRowStyles: { fillColor: [248, 250, 252] },
+    columnStyles: { 0: { cellWidth: 24, halign: 'center' }, 5: { halign: 'center' } },
+    margin: { left: 40, right: 40 },
+  })
+  doc.save(`SDO-Legazpi-Schools-${new Date().toISOString().slice(0, 10)}.pdf`)
+}
+
+// ─── Main Component ───────────────────────────────────────────────────────────
+
 export default function AdminPanel() {
-  const [schools, setSchools] = useState<SchoolFormData[]>([])
-  const [school, setSchool] = useState<SchoolFormData>(emptySchool)
-  const [editingId, setEditingId] = useState<string | number | null>(null)
-  const [viewMode, setViewMode] = useState<ViewMode>('list')
-  const [message, setMessage] = useState('')
-  const [error, setError] = useState('')
-  const [loading, setLoading] = useState(false)
-  const [isSubmitting, setIsSubmitting] = useState(false)
-  const [search, setSearch] = useState('')
+  const [schools, setSchools]             = useState<SchoolFormData[]>([])
+  const [school, setSchool]               = useState<SchoolFormData>(emptySchool)
+  const [editingId, setEditingId]         = useState<string | number | null>(null)
+  const [viewMode, setViewMode]           = useState<ViewMode>('list')
+  const [viewingSchool, setViewingSchool] = useState<SchoolFormData | null>(null)
+  const [message, setMessage]             = useState('')
+  const [error, setError]                 = useState('')
+  const [loading, setLoading]             = useState(false)
+  const [isSubmitting, setIsSubmitting]   = useState(false)
+  const [search, setSearch]               = useState('')
   const [deleteConfirm, setDeleteConfirm] = useState<string | number | null>(null)
+  const [priorityFilter, setPriorityFilter] = useState('All')
+  const [exportingXlsx, setExportingXlsx] = useState(false)
+  const [exportingPdf, setExportingPdf]   = useState(false)
+  const [page, setPage]                   = useState(1)
 
   useEffect(() => { loadSchools() }, [])
+
+  // Reset to page 1 whenever filters change
+  useEffect(() => { setPage(1) }, [search, priorityFilter])
 
   const loadSchools = async () => {
     try {
@@ -68,7 +143,7 @@ export default function AdminPanel() {
 
   const showMessage = (msg: string) => {
     setMessage(msg)
-    setTimeout(() => setMessage(''), 3000)
+    setTimeout(() => setMessage(''), 4000)
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -95,6 +170,7 @@ export default function AdminPanel() {
   }
 
   const handleEdit = (s: SchoolFormData) => {
+    setViewingSchool(null)
     setSchool(s)
     setEditingId(s.id || null)
     setViewMode('edit')
@@ -122,85 +198,94 @@ export default function AdminPanel() {
     setError('')
   }
 
-  const filteredSchools = schools.filter(s =>
-    !search ||
-    s.school_name?.toLowerCase().includes(search.toLowerCase()) ||
-    s.municipality?.toLowerCase().includes(search.toLowerCase()) ||
-    s.school_id?.toLowerCase().includes(search.toLowerCase())
-  )
+  const handleExportExcel = async () => {
+    setExportingXlsx(true)
+    try { exportToExcel(filteredSchools); showMessage(`Exported ${filteredSchools.length} records to Excel`) }
+    catch { setError('Export to Excel failed') }
+    finally { setExportingXlsx(false) }
+  }
 
-  return (
-    <SidebarLayout title="Admin Panel" description="Manage schools">
-      <div className="min-h-screen bg-white">
+  const handleExportPDF = async () => {
+    setExportingPdf(true)
+    try { exportToPDF(filteredSchools); showMessage(`Exported ${filteredSchools.length} records to PDF`) }
+    catch { setError('Export to PDF failed') }
+    finally { setExportingPdf(false) }
+  }
 
-        <div className="px-6 py-6">
-          <div className="flex items-center justify-between gap-4 flex-wrap mb-6">
-            <div className="flex items-center gap-3">
-              {viewMode !== 'list' && (
+  const filteredSchools = schools.filter(s => {
+    const q = search.toLowerCase()
+    const matchSearch = !search || s.school_name?.toLowerCase().includes(q) ||
+      s.municipality?.toLowerCase().includes(q) || s.school_id?.toLowerCase().includes(q)
+    const matchPriority = priorityFilter === 'All' || s.sdo_priority_level === priorityFilter
+    return matchSearch && matchPriority
+  })
+
+  const totalPages   = Math.ceil(filteredSchools.length / PAGE_SIZE)
+  const pagedSchools = filteredSchools.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE)
+
+  const stats = {
+    total:     schools.length,
+    high:      schools.filter(s => s.sdo_priority_level === 'High').length,
+    medium:    schools.filter(s => s.sdo_priority_level === 'Medium').length,
+    completed: schools.filter(s => Number(s.construction_progress_pct) >= 100).length,
+  }
+
+  // ─── Form View ──────────────────────────────────────────────────────────────
+
+  if (viewMode !== 'list') {
+    return (
+      <SidebarLayout title="Admin Panel" description="Manage schools">
+        <div className="min-h-screen bg-slate-50/50">
+          {/* Sticky top bar */}
+          <div className="sticky top-0 z-10 bg-white border-b border-slate-200 px-6 py-3.5">
+            <div className="flex items-center justify-between max-w-5xl mx-auto">
+              <div className="flex items-center gap-3">
                 <button
                   onClick={handleCancel}
                   className="w-8 h-8 rounded-lg flex items-center justify-center bg-slate-100 hover:bg-slate-200 transition-colors"
                 >
-                  <X size={15} className="text-slate-600" />
+                  <X size={14} className="text-slate-600" />
                 </button>
-              )}
-              <div>
-                {viewMode !== 'list' && (
-                  <div className="flex items-center gap-2 text-[11px] text-slate-400 mb-1">
-                    <span>Admin Panel</span>
-                    <ChevronRight size={10} />
-                    <span className="text-slate-600">
-                      {viewMode === 'add' ? 'Add New School' : 'Edit School'}
-                    </span>
-                  </div>
-                )}
-                <h1 className="text-lg font-semibold text-slate-900">
-                  {viewMode === 'list' ? 'Manage Schools' : viewMode === 'add' ? 'Add New School' : 'Edit School Record'}
-                </h1>
+                <nav className="flex items-center gap-1.5 text-[12px]">
+                  <span className="text-slate-400 hover:text-slate-600 cursor-pointer" onClick={handleCancel}>
+                    School Records
+                  </span>
+                  <span className="text-slate-300 mx-1">›</span>
+                  <span className="text-slate-800 font-medium">
+                    {viewMode === 'add' ? 'Add New School' : `Edit: ${school.school_name || 'School'}`}
+                  </span>
+                </nav>
               </div>
-            </div>
-
-            {viewMode === 'list' && (
-              <div className="flex items-center gap-2 flex-wrap">
-                <button className="flex items-center gap-1.5 px-3 py-2 text-[12px] font-medium text-slate-600 bg-white border border-slate-200 rounded-lg hover:bg-slate-50 transition-colors">
-                  <Upload size={13} /> Upload Site Plan
-                </button>
-                <button className="flex items-center gap-1.5 px-3 py-2 text-[12px] font-medium text-slate-600 bg-white border border-slate-200 rounded-lg hover:bg-slate-50 transition-colors">
-                  <FileSpreadsheet size={13} /> Export Excel
-                </button>
-                <button className="flex items-center gap-1.5 px-3 py-2 text-[12px] font-medium text-slate-600 bg-white border border-slate-200 rounded-lg hover:bg-slate-50 transition-colors">
-                  <FileDown size={13} /> Export PDF
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={handleCancel}
+                  className="px-3.5 py-1.5 text-[12px] font-medium text-slate-600 bg-white border border-slate-200 rounded-lg hover:bg-slate-50 transition-colors"
+                >
+                  Discard
                 </button>
                 <button
-                  onClick={() => setViewMode('add')}
-                  className="flex items-center gap-1.5 px-4 py-2 text-[12px] font-medium text-white bg-[#1a3a6b] rounded-lg hover:bg-[#163260] transition-colors"
+                  form="school-form"
+                  type="submit"
+                  disabled={isSubmitting}
+                  className="flex items-center gap-1.5 px-4 py-1.5 text-[12px] font-semibold text-white bg-[#1a3a6b] rounded-lg hover:bg-[#163260] disabled:opacity-60 transition-colors"
                 >
-                  <Plus size={13} /> Add New School
+                  {isSubmitting ? <Loader2 size={12} className="animate-spin" /> : <CheckCircle2 size={12} />}
+                  {isSubmitting ? 'Saving…' : viewMode === 'add' ? 'Create School' : 'Save Changes'}
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div className="max-w-5xl mx-auto px-6 py-8">
+            {error && (
+              <div className="mb-6 flex items-center gap-2.5 px-4 py-3 bg-red-50 border border-red-200 rounded-xl text-[13px] text-red-800">
+                <AlertCircle size={14} className="text-red-500 shrink-0" />
+                {error}
+                <button onClick={() => setError('')} className="ml-auto text-red-400 hover:text-red-600">
+                  <X size={13} />
                 </button>
               </div>
             )}
-          </div>
-        </div>
-
-        <div className="px-6 py-6">
-
-          {/* Toast notifications */}
-          {message && (
-            <div className="mb-4 flex items-center gap-2.5 px-4 py-3 bg-green-50 border border-green-200 rounded-xl text-[13px] text-green-800">
-              <CheckCircle2 size={15} className="text-green-600 shrink-0" />
-              {message}
-            </div>
-          )}
-          {error && (
-            <div className="mb-4 flex items-center gap-2.5 px-4 py-3 bg-red-50 border border-red-200 rounded-xl text-[13px] text-red-800">
-              <AlertCircle size={15} className="text-red-600 shrink-0" />
-              {error}
-              <button onClick={() => setError('')} className="ml-auto"><X size={13} /></button>
-            </div>
-          )}
-
-          {/* FORM VIEW */}
-          {viewMode !== 'list' ? (
             <SchoolForm
               school={school}
               editingId={editingId}
@@ -209,179 +294,182 @@ export default function AdminPanel() {
               onCancel={handleCancel}
               setSchool={setSchool}
             />
-          ) : (
-            <>
-              {/* Access info banner */}
-              <div className="mb-5 flex items-center gap-3 px-4 py-3 bg-[#1a3a6b]/5 border border-[#1a3a6b]/15 rounded-xl">
-                <ShieldCheck size={15} className="text-[#1a3a6b] shrink-0" />
-                <p className="text-[12px] text-[#1a3a6b]">
-                  <span className="font-semibold">Admin access</span> — You can add, edit, and delete school records. Viewers can only read data.
-                </p>
-                <div className="ml-auto flex items-center gap-1.5 text-[11px] text-slate-400">
-                  <Users size={12} />
-                  <span>SDO Legazpi City</span>
+          </div>
+        </div>
+      </SidebarLayout>
+    )
+  }
+
+  // ─── List View ──────────────────────────────────────────────────────────────
+
+  return (
+    <SidebarLayout title="Admin Panel" description="Manage schools">
+
+      {/* Full-view modal */}
+      {viewingSchool && (
+        <SchoolDetailModal
+          school={viewingSchool}
+          onClose={() => setViewingSchool(null)}
+          onEdit={handleEdit}
+        />
+      )}
+
+      <div className="min-h-screen bg-slate-50/40">
+
+        {/* Page Header */}
+        <div className="bg-white border-b border-slate-200">
+          <div className="px-6 py-5 flex items-start justify-between gap-4 flex-wrap">
+            <div>
+              <div className="flex items-center gap-2 mb-0.5">
+                <div className="w-6 h-6 rounded-md bg-[#1a3a6b] flex items-center justify-center">
+                  <Building2 size={13} className="text-white" />
                 </div>
+                <h1 className="text-[16px] font-bold text-slate-900 tracking-tight">Administrator Panel</h1>
               </div>
+              <p className="text-[12px] text-slate-400 ml-8">Manage school records, construction status, and generate exports</p>
+            </div>
 
-              {/* Stats row */}
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-5">
-                {[
-                  { label: 'Total Schools', value: schools.length, color: 'text-[#1a3a6b]' },
-                  { label: 'High Priority', value: schools.filter(s => s.sdo_priority_level === 'High').length, color: 'text-red-600' },
-                  { label: 'Medium Priority', value: schools.filter(s => s.sdo_priority_level === 'Medium').length, color: 'text-amber-600' },
-                  { label: 'Completed', value: schools.filter(s => s.construction_progress_pct === 100).length, color: 'text-green-600' },
-                ].map(({ label, value, color }) => (
-                  <div key={label} className="bg-white border border-slate-200 rounded-xl px-4 py-3">
-                    <p className="text-[11px] text-slate-400 mb-1">{label}</p>
-                    <p className={`text-[22px] font-semibold ${color}`}>{value}</p>
-                  </div>
-                ))}
+            <div className="flex items-center gap-2 flex-wrap">
+              <button
+                onClick={loadSchools}
+                className="w-8 h-8 flex items-center justify-center rounded-lg text-slate-500 bg-white border border-slate-200 hover:bg-slate-50 transition-colors"
+                title="Refresh"
+              >
+                <RefreshCw size={13} className={loading ? 'animate-spin' : ''} />
+              </button>
+
+              <div className="w-px h-5 bg-slate-200" />
+
+              <button
+                onClick={handleExportExcel}
+                disabled={exportingXlsx || schools.length === 0}
+                className="flex items-center gap-1.5 px-3.5 py-2 text-[12px] font-medium text-slate-700 bg-white border border-slate-200 rounded-lg hover:bg-slate-50 hover:border-slate-300 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+              >
+                {exportingXlsx
+                  ? <Loader2 size={13} className="animate-spin text-emerald-600" />
+                  : <FileSpreadsheet size={13} className="text-emerald-600" />}
+                Export Excel
+              </button>
+
+              <button
+                onClick={handleExportPDF}
+                disabled={exportingPdf || schools.length === 0}
+                className="flex items-center gap-1.5 px-3.5 py-2 text-[12px] font-medium text-slate-700 bg-white border border-slate-200 rounded-lg hover:bg-slate-50 hover:border-slate-300 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+              >
+                {exportingPdf
+                  ? <Loader2 size={13} className="animate-spin text-red-500" />
+                  : <FileDown size={13} className="text-red-500" />}
+                Export PDF
+              </button>
+
+              <div className="w-px h-5 bg-slate-200" />
+
+              <button
+                onClick={() => setViewMode('add')}
+                className="flex items-center gap-1.5 px-4 py-2 text-[12px] font-semibold text-white bg-[#1a3a6b] rounded-lg hover:bg-[#163260] transition-colors shadow-sm shadow-[#1a3a6b]/20"
+              >
+                <Plus size={13} /> Add School
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div className="px-6 py-6 space-y-5">
+
+          {/* Toasts */}
+          {message && (
+            <div className="flex items-center gap-2.5 px-4 py-3 bg-emerald-50 border border-emerald-200 rounded-xl text-[13px] text-emerald-800">
+              <CheckCircle2 size={14} className="text-emerald-500 shrink-0" />
+              <span className="font-medium">{message}</span>
+              <button onClick={() => setMessage('')} className="ml-auto text-emerald-400 hover:text-emerald-600"><X size={12} /></button>
+            </div>
+          )}
+          {error && (
+            <div className="flex items-center gap-2.5 px-4 py-3 bg-red-50 border border-red-200 rounded-xl text-[13px] text-red-800">
+              <AlertCircle size={14} className="text-red-500 shrink-0" />
+              <span className="font-medium">{error}</span>
+              <button onClick={() => setError('')} className="ml-auto text-red-400 hover:text-red-600"><X size={12} /></button>
+            </div>
+          )}
+
+          {/* Stats */}
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+            <StatCard label="Total Schools" value={stats.total}     accent="navy"  icon={Building2}        sublabel="All records" />
+            <StatCard label="High Priority" value={stats.high}      accent="red"   icon={AlertCircle}      sublabel="Urgent attention" />
+            <StatCard label="Med. Priority" value={stats.medium}    accent="amber" icon={SlidersHorizontal} sublabel="Active monitoring" />
+            <StatCard label="Completed"     value={stats.completed} accent="green" icon={CheckCircle2}     sublabel="100% progress" />
+          </div>
+
+          {/* School Records List */}
+          <div className="bg-white border border-slate-200/80 rounded-2xl overflow-hidden shadow-sm">
+
+            <SchoolListToolbar
+              search={search}
+              priorityFilter={priorityFilter}
+              totalFiltered={filteredSchools.length}
+              totalAll={schools.length}
+              onSearchChange={setSearch}
+              onPriorityChange={setPriorityFilter}
+              onClear={() => { setSearch(''); setPriorityFilter('All') }}
+            />
+
+            {loading ? (
+              <div className="flex flex-col items-center justify-center gap-3 py-20">
+                <Loader2 size={20} className="animate-spin text-[#1a3a6b]" />
+                <p className="text-[13px] text-slate-400">Loading school records…</p>
               </div>
-
-              {/* Table card */}
-              <div className="bg-white border border-slate-200 rounded-xl overflow-hidden">
-                <div className="px-5 py-4 border-b border-slate-100 flex items-center justify-between gap-3 flex-wrap">
-                  <div>
-                    <h2 className="text-[14px] font-semibold text-slate-800">
-                      School Records
-                    </h2>
-                    <p className="text-[11px] text-slate-400 mt-0.5">{filteredSchools.length} of {schools.length} schools</p>
-                  </div>
-                  <div className="relative">
-                    <Search size={13} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
-                    <input
-                      value={search}
-                      onChange={e => setSearch(e.target.value)}
-                      placeholder="Search schools..."
-                      className="pl-8 pr-3 py-2 text-[12px] border border-slate-200 rounded-lg bg-slate-50 focus:outline-none focus:border-[#1a3a6b] focus:ring-1 focus:ring-[#1a3a6b]/20 w-52"
-                    />
-                  </div>
+            ) : filteredSchools.length === 0 ? (
+              <div className="flex flex-col items-center justify-center py-20 gap-4">
+                <div className="w-14 h-14 rounded-2xl bg-slate-100 flex items-center justify-center">
+                  <Building2 size={24} className="text-slate-300" />
                 </div>
-
-                {loading ? (
-                  <div className="flex items-center justify-center gap-2 py-16 text-slate-400 text-[13px]">
-                    <Loader2 size={16} className="animate-spin" /> Loading schools...
-                  </div>
-                ) : filteredSchools.length === 0 ? (
-                  <div className="flex flex-col items-center justify-center py-16 gap-3 text-slate-400">
-                    <Building2 size={32} className="text-slate-200" />
-                    <p className="text-[13px]">
-                      {search ? 'No schools match your search' : 'No schools added yet'}
-                    </p>
-                    {!search && (
-                      <button
-                        onClick={() => setViewMode('add')}
-                        className="mt-1 flex items-center gap-1.5 px-4 py-2 text-[12px] font-medium text-white bg-[#1a3a6b] rounded-lg hover:bg-[#163260] transition-colors"
-                      >
-                        <Plus size={13} /> Add First School
-                      </button>
-                    )}
-                  </div>
-                ) : (
-                  <div className="overflow-x-auto">
-                    <table className="w-full">
-                      <thead>
-                        <tr className="bg-slate-50 border-b border-slate-100">
-                          {['School ID', 'School Name', 'Municipality', 'Scope', 'Priority', 'Progress', 'Budget Allocated', 'Actions'].map(h => (
-                            <th key={h} className="px-4 py-3 text-left text-[11px] font-semibold text-slate-500 uppercase tracking-wide whitespace-nowrap">
-                              {h}
-                            </th>
-                          ))}
-                        </tr>
-                      </thead>
-                      <tbody className="divide-y divide-slate-50">
-                        {filteredSchools.map((s) => (
-                          <tr key={s.id} className="hover:bg-slate-50 transition-colors group">
-                            <td className="px-4 py-3 text-[12px] text-slate-400 font-mono">{s.school_id || '—'}</td>
-                            <td className="px-4 py-3">
-                              <p className="text-[13px] font-medium text-slate-800">{s.school_name}</p>
-                              <p className="text-[11px] text-slate-400">{s.legislative_district || '—'}</p>
-                            </td>
-                            <td className="px-4 py-3 text-[12px] text-slate-600">{s.municipality || '—'}</td>
-                            <td className="px-4 py-3">
-                              <span className="font-mono text-[11px] bg-blue-50 text-[#1a3a6b] border border-blue-100 px-2 py-0.5 rounded-md">
-                                {s.auto_generated_scope || '—'}
-                              </span>
-                            </td>
-                            <td className="px-4 py-3">
-                              <PriorityBadge priority={s.sdo_priority_level as string} />
-                            </td>
-                            <td className="px-4 py-3">
-                              <div className="flex items-center gap-2">
-                                <div className="w-20 h-1.5 bg-slate-100 rounded-full overflow-hidden">
-                                  <div
-                                    className="h-full rounded-full bg-[#1a3a6b]"
-                                    style={{ width: `${s.construction_progress_pct || 0}%` }}
-                                  />
-                                </div>
-                                <span className="text-[11px] text-slate-500 font-mono min-w-7">
-                                  {s.construction_progress_pct || 0}%
-                                </span>
-                              </div>
-                            </td>
-                            <td className="px-4 py-3 text-[12px] text-slate-600">
-                              {s.budget_allocated_php
-                                ? `₱${Number(s.budget_allocated_php).toLocaleString()}`
-                                : '—'}
-                            </td>
-                            <td className="px-4 py-3">
-                              <div className="flex items-center gap-1 justify-end opacity-0 group-hover:opacity-100 transition-opacity">
-                                <button
-                                  onClick={() => handleEdit(s)}
-                                  className="flex items-center gap-1 px-2.5 py-1.5 text-[11px] font-medium text-[#1a3a6b] bg-blue-50 hover:bg-blue-100 rounded-lg transition-colors"
-                                >
-                                  <Pencil size={11} /> Edit
-                                </button>
-                                {deleteConfirm === s.id ? (
-                                  <div className="flex items-center gap-1">
-                                    <button
-                                      onClick={() => handleDelete(s.id!)}
-                                      className="px-2.5 py-1.5 text-[11px] font-medium text-white bg-red-500 hover:bg-red-600 rounded-lg transition-colors"
-                                    >
-                                      Confirm
-                                    </button>
-                                    <button
-                                      onClick={() => setDeleteConfirm(null)}
-                                      className="px-2.5 py-1.5 text-[11px] font-medium text-slate-600 bg-slate-100 hover:bg-slate-200 rounded-lg transition-colors"
-                                    >
-                                      Cancel
-                                    </button>
-                                  </div>
-                                ) : (
-                                  <button
-                                    onClick={() => setDeleteConfirm(s.id!)}
-                                    className="flex items-center gap-1 px-2.5 py-1.5 text-[11px] font-medium text-red-600 bg-red-50 hover:bg-red-100 rounded-lg transition-colors"
-                                  >
-                                    <Trash2 size={11} /> Delete
-                                  </button>
-                                )}
-                              </div>
-                            </td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
+                <div className="text-center">
+                  <p className="text-[14px] font-medium text-slate-600 mb-1">
+                    {search || priorityFilter !== 'All' ? 'No matching records' : 'No schools yet'}
+                  </p>
+                  <p className="text-[12px] text-slate-400">
+                    {search || priorityFilter !== 'All'
+                      ? 'Try adjusting your search or filter'
+                      : 'Get started by adding your first school record'}
+                  </p>
+                </div>
+                {!search && priorityFilter === 'All' && (
+                  <button
+                    onClick={() => setViewMode('add')}
+                    className="flex items-center gap-1.5 px-4 py-2 text-[12px] font-semibold text-white bg-[#1a3a6b] rounded-lg hover:bg-[#163260] transition-colors"
+                  >
+                    <Plus size={13} /> Add First School
+                  </button>
                 )}
               </div>
-            </>
-          )}
+            ) : (
+              <ul className="divide-y divide-slate-100">
+                {pagedSchools.map((s, idx) => (
+                  <SchoolRow
+                    key={s.id ?? idx}
+                    school={s}
+                    index={(page - 1) * PAGE_SIZE + idx}
+                    deleteConfirm={deleteConfirm}
+                    onView={setViewingSchool}
+                    onEdit={handleEdit}
+                    onDeleteRequest={setDeleteConfirm}
+                    onDeleteConfirm={handleDelete}
+                    onDeleteCancel={() => setDeleteConfirm(null)}
+                  />
+                ))}
+              </ul>
+            )}
+
+            <Pagination
+              page={page}
+              totalPages={totalPages}
+              totalItems={filteredSchools.length}
+              pageSize={PAGE_SIZE}
+              onPageChange={setPage}
+            />
+          </div>
         </div>
       </div>
     </SidebarLayout>
-  )
-}
-
-function PriorityBadge({ priority }: { priority?: string }) {
-  if (!priority) return <span className="text-[11px] text-slate-400">—</span>
-  const styles: Record<string, string> = {
-    High: 'bg-red-50 text-red-700 border-red-100',
-    Medium: 'bg-amber-50 text-amber-700 border-amber-100',
-    Low: 'bg-green-50 text-green-700 border-green-100',
-  }
-  return (
-    <span className={`inline-block text-[11px] font-medium px-2 py-0.5 rounded-md border ${styles[priority] ?? 'bg-slate-50 text-slate-600 border-slate-100'}`}>
-      {priority}
-    </span>
   )
 }

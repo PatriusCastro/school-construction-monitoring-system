@@ -547,7 +547,7 @@ export default function SchoolForm({
       {/* Lightbox */}
       {lightboxOpen && siteMapPreview && (
         <div
-          className="fixed inset-0 z-[9999] bg-black/85 backdrop-blur-sm flex items-center justify-center p-6"
+          className="fixed inset-0 z-9999 bg-black/85 backdrop-blur-sm flex items-center justify-center p-6"
           onClick={() => setLightboxOpen(false)}
         >
           <div className="relative max-w-5xl w-full" onClick={e => e.stopPropagation()}>

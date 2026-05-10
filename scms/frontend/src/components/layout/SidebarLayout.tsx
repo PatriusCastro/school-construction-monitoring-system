@@ -291,7 +291,7 @@ export default function SidebarLayout({ children, title, description }: SidebarL
         </header>
 
         {/* Page content */}
-        <main className="flex-1 overflow-auto bg-slate-50 p-5 md:p-7">
+        <main className="flex-1 overflow-auto bg-slate-50">
           {children}
         </main>
       </div>
