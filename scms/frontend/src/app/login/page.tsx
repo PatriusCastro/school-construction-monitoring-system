@@ -42,7 +42,7 @@ export default function LoginPage() {
           <div className="h-10 w-10 rounded-lg bg-[#1a3a5c] flex items-center justify-center">
             <Building2 size={20} className="text-[#4a9fd4]" />
           </div>
-          <span className="text-white font-semibold text-sm tracking-wide">DepEd SchoolBuild</span>
+          <span className="text-white font-semibold text-sm tracking-wide">School Construction Monitoring System</span>
         </div>
 
         <div className="flex flex-col gap-10">

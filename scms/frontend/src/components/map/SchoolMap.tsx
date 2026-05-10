@@ -53,6 +53,7 @@ export interface School {
   completion_date: string
   latitude: number
   longitude: number
+  site_map_url: string
 }
 
 function FitBounds({ schools }: { schools: School[] }) {

@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import dynamic from 'next/dynamic'
-import { MapPin, RefreshCw, Search, X, Info } from 'lucide-react'
+import { MapPin, RefreshCw, Search, X, Info, Expand } from 'lucide-react'
 import SidebarLayout from '@/components/layout/SidebarLayout'
 import { fetchSchools } from '@/lib/api'
 import type { School } from '@/components/map/SchoolMap'
@@ -25,6 +25,7 @@ export default function SchoolsMap() {
   const [error, setError] = useState('')
   const [search, setSearch] = useState('')
   const [selectedSchool, setSelectedSchool] = useState<School | null>(null)
+  const [showSitemap, setShowSitemap] = useState(false)
 
   useEffect(() => { loadSchools() }, [])
 
@@ -203,6 +204,62 @@ export default function SchoolsMap() {
                     <ProgressBar label="Construction" value={selectedSchool.construction_progress_pct} color="#1a3a6b" />
                     <ProgressBar label="Materials" value={selectedSchool.materials_delivered_pct} color="#c8a800" />
                   </div>
+
+                  {selectedSchool.site_map_url && (
+                    <>
+                      <div className="pt-2 border-t border-slate-100">
+                        <div className="flex items-center justify-between mb-2">
+                          <p className="text-[10px] text-slate-400 uppercase tracking-widest">
+                            Sitemap
+                          </p>
+
+                          <button
+                            onClick={() => setShowSitemap(true)}
+                            className="text-[10px] text-[#1a3a6b] hover:bg-[#1a3a6b]/5 p-2 rounded transition-colors flex items-center gap-1"
+                          >
+                            <Expand size={12}/>
+                          </button>
+                        </div>
+
+                        <button
+                          onClick={() => setShowSitemap(true)}
+                          className="relative w-full overflow-hidden rounded-xl border border-slate-200 bg-slate-50 group"
+                        >
+                          <img
+                            src={selectedSchool.site_map_url}
+                            alt={`${selectedSchool.school_name} sitemap`}
+                            className="w-full h-full object-contain bg-slate-100 group-hover:scale-[1.02] transition-transform duration-300"
+                          />
+
+                          <div className="absolute inset-x-0 bottom-0 bg-linear-to-t from-black/60 to-transparent px-3 py-2">
+                            <p className="text-[10px] text-white font-medium truncate">
+                              Click to expand
+                            </p>
+                          </div>
+                        </button>
+                      </div>
+
+                      {/* Fullscreen Modal */}
+                      {showSitemap && (
+                        <div className="fixed h-screen inset-0 z-9999 bg-black/80 backdrop-blur-sm flex items-center justify-center p-6">
+                          <button
+                            onClick={() => setShowSitemap(false)}
+                            className="absolute top-5 right-5 w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center"
+                          >
+                            <X size={18} className="text-white" />
+                          </button>
+
+                          <div className="max-h-[90vh] w-full flex items-center justify-center">
+                            <img
+                              src={selectedSchool.site_map_url}
+                              alt="Expanded Sitemap"
+                              className="max-w-full max-h-[90vh] object-contain rounded-xl shadow-2xl"
+                            />
+                          </div>
+                        </div>
+                      )}
+                    </>
+                  )}
 
                   {/* Budget */}
                   {selectedSchool.budget_allocated_php ? (
