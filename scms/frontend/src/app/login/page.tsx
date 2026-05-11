@@ -51,8 +51,8 @@ export default function LoginPage() {
         <div className="relative z-10 flex flex-col justify-between h-full">
 
           <div className="flex items-center gap-3">
-            <div className="h-10 w-10 rounded-lg bg-[#0F2444] flex items-center justify-center">
-              <Building2 size={24} className="text-[#FFB900]" />
+            <div className="h-10 w-10 rounded-lg flex items-center justify-center">
+              <Building2 size={24} className="text-[#4a9fd4]" />
             </div>
             <span className="text-white font-semibold text-lg tracking-wide">School Construction Monitoring System</span>
           </div>
@@ -62,7 +62,7 @@ export default function LoginPage() {
               <h1 className="text-4xl font-bold text-white leading-tight tracking-tight mb-4">
                 Manage school construction<br />with precision.
               </h1>
-              <p className="text-[#FFB900] text-sm leading-relaxed max-w-xs">
+              <p className="text-white/50 text-sm leading-relaxed max-w-xs">
                 Track progress, monitor budgets, and coordinate projects across every district — all in one place.
               </p>
             </div>

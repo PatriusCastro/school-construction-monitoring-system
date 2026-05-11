@@ -3,16 +3,11 @@ import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
 
 const ADMIN_ONLY_ROUTES = ['/admin-panel', '/reports']
-const PUBLIC_ROUTES = ['/login', '/register']   // ← add this
+const PUBLIC_ROUTES = ['/login', '/register']
 
 export async function middleware(request: NextRequest) {
   const response = NextResponse.next()
   const { pathname } = request.nextUrl
-
-  // Allow public routes through without any auth check
-  if (PUBLIC_ROUTES.some(route => pathname.startsWith(route))) {
-    return response
-  }
 
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -30,6 +25,14 @@ export async function middleware(request: NextRequest) {
   )
 
   const { data: { user } } = await supabase.auth.getUser()
+
+  // If logged in, block access to public routes and redirect to dashboard
+  if (PUBLIC_ROUTES.some(route => pathname.startsWith(route))) {
+    if (user) {
+      return NextResponse.redirect(new URL('/dashboard', request.url))
+    }
+    return response
+  }
 
   // Redirect unauthenticated users to login
   if (!user) {
