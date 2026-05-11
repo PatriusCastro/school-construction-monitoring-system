@@ -611,7 +611,7 @@ export default function Reports() {
           <div className="px-6 py-5 flex items-start justify-between gap-4 flex-wrap">
             <div>
               <div className="flex items-center gap-2 mb-0.5">
-                <div className="w-6 h-6 rounded-md bg-[#1a3a6b] flex items-center justify-center">
+                <div className="w-6 h-6 rounded-md bg-[#0F2444] flex items-center justify-center">
                   <FileText size={13} className="text-white" />
                 </div>
                 <h1 className="text-[16px] font-bold text-slate-900 tracking-tight">Reports & Analytics</h1>

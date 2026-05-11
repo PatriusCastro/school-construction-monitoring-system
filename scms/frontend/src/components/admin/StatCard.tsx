@@ -11,10 +11,10 @@ interface StatCardProps {
 }
 
 const accentMap: Record<Accent, { bar: string; text: string; iconBg: string }> = {
-  navy:  { bar: 'bg-[#1a3a6b]',   text: 'text-[#1a3a6b]',   iconBg: 'bg-[#1a3a6b]/8' },
-  red:   { bar: 'bg-red-500',     text: 'text-red-600',      iconBg: 'bg-red-50' },
-  amber: { bar: 'bg-amber-400',   text: 'text-amber-600',    iconBg: 'bg-amber-50' },
-  green: { bar: 'bg-emerald-500', text: 'text-emerald-600',  iconBg: 'bg-emerald-50' },
+  navy:  { bar: 'bg-[#0F2444]',   text: 'text-[#0F2444]',   iconBg: 'bg-[#0F2444]/8' },
+  red:   { bar: 'bg-[#DC2626]',   text: 'text-[#DC2626]',   iconBg: 'bg-red-50' },
+  amber: { bar: 'bg-[#FFB900]',   text: 'text-[#FFB900]',   iconBg: 'bg-amber-50' },
+  green: { bar: 'bg-[#27AE60]',   text: 'text-[#27AE60]',   iconBg: 'bg-green-50' },
 }
 
 export default function StatCard({ label, value, accent, icon: Icon, sublabel }: StatCardProps) {

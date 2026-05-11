@@ -12,7 +12,7 @@ const SchoolMap = dynamic(() => import('@/components/map/SchoolMap'), {
   loading: () => (
     <div className="h-full flex items-center justify-center bg-slate-100 text-[13px] text-slate-400">
       <div className="text-center">
-        <div className="w-8 h-8 border-2 border-[#1a3a6b] border-t-transparent rounded-full animate-spin mx-auto mb-2" />
+        <div className="w-8 h-8 border-2 border-[#0F2444] border-t-transparent rounded-full animate-spin mx-auto mb-2" />
         <p>Loading map...</p>
       </div>
     </div>
@@ -81,7 +81,7 @@ export default function SchoolsMap() {
                   value={search}
                   onChange={e => setSearch(e.target.value)}
                   placeholder="Search schools..."
-                  className="w-full pl-8 pr-3 py-2 text-[12px] border border-slate-200 rounded-lg bg-slate-50 focus:outline-none focus:border-[#1a3a6b]"
+                  className="w-full pl-8 pr-3 py-2 text-[12px] border border-slate-200 rounded-lg bg-slate-50 focus:outline-none focus:border-[#0F2444]"
                 />
               </div>
             </div>
@@ -97,18 +97,18 @@ export default function SchoolsMap() {
                     key={s.id}
                     onClick={() => setSelectedSchool(selectedSchool?.id === s.id ? null : s)}
                     className={`w-full text-left px-3 py-3 border-b border-slate-50 hover:bg-slate-50 transition-colors flex items-center gap-2.5 ${
-                      selectedSchool?.id === s.id ? 'bg-blue-50 border-l-2 border-l-[#1a3a6b]' : ''
+                      selectedSchool?.id === s.id ? 'bg-blue-50 border-l-2 border-l-[#0F2444]' : ''
                     }`}
                   >
                     <div
                       className="w-2.5 h-2.5 rounded-full shrink-0"
                       style={{
-                        background: s.sdo_priority_level === 'High' ? '#c0392b' :
-                          s.sdo_priority_level === 'Medium' ? '#c8a800' : '#27ae60'
+                        background: s.sdo_priority_level === 'High' ? '#DC2626' :
+                          s.sdo_priority_level === 'Medium' ? '#FFB900' : '#27AE60'
                       }}
                     />
                     <div className="min-w-0 flex-1">
-                      <p className={`text-[12px] font-medium truncate leading-tight ${selectedSchool?.id === s.id ? 'text-[#1a3a6b]' : 'text-slate-700'}`}>
+                      <p className={`text-[12px] font-medium truncate leading-tight ${selectedSchool?.id === s.id ? 'text-[#0F2444]' : 'text-slate-700'}`}>
                         {s.school_name}
                       </p>
                       <p className="text-[10px] text-slate-400 truncate mt-0.5">{s.municipality || '—'}</p>
@@ -136,7 +136,7 @@ export default function SchoolsMap() {
             <div className="absolute top-3 left-3 z-999 bg-white/95 backdrop-blur-sm border border-slate-200 rounded-xl px-3 py-2.5 shadow-sm">
               <p className="text-[9px] text-slate-400 uppercase tracking-wider mb-1.5">Priority</p>
               <div className="flex flex-col gap-1.5">
-                {[['High', '#c0392b'], ['Medium', '#c8a800'], ['Low', '#27ae60']].map(([label, color]) => (
+                {[['High', '#DC2626'], ['Medium', '#FFB900'], ['Low', '#27AE60']].map(([label, color]) => (
                   <span key={label} className="flex items-center gap-2 text-[11px] text-slate-600">
                     <span className="w-2.5 h-2.5 rounded-full shrink-0" style={{ background: color }} />
                     {label}
@@ -149,7 +149,7 @@ export default function SchoolsMap() {
             {selectedSchool && (
               <div className="absolute top-3 right-3 z-999 w-72 bg-white rounded-2xl overflow-hidden shadow-2xl border border-slate-200">
                 {/* Header */}
-                <div className="bg-[#1a3a6b] px-4 py-4 relative">
+                <div className="bg-[#0F2444] px-4 py-4 relative">
                   <button
                     onClick={() => setSelectedSchool(null)}
                     className="absolute top-3 right-3 w-6 h-6 bg-white/15 hover:bg-white/25 rounded-md flex items-center justify-center transition-colors"
@@ -170,15 +170,15 @@ export default function SchoolsMap() {
                   <div className="flex gap-2 flex-wrap">
                     {selectedSchool.sdo_priority_level && (
                       <span className={`text-[11px] font-semibold px-3 py-1 rounded-lg ${
-                        selectedSchool.sdo_priority_level === 'High' ? 'bg-red-50 text-red-700' :
-                        selectedSchool.sdo_priority_level === 'Medium' ? 'bg-amber-50 text-amber-700' :
-                        'bg-green-50 text-green-700'
+                        selectedSchool.sdo_priority_level === 'High' ? 'bg-red-50 text-[#DC2626]' :
+                        selectedSchool.sdo_priority_level === 'Medium' ? 'bg-amber-50 text-[#FFB900]' :
+                        'bg-green-50 text-[#27AE60]'
                       }`}>
                         {selectedSchool.sdo_priority_level} Priority
                       </span>
                     )}
                     {selectedSchool.auto_generated_scope && (
-                      <span className="text-[11px] font-bold font-mono px-3 py-1 rounded-lg bg-blue-50 text-[#1a3a6b]">
+                      <span className="text-[11px] font-bold font-mono px-3 py-1 rounded-lg bg-blue-50 text-[#0F2444]">
                         {selectedSchool.auto_generated_scope}
                       </span>
                     )}
@@ -201,8 +201,8 @@ export default function SchoolsMap() {
 
                   {/* Progress bars */}
                   <div className="space-y-2.5 pt-2 border-t border-slate-100">
-                    <ProgressBar label="Construction" value={selectedSchool.construction_progress_pct} color="#1a3a6b" />
-                    <ProgressBar label="Materials" value={selectedSchool.materials_delivered_pct} color="#c8a800" />
+                    <ProgressBar label="Construction" value={selectedSchool.construction_progress_pct} color="#0F2444" />
+                    <ProgressBar label="Materials" value={selectedSchool.materials_delivered_pct} color="#FFB900" />
                   </div>
 
                   {selectedSchool.site_map_url && (
@@ -215,7 +215,7 @@ export default function SchoolsMap() {
 
                           <button
                             onClick={() => setShowSitemap(true)}
-                            className="text-[10px] text-[#1a3a6b] hover:bg-[#1a3a6b]/5 p-2 rounded transition-colors flex items-center gap-1"
+                            className="text-[10px] text-[#0F2444] hover:bg-[#0F2444]/5 p-2 rounded transition-colors flex items-center gap-1"
                           >
                             <Expand size={12}/>
                           </button>
@@ -285,7 +285,7 @@ export default function SchoolsMap() {
             {loading ? (
               <div className="h-full flex items-center justify-center bg-slate-100">
                 <div className="text-center">
-                  <div className="w-8 h-8 border-2 border-[#1a3a6b] border-t-transparent rounded-full animate-spin mx-auto mb-2" />
+                  <div className="w-8 h-8 border-2 border-[#0F2444] border-t-transparent rounded-full animate-spin mx-auto mb-2" />
                   <p className="text-[12px] text-slate-400">Loading map...</p>
                 </div>
               </div>

@@ -29,13 +29,13 @@ interface School {
 }
 
 const COLORS = {
-  High: '#c0392b',
-  Medium: '#c8a800',
-  Low: '#27ae60',
-  blue: '#1a3a6b',
-  blueLight: '#3b6abf',
-  blueMid: '#2952a3',
-  amber: '#c8a800',
+  High: '#DC2626',
+  Medium: '#FFB900',
+  Low: '#27AE60',
+  blue: '#0F2444',
+  blueLight: '#0F2444',
+  blueMid: '#0F2444',
+  amber: '#FFB900',
   grid: '#f1f5f9',
   text: '#94a3b8',
 }
@@ -276,11 +276,11 @@ export default function DataVisualization() {
       {
         label: 'Existing (Supply)',
         data: schools.map(s => s.existing_classrooms || 0),
-        borderColor: '#c0392b',
+        borderColor: '#DC2626',
         backgroundColor: 'rgba(192, 57, 43, 0.08)',
         borderWidth: 2.5,
         pointRadius: 4,
-        pointBackgroundColor: '#c0392b',
+        pointBackgroundColor: '#DC2626',
         pointBorderColor: '#fff',
         pointBorderWidth: 2,
         tension: 0.3,
@@ -289,11 +289,11 @@ export default function DataVisualization() {
       {
         label: 'Proposed (Demand)',
         data: schools.map(s => s.proposed_classrooms || 0),
-        borderColor: '#1a3a6b',
+        borderColor: '#0F2444',
         backgroundColor: 'rgba(26, 58, 107, 0.08)',
         borderWidth: 2.5,
         pointRadius: 4,
-        pointBackgroundColor: '#1a3a6b',
+        pointBackgroundColor: '#0F2444',
         pointBorderColor: '#fff',
         pointBorderWidth: 2,
         tension: 0.3,
@@ -365,7 +365,7 @@ export default function DataVisualization() {
           {/* Quick stats */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
             {[
-              { label: 'Total Schools', value: schools.length, icon: Building2, color: 'text-[#1a3a6b]', bg: 'bg-blue-50' },
+              { label: 'Total Schools', value: schools.length, icon: Building2, color: 'text-[#0F2444]', bg: 'bg-blue-50' },
               { label: 'Total Classrooms', value: totalClassrooms, icon: BarChart3, color: 'text-amber-600', bg: 'bg-amber-50' },
               { label: 'Avg. Progress', value: `${avgProgress}%`, icon: TrendingUp, color: 'text-green-600', bg: 'bg-green-50' },
               { label: 'High Priority', value: highCount, icon: PieChart, color: 'text-red-600', bg: 'bg-red-50' },
@@ -532,17 +532,17 @@ export default function DataVisualization() {
                     {schools.map(s => (
                       <tr key={s.id} className="hover:bg-slate-50 transition-colors">
                         <td className="px-4 py-3 text-[12px] font-medium text-slate-800">{s.school_name}</td>
-                        <td className="px-4 py-3 text-[13px] font-semibold text-[#1a3a6b] text-center">{s.proposed_classrooms || 0}</td>
+                        <td className="px-4 py-3 text-[13px] font-semibold text-[#0F2444] text-center">{s.proposed_classrooms || 0}</td>
                         <td className="px-4 py-3 text-[12px] text-slate-600 text-center">{s.number_of_units || 0}</td>
                         <td className="px-4 py-3">
-                          <span className="font-mono text-[11px] bg-blue-50 text-[#1a3a6b] border border-blue-100 px-2 py-0.5 rounded-md">
+                          <span className="font-mono text-[11px] bg-blue-50 text-[#0F2444] border border-blue-100 px-2 py-0.5 rounded-md">
                             {s.auto_generated_scope || '—'}
                           </span>
                         </td>
                         <td className="px-4 py-3"><PriorityBadge priority={s.sdo_priority_level} /></td>
                         <td className="px-4 py-3">
                           {s.funding_year
-                            ? <span className="text-[11px] font-medium px-2 py-0.5 bg-[#1a3a6b]/10 text-[#1a3a6b] rounded-md">{s.funding_year}</span>
+                            ? <span className="text-[11px] font-medium px-2 py-0.5 bg-[#0F2444]/10 text-[#0F2444] rounded-md">{s.funding_year}</span>
                             : '—'}
                         </td>
                         <td className="px-4 py-3">

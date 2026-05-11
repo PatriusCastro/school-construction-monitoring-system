@@ -72,8 +72,8 @@ export default function Dashboard() {
       label: 'Proposed Classrooms',
       data: schools.map(s => s.proposed_classrooms || 0),
       backgroundColor: schools.map(s =>
-        s.sdo_priority_level === 'High' ? '#c0392b' :
-        s.sdo_priority_level === 'Medium' ? '#c8a800' : '#27ae60'
+        s.sdo_priority_level === 'High' ? '#DC2626' :
+        s.sdo_priority_level === 'Medium' ? '#FFB900' : '#27AE60'
       ),
       borderRadius: 4,
       borderSkipped: false,
@@ -114,7 +114,7 @@ export default function Dashboard() {
         schools.filter(s => s.sdo_priority_level === 'Medium').length,
         schools.filter(s => s.sdo_priority_level === 'Low').length,
       ],
-      backgroundColor: ['#c0392b', '#c8a800', '#27ae60'],
+      backgroundColor: ['#DC2626', '#FFB900', '#27AE60'],
       borderWidth: 0,
       hoverOffset: 6,
     }]
@@ -192,7 +192,7 @@ export default function Dashboard() {
       custom: (
         <div className="mt-2 flex flex-wrap gap-1.5">
           {fundingYears.length > 0 ? fundingYears.map(yr => (
-            <span key={yr} className="text-[11px] font-medium px-2 py-0.5 bg-[#1a3a6b]/10 text-[#1a3a6b] rounded-md">
+            <span key={yr} className="text-[11px] font-medium px-2 py-0.5 bg-[#0F2444]/10 text-[#0F2444] rounded-md">
               {yr}
             </span>
           )) : <span className="text-[12px] text-slate-400">No data yet</span>}
@@ -275,7 +275,7 @@ export default function Dashboard() {
                 <BarChart3 size={15} className="text-slate-300" />
               </div>
               <div className="flex items-center gap-3 mb-3 mt-2">
-                {[['High', '#c0392b'], ['Medium', '#c8a800'], ['Low', '#27ae60']].map(([label, color]) => (
+                {[['High', '#DC2626'], ['Medium', '#FFB900'], ['Low', '#27AE60']].map(([label, color]) => (
                   <span key={label} className="flex items-center gap-1.5 text-[10px] text-slate-500">
                     <span className="w-2.5 h-2.5 rounded-sm" style={{ background: color }} />
                     {label}
@@ -363,9 +363,9 @@ export default function Dashboard() {
                           <p className="text-[10px] text-slate-400 font-mono">{s.school_id || '—'}</p>
                         </td>
                         <td className="px-4 py-3 text-[12px] text-slate-600">{s.municipality || '—'}</td>
-                        <td className="px-4 py-3 text-[13px] font-semibold text-[#1a3a6b]">{s.proposed_classrooms || 0}</td>
+                        <td className="px-4 py-3 text-[13px] font-semibold text-[#0F2444]">{s.proposed_classrooms || 0}</td>
                         <td className="px-4 py-3">
-                          <span className="font-mono text-[11px] bg-blue-50 text-[#1a3a6b] border border-blue-100 px-2 py-0.5 rounded-md">
+                          <span className="font-mono text-[11px] bg-blue-50 text-[#0F2444] border border-blue-100 px-2 py-0.5 rounded-md">
                             {s.auto_generated_scope || '—'}
                           </span>
                         </td>
@@ -376,11 +376,11 @@ export default function Dashboard() {
                           <ProgressCell value={s.construction_progress_pct} color="#1a3a6b" />
                         </td>
                         <td className="px-4 py-3">
-                          <ProgressCell value={s.materials_delivered_pct} color="#c8a800" />
+                          <ProgressCell value={s.materials_delivered_pct} color="#E8A900" />
                         </td>
                         <td className="px-4 py-3">
                           {s.funding_year ? (
-                            <span className="text-[11px] font-medium px-2 py-0.5 bg-[#1a3a6b]/10 text-[#1a3a6b] rounded-md">
+                            <span className="text-[11px] font-medium px-2 py-0.5 bg-[#0F2444]/10 text-[#0F2444] rounded-md">
                               {s.funding_year}
                             </span>
                           ) : '—'}

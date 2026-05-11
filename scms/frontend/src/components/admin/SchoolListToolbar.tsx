@@ -45,7 +45,7 @@ export default function SchoolListToolbar({
             value={search}
             onChange={e => onSearchChange(e.target.value)}
             placeholder="Search name, ID, municipality…"
-            className="pl-8 pr-7 py-2 text-[12px] border border-slate-200 rounded-lg bg-slate-50 focus:outline-none focus:border-[#1a3a6b] focus:ring-2 focus:ring-[#1a3a6b]/10 transition-all placeholder:text-slate-400 w-56"
+            className="pl-8 pr-7 py-2 text-[12px] border border-slate-200 rounded-lg bg-slate-50 focus:outline-none focus:border-[#0F2444] focus:ring-2 focus:ring-[#0F2444]/10 transition-all placeholder:text-slate-400 w-56"
           />
           {search && (
             <button
@@ -65,7 +65,7 @@ export default function SchoolListToolbar({
               onClick={() => onPriorityChange(p)}
               className={`px-2.5 py-1.5 text-[11px] font-semibold rounded-md transition-all ${
                 priorityFilter === p
-                  ? 'bg-white text-[#1a3a6b] shadow-sm border border-slate-200/80'
+                  ? 'bg-white text-[#0F2444] shadow-sm border border-slate-200/80'
                   : 'text-slate-500 hover:text-slate-700'
               }`}
             >
@@ -77,7 +77,7 @@ export default function SchoolListToolbar({
         {hasFilter && (
           <button
             onClick={onClear}
-            className="text-[11px] text-[#1a3a6b] font-medium hover:underline flex items-center gap-1"
+            className="text-[11px] text-[#0F2444] font-medium hover:underline flex items-center gap-1"
           >
             <X size={10} /> Clear
           </button>

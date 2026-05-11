@@ -25,7 +25,7 @@ function Field({ label, value }: { label: string; value?: string | number | null
   )
 }
 
-function SectionHeader({ icon: Icon, title, iconBg = 'bg-[#1a3a6b]/8', iconColor = 'text-[#1a3a6b]' }: {
+function SectionHeader({ icon: Icon, title, iconBg = 'bg-[#0F2444]/8', iconColor = 'text-[#0F2444]' }: {
   icon: React.ElementType; title: string; iconBg?: string; iconColor?: string
 }) {
   return (
@@ -62,7 +62,7 @@ export default function SchoolDetailModal({ school: s, onClose, onEdit }: Props)
                 <h2 className="text-[15px] font-bold text-slate-900 leading-tight">{s.school_name}</h2>
                 <PriorityBadge priority={s.sdo_priority_level as string} />
                 {s.auto_generated_scope && (
-                  <span className="text-[11px] font-mono font-bold px-2 py-0.5 rounded-md bg-[#1a3a6b]/8 text-[#1a3a6b]">
+                  <span className="text-[11px] font-mono font-bold px-2 py-0.5 rounded-md bg-[#0F2444]/8 text-[#0F2444]">
                     {s.auto_generated_scope}
                   </span>
                 )}
@@ -75,7 +75,7 @@ export default function SchoolDetailModal({ school: s, onClose, onEdit }: Props)
             <div className="flex items-center gap-1.5 shrink-0">
               <button
                 onClick={() => onEdit(s)}
-                className="flex items-center gap-1.5 px-3 py-1.5 text-[12px] font-semibold text-[#1a3a6b] bg-[#1a3a6b]/8 rounded-lg hover:bg-[#1a3a6b]/14 transition-colors"
+                className="flex items-center gap-1.5 px-3 py-1.5 text-[12px] font-semibold text-[#0F2444] bg-[#0F2444]/8 rounded-lg hover:bg-[#0F2444]/14 transition-colors"
               >
                 <Pencil size={12} /> Edit
               </button>
@@ -133,7 +133,7 @@ export default function SchoolDetailModal({ school: s, onClose, onEdit }: Props)
                     </span>
                     <button
                       onClick={() => onEdit(s)}
-                      className="text-[11px] text-[#1a3a6b] font-medium hover:underline"
+                      className="text-[11px] text-[#0F2444] font-medium hover:underline"
                     >
                       Replace in Edit
                     </button>

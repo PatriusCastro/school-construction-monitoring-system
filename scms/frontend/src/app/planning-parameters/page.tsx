@@ -100,7 +100,7 @@ export default function PlanningParameters() {
             {/* Calculator header */}
             <div className="px-6 py-4 border-b border-slate-200 flex items-center gap-3 bg-slate-50">
               <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
-                <Calculator size={15} className="text-[#1a3a6b]" />
+                <Calculator size={15} className="text-[#0F2444]" />
               </div>
               <div>
                 <h2 className="text-[14px] font-semibold text-slate-900">Automated Planning Calculator</h2>
@@ -116,7 +116,7 @@ export default function PlanningParameters() {
                   <select
                     value={level}
                     onChange={e => { setLevel(e.target.value as SchoolLevel); setResult(null) }}
-                    className="w-full px-3 py-2.5 text-[13px] border border-slate-300 rounded-lg text-slate-800 bg-white focus:outline-none focus:border-[#1a3a6b] focus:ring-1 focus:ring-[#1a3a6b]/20 cursor-pointer"
+                    className="w-full px-3 py-2.5 text-[13px] border border-slate-300 rounded-lg text-slate-800 bg-white focus:outline-none focus:border-[#0F2444] focus:ring-1 focus:ring-[#0F2444]/20 cursor-pointer"
                   >
                     {Object.entries(LEVEL_CONFIG).map(([key, cfg]) => (
                       <option key={key} value={key}>{cfg.label}</option>
@@ -129,7 +129,7 @@ export default function PlanningParameters() {
                   <input
                     type="number" value={enrollment} min={1}
                     onChange={e => { setEnrollment(parseInt(e.target.value) || 0); setResult(null) }}
-                    className="w-full px-3 py-2.5 text-[13px] border border-slate-300 rounded-lg text-slate-800 bg-white focus:outline-none focus:border-[#1a3a6b] focus:ring-1 focus:ring-[#1a3a6b]/20"
+                    className="w-full px-3 py-2.5 text-[13px] border border-slate-300 rounded-lg text-slate-800 bg-white focus:outline-none focus:border-[#0F2444] focus:ring-1 focus:ring-[#0F2444]/20"
                   />
                   <p className="text-[10px] text-slate-400 mt-1">Number of learners enrolled</p>
                 </div>
@@ -138,7 +138,7 @@ export default function PlanningParameters() {
                   <input
                     type="number" value={existing} min={0}
                     onChange={e => { setExisting(parseInt(e.target.value) || 0); setResult(null) }}
-                    className="w-full px-3 py-2.5 text-[13px] border border-slate-300 rounded-lg text-slate-800 bg-white focus:outline-none focus:border-[#1a3a6b] focus:ring-1 focus:ring-[#1a3a6b]/20"
+                    className="w-full px-3 py-2.5 text-[13px] border border-slate-300 rounded-lg text-slate-800 bg-white focus:outline-none focus:border-[#0F2444] focus:ring-1 focus:ring-[#0F2444]/20"
                   />
                   <p className="text-[10px] text-slate-400 mt-1">Currently operational classrooms</p>
                 </div>
@@ -146,7 +146,7 @@ export default function PlanningParameters() {
 
               <button
                 onClick={handleCalculate}
-                className="flex items-center gap-2 px-5 py-2.5 bg-[#1a3a6b] hover:bg-[#163260] text-white text-[13px] font-semibold rounded-lg transition-colors"
+                className="flex items-center gap-2 px-5 py-2.5 bg-[#0F2444] hover:bg-[#0a1a2e] text-white text-[13px] font-semibold rounded-lg transition-colors"
               >
                 <Calculator size={14} />
                 Calculate Requirements
@@ -330,14 +330,14 @@ export default function PlanningParameters() {
                       <td className="px-5 py-3.5">
                         <div className="flex items-center gap-2">
                           <div className="w-6 h-6 bg-blue-50 rounded-md flex items-center justify-center shrink-0">
-                            <Icon size={12} className="text-[#1a3a6b]" />
+                            <Icon size={12} className="text-[#0F2444]" />
                           </div>
                           <span className="text-[13px] font-medium text-slate-800">{row.facility}</span>
                         </div>
                       </td>
                       <td className="px-5 py-3.5 text-[13px] text-slate-600">{row.requirement}</td>
                       <td className="px-5 py-3.5">
-                        <span className="font-mono text-[11px] text-[#1a3a6b] bg-blue-50 px-2 py-0.5 rounded-md">{row.formula}</span>
+                        <span className="font-mono text-[11px] text-[#0F2444] bg-blue-50 px-2 py-0.5 rounded-md">{row.formula}</span>
                       </td>
                     </tr>
                   )

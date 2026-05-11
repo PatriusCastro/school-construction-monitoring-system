@@ -4,10 +4,10 @@
 :root {
   color-scheme: light;
   
-  /* Primary Color Palette */
-  --primary-dark: #1a3a6b;
-  --primary-main: #2952a3;
-  --primary-light: #3b6abf;
+  /* Primary Color Palette - Unified Brand Colors */
+  --primary-dark: #0F2444;
+  --primary-main: #0F2444;
+  --primary-light: #0F2444;
   
   /* Neutral Grays - Modern minimal palette */
   --background: #ffffff;
@@ -18,11 +18,11 @@
   --text-secondary: #475569;
   --text-tertiary: #94a3b8;
   
-  /* Semantic Colors */
-  --success: #10b981;
-  --warning: #f59e0b;
-  --error: #ef4444;
-  --info: #0ea5e9;
+  /* Semantic Colors - Unified Brand Colors */
+  --success: #27AE60;
+  --warning: #FFB900;
+  --error: #DC2626;
+  --info: #0F2444;
   
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);

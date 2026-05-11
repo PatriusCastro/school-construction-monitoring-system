@@ -14,8 +14,8 @@ L.Icon.Default.mergeOptions({
 
 function createPriorityIcon(priority: string) {
   const color =
-    priority === 'High' ? '#c0392b' :
-    priority === 'Medium' ? '#c8a800' : '#27ae60'
+    priority === 'High' ? '#DC2626' :
+    priority === 'Medium' ? '#FFB900' : '#27AE60'
 
   const svg = `
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 48" width="32" height="48">
@@ -85,12 +85,12 @@ function HoverMarkers({ schools, onSelectSchool }: { schools: School[]; onSelect
       // Build hover tooltip HTML
       const pct_c = school.construction_progress_pct || 0
       const pct_m = school.materials_delivered_pct || 0
-      const priorityBg = school.sdo_priority_level === 'High' ? '#fde8e8' : school.sdo_priority_level === 'Medium' ? '#fef3cd' : '#e6f4ea'
-      const priorityColor = school.sdo_priority_level === 'High' ? '#c0392b' : school.sdo_priority_level === 'Medium' ? '#7d5a00' : '#1e6e3a'
+      const priorityBg = school.sdo_priority_level === 'High' ? '#ffe6e6' : school.sdo_priority_level === 'Medium' ? '#fff5e6' : '#e6f4ea'
+      const priorityColor = school.sdo_priority_level === 'High' ? '#DC2626' : school.sdo_priority_level === 'Medium' ? '#d97706' : '#27AE60'
 
       const tooltipHtml = `
         <div style="font-family:system-ui,sans-serif;width:270px;border-radius:12px;overflow:hidden;box-shadow:0 8px 32px rgba(0,0,0,0.2);">
-          <div style="background:#1a3a6b;padding:14px 16px 12px;">
+          <div style="background:#0F2444;padding:14px 16px 12px;">
             <p style="color:rgba(255,255,255,0.5);font-size:9px;text-transform:uppercase;letter-spacing:0.1em;margin:0 0 4px 0;">${(school.municipality || 'LEGAZPI CITY').toUpperCase()}</p>
             <p style="color:white;font-size:15px;font-weight:700;line-height:1.2;margin:0 0 4px 0;">${school.school_name}</p>
             <p style="color:rgba(255,255,255,0.4);font-size:10px;font-family:monospace;margin:0;">ID: ${school.school_id || '—'}</p>
@@ -98,7 +98,7 @@ function HoverMarkers({ schools, onSelectSchool }: { schools: School[]; onSelect
           <div style="background:white;padding:12px 16px;">
             <div style="display:flex;gap:6px;margin-bottom:12px;">
               ${school.sdo_priority_level ? `<span style="font-size:11px;font-weight:600;padding:3px 10px;border-radius:6px;background:${priorityBg};color:${priorityColor};">${school.sdo_priority_level} Priority</span>` : ''}
-              ${school.auto_generated_scope ? `<span style="font-size:11px;font-weight:700;font-family:monospace;padding:3px 10px;border-radius:6px;background:#e8f0fb;color:#1a3a6b;">${school.auto_generated_scope}</span>` : ''}
+              ${school.auto_generated_scope ? `<span style="font-size:11px;font-weight:700;font-family:monospace;padding:3px 10px;border-radius:6px;background:#e8f0fb;color:#0F2444;">${school.auto_generated_scope}</span>` : ''}
             </div>
             <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px;">
               <div><p style="font-size:9px;color:#94a3b8;letter-spacing:0.08em;margin:0 0 2px 0;">CLASSROOMS</p><p style="font-size:20px;font-weight:700;color:#1e293b;margin:0;line-height:1;">${school.proposed_classrooms ?? '—'}</p></div>
@@ -110,19 +110,19 @@ function HoverMarkers({ schools, onSelectSchool }: { schools: School[]; onSelect
               <div style="margin-bottom:5px;">
                 <div style="display:flex;justify-content:space-between;margin-bottom:3px;">
                   <span style="font-size:10px;color:#64748b;">Construction</span>
-                  <span style="font-size:10px;font-weight:700;color:#1a3a6b;">${pct_c}%</span>
+                  <span style="font-size:10px;font-weight:700;color:#0F2444;">${pct_c}%</span>
                 </div>
                 <div style="height:5px;background:#e2e8f0;border-radius:3px;overflow:hidden;">
-                  <div style="height:100%;width:${pct_c}%;background:#1a3a6b;border-radius:3px;"></div>
+                  <div style="height:100%;width:${pct_c}%;background:#0F2444;border-radius:3px;"></div>
                 </div>
               </div>
               <div>
                 <div style="display:flex;justify-content:space-between;margin-bottom:3px;">
                   <span style="font-size:10px;color:#64748b;">Materials</span>
-                  <span style="font-size:10px;font-weight:700;color:#c8a800;">${pct_m}%</span>
+                  <span style="font-size:10px;font-weight:700;color:#FFB900;">${pct_m}%</span>
                 </div>
                 <div style="height:5px;background:#e2e8f0;border-radius:3px;overflow:hidden;">
-                  <div style="height:100%;width:${pct_m}%;background:#c8a800;border-radius:3px;"></div>
+                  <div style="height:100%;width:${pct_m}%;background:#FFB900;border-radius:3px;"></div>
                 </div>
               </div>
             </div>

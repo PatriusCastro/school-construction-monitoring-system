@@ -50,7 +50,7 @@ export default function Pagination({ page, totalPages, totalItems, pageSize, onP
               onClick={() => onPageChange(p as number)}
               className={`w-7 h-7 text-[11px] font-semibold rounded-lg border transition-colors ${
                 p === page
-                  ? 'bg-[#1a3a6b] text-white border-[#1a3a6b] shadow-sm'
+                  ? 'bg-[#0F2444] text-white border-[#0F2444] shadow-sm'
                   : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-50'
               }`}
             >

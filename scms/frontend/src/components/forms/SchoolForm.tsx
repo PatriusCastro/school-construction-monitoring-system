@@ -201,7 +201,7 @@ export default function SchoolForm({
   return (
     <section className="rounded-2xl bg-white shadow-sm overflow-hidden">
       {/* Header */}
-      <div className="bg-linear-to-r from-[#1a3a6b] to-[#1e4a8a] px-6 py-5 flex items-center justify-between">
+      <div className="bg-linear-to-r from-[#0F2444] to-[#0F2444] px-6 py-5 flex items-center justify-between">
         <div className="flex items-center gap-3">
           <div className="w-9 h-9 bg-white/15 rounded-lg flex items-center justify-center">
             <Building2 size={18} className="text-white" />
@@ -211,7 +211,7 @@ export default function SchoolForm({
               {editingId ? 'Edit School Record' : 'Add New School'}
             </h2>
             <p className="text-white/60 text-[11px] mt-0.5">
-              Fields marked <span className="text-[#c8a800]">*</span> are required
+              Fields marked <span className="text-[#FFB900]">*</span> are required
             </p>
           </div>
         </div>
@@ -303,8 +303,8 @@ export default function SchoolForm({
               <NumberInput value={school.number_of_units} onChange={v => set('number_of_units', v)} min={1} />
             </Field>
             <Field label="Auto-generated Scope" hint="Computed from stories × classrooms">
-              <div className="flex items-center gap-2 px-3 py-2.5 bg-blue-50 border border-[#1a3a6b] rounded-xl">
-                <span className="font-mono text-[13px] font-semibold text-[#1a3a6b] tracking-wider">
+              <div className="flex items-center gap-2 px-3 py-2.5 bg-blue-50 border border-[#0F2444] rounded-xl">
+                <span className="font-mono text-[13px] font-semibold text-[#0F2444] tracking-wider">
                   {school.auto_generated_scope || '—'}
                 </span>
               </div>
@@ -348,13 +348,13 @@ export default function SchoolForm({
               label="Construction Progress"
               value={school.construction_progress_pct}
               onChange={v => set('construction_progress_pct', v)}
-              color="#1a3a6b"
+              color="#0F2444"
             />
             <ProgressSlider
               label="Materials Delivered"
               value={school.materials_delivered_pct}
               onChange={v => set('materials_delivered_pct', v)}
-              color="#c8a800"
+              color="#FFB900"
             />
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
@@ -461,7 +461,7 @@ export default function SchoolForm({
                     type="button"
                     onClick={() => fileInputRef.current?.click()}
                     disabled={uploadingMap}
-                    className="text-[11px] text-[#1a3a6b] font-medium hover:underline disabled:opacity-50"
+                    className="text-[11px] text-[#0F2444] font-medium hover:underline disabled:opacity-50"
                   >
                     Replace photo
                   </button>
@@ -533,7 +533,7 @@ export default function SchoolForm({
           <button
             type="submit"
             disabled={isSubmitting}
-            className="flex-1 flex items-center justify-center gap-2 rounded-xl bg-[#1a3a6b] px-5 py-3 text-[13px] font-medium text-white hover:bg-[#163260] disabled:bg-slate-300 disabled:cursor-not-allowed transition-colors"
+            className="flex-1 flex items-center justify-center gap-2 rounded-xl bg-[#0F2444] px-5 py-3 text-[13px] font-medium text-white hover:bg-[#0a1a2e] disabled:bg-slate-300 disabled:cursor-not-allowed transition-colors"
           >
             {isSubmitting ? (
               <><Loader2 size={14} className="animate-spin" /> Saving...</>
@@ -671,7 +671,7 @@ function ProgressSlider({ label, value, onChange, color }: {
       <input
         type="range" min={0} max={100} value={value}
         onChange={e => onChange(parseInt(e.target.value, 10))}
-        className="w-full h-1.5 rounded-full outline-none cursor-pointer accent-[#1a3a6b]"
+        className="w-full h-1.5 rounded-full outline-none cursor-pointer accent-[#0F2444]"
       />
       <div className="h-1.5 bg-slate-100 rounded-full overflow-hidden">
         <div className="h-full rounded-full transition-all duration-200" style={{ width: `${value}%`, background: color }} />

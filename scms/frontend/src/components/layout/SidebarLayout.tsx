@@ -118,10 +118,10 @@ export default function SidebarLayout({ children, title, description }: SidebarL
         {!collapsed && (
           <div className="min-w-0 overflow-hidden">
             <p className="truncate text-sm font-semibold leading-tight text-white">
-              DepEd SchoolBuild
+              DepEd SCMS
             </p>
             <p className="mt-0.5 text-[10px] font-semibold uppercase tracking-widest text-white/35">
-              SCMS Portal
+              SDO Legazpi City             
             </p>
           </div>
         )}
@@ -193,6 +193,12 @@ export default function SidebarLayout({ children, title, description }: SidebarL
           <LogOut size={17} className="shrink-0" />
           {!collapsed && <span className="text-[13px] font-medium">Log out</span>}
         </button>
+
+        {/* Credits */}
+        <div className="mt-4 text-center text-[10px] text-white/30">
+          <p>© 2026 DepEd SCMS</p>
+          <p className="mt-1">Developed by J.A.V.B.D.C.</p>
+        </div>
       </div>
     </div>
   );
@@ -204,7 +210,7 @@ export default function SidebarLayout({ children, title, description }: SidebarL
       {/* Desktop sidebar */}
       <aside
         className={[
-          "hidden md:flex flex-col shrink-0 overflow-hidden bg-[#0f2444]",
+          "hidden md:flex flex-col shrink-0 overflow-hidden bg-[#0F2444]",
           "transition-[width] duration-300 ease-in-out",
           sidebarOpen ? "w-58" : "w-16",
         ].join(" ")}
@@ -224,7 +230,7 @@ export default function SidebarLayout({ children, title, description }: SidebarL
       {/* Mobile drawer */}
       <aside
         className={[
-          "fixed inset-y-0 left-0 z-50 flex w-58 flex-col bg-[#0f2444] md:hidden",
+          "fixed inset-y-0 left-0 z-50 flex w-58 flex-col bg-[#0F2444] md:hidden",
           "shadow-[4px_0_32px_rgba(0,0,0,0.3)]",
           "transition-transform duration-300 ease-in-out",
           mobileOpen ? "translate-x-0" : "-translate-x-full",

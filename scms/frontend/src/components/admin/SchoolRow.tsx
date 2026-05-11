@@ -99,7 +99,7 @@ export default function SchoolRow({
             <button
               onClick={() => onEdit(s)}
               title="Edit school"
-              className="w-8 h-8 flex items-center justify-center rounded-lg text-slate-400 hover:text-[#1a3a6b] hover:bg-[#1a3a6b]/8 transition-all"
+              className="w-8 h-8 flex items-center justify-center rounded-lg text-slate-400 hover:text-[#0F2444] hover:bg-[#0F2444]/8 transition-all"
             >
               <Pencil size={14} />
             </button>

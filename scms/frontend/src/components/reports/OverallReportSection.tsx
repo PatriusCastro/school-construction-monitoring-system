@@ -30,10 +30,10 @@ interface OverallReportSectionProps {
 }
 
 function getStatus(pct: number) {
-  if (pct >= 100) return { label: 'Complete',    color: 'text-green-700',  bg: 'bg-green-50 border-green-100',  icon: CheckCircle2 }
-  if (pct >= 60)  return { label: 'On Track',    color: 'text-blue-700',   bg: 'bg-blue-50 border-blue-100',    icon: TrendingUp }
-  if (pct >= 20)  return { label: 'In Progress', color: 'text-amber-700',  bg: 'bg-amber-50 border-amber-100',  icon: AlertTriangle }
-  return           { label: 'Delayed',     color: 'text-red-700',    bg: 'bg-red-50 border-red-100',      icon: AlertTriangle }
+  if (pct >= 100) return { label: 'Complete',    color: 'text-[#27AE60]',  bg: 'bg-green-50 border-green-100',    icon: CheckCircle2 }
+  if (pct >= 60)  return { label: 'On Track',    color: 'text-[#0F2444]',   bg: 'bg-blue-50 border-blue-100',    icon: TrendingUp }
+  if (pct >= 20)  return { label: 'In Progress', color: 'text-[#FFB900]',  bg: 'bg-amber-50 border-amber-100',  icon: AlertTriangle }
+  return           { label: 'Delayed',     color: 'text-[#DC2626]',    bg: 'bg-red-50 border-red-100',      icon: AlertTriangle }
 }
 
 function formatDate(d?: string) {
@@ -49,9 +49,9 @@ function formatPHP(n?: number) {
 function PriorityBadge({ priority }: { priority?: string }) {
   if (!priority) return <span className="text-[11px] text-slate-400">—</span>
   const styles: Record<string, string> = {
-    High:   'bg-red-50 text-red-700 border-red-100',
-    Medium: 'bg-amber-50 text-amber-700 border-amber-100',
-    Low:    'bg-green-50 text-green-700 border-green-100',
+    High:   'bg-red-50 text-[#DC2626] border-red-100',
+    Medium: 'bg-amber-50 text-[#FFB900] border-amber-100',
+    Low:    'bg-green-50 text-[#27AE60] border-green-100',
   }
   return (
     <span className={`inline-block text-[11px] font-medium px-2 py-0.5 rounded-md border ${styles[priority] ?? 'bg-slate-50 text-slate-600 border-slate-100'}`}>
@@ -118,14 +118,14 @@ export default function OverallReportSection({
       {/* Summary metric cards */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         {[
-          { icon: Building2,     label: 'Total Schools',     value: schools.length,        color: 'text-[#1a3a6b]', bg: 'bg-slate-50' },
-          { icon: BarChart3,     label: 'Total Classrooms',  value: totalClassrooms,        color: 'text-[#1a3a6b]', bg: 'bg-slate-50' },
-          { icon: CheckCircle2,  label: 'Completed',         value: completed,              color: 'text-[#1a3a6b]', bg: 'bg-slate-50' },
-          { icon: AlertTriangle, label: 'Delayed',           value: delayed,                color: 'text-red-600',   bg: 'bg-red-50' },
-          { icon: TrendingUp,    label: 'Avg. Construction',  value: `${avgConstruction}%`, color: 'text-[#1a3a6b]', bg: 'bg-slate-50' },
-          { icon: TrendingUp,    label: 'Avg. Materials',     value: `${avgMaterials}%`,    color: 'text-[#1a3a6b]', bg: 'bg-slate-50' },
-          { icon: Banknote,      label: 'Total Budget',       value: totalBudget ? `₱${(totalBudget / 1_000_000).toFixed(1)}M` : '—', color: 'text-[#1a3a6b]', bg: 'bg-slate-50' },
-          { icon: CalendarDays,  label: 'Funding Years',      value: [...new Set(schools.map(s => s.funding_year).filter(Boolean))].length, color: 'text-[#1a3a6b]', bg: 'bg-slate-50' },
+          { icon: Building2,     label: 'Total Schools',     value: schools.length,        color: 'text-[#0F2444]', bg: 'bg-slate-50' },
+          { icon: BarChart3,     label: 'Total Classrooms',  value: totalClassrooms,        color: 'text-[#0F2444]', bg: 'bg-slate-50' },
+          { icon: CheckCircle2,  label: 'Completed',         value: completed,              color: 'text-[#0F2444]', bg: 'bg-slate-50' },
+          { icon: AlertTriangle, label: 'Delayed',           value: delayed,                color: 'text-[#DC2626]',   bg: 'bg-red-50' },
+          { icon: TrendingUp,    label: 'Avg. Construction',  value: `${avgConstruction}%`, color: 'text-[#0F2444]', bg: 'bg-slate-50' },
+          { icon: TrendingUp,    label: 'Avg. Materials',     value: `${avgMaterials}%`,    color: 'text-[#0F2444]', bg: 'bg-slate-50' },
+          { icon: Banknote,      label: 'Total Budget',       value: totalBudget ? `₱${(totalBudget / 1_000_000).toFixed(1)}M` : '—', color: 'text-[#0F2444]', bg: 'bg-slate-50' },
+          { icon: CalendarDays,  label: 'Funding Years',      value: [...new Set(schools.map(s => s.funding_year).filter(Boolean))].length, color: 'text-[#0F2444]', bg: 'bg-slate-50' },
         ].map(({ icon: Icon, label, value, color, bg }) => (
           <div key={label} className="relative bg-white border border-slate-200/80 rounded-2xl p-5 overflow-hidden hover:border-slate-300 hover:shadow-sm transition-all">
             <div className="flex items-center justify-between gap-3">
@@ -148,10 +148,10 @@ export default function OverallReportSection({
           <h3 className="text-[13px] font-semibold text-slate-900 mb-4">Construction Status</h3>
           <div className="space-y-3">
             {[
-              { label: 'Complete',    count: completed,  color: '#27ae60', bg: 'bg-emerald-500' },
-              { label: 'On Track',    count: onTrack,    color: '#1a3a6b', bg: 'bg-[#1a3a6b]' },
-              { label: 'In Progress', count: inProgress, color: '#f59e0b', bg: 'bg-amber-400' },
-              { label: 'Delayed',     count: delayed,    color: '#dc2626', bg: 'bg-red-500' },
+              { label: 'Complete',    count: completed,  color: '#27AE60', bg: 'bg-[#27AE60]' },
+              { label: 'On Track',    count: onTrack,    color: '#0F2444', bg: 'bg-[#0F2444]' },
+              { label: 'In Progress', count: inProgress, color: '#FFB900', bg: 'bg-[#FFB900]' },
+              { label: 'Delayed',     count: delayed,    color: '#DC2626', bg: 'bg-[#DC2626]' },
             ].map(({ label, count, color, bg }) => (
               <div key={label}>
                 <div className="flex justify-between mb-1.5">
@@ -171,9 +171,9 @@ export default function OverallReportSection({
           <h3 className="text-[13px] font-semibold text-slate-900 mb-4">Budget Overview</h3>
           <div className="space-y-3">
             {[
-              { label: 'Total Allocated',  value: formatPHP(totalBudget),   color: '#1a3a6b' },
-              { label: 'Total Utilized',   value: formatPHP(totalUtilized), color: '#f59e0b' },
-              { label: 'Utilization Rate', value: `${budgetUtil}%`,         color: budgetUtil >= 70 ? '#27ae60' : '#f59e0b' },
+              { label: 'Total Allocated',  value: formatPHP(totalBudget),   color: '#0F2444' },
+              { label: 'Total Utilized',   value: formatPHP(totalUtilized), color: '#FFB900' },
+              { label: 'Utilization Rate', value: `${budgetUtil}%`,         color: budgetUtil >= 70 ? '#27AE60' : '#FFB900' },
             ].map(({ label, value, color }) => (
               <div key={label} className="flex justify-between items-center pb-3 border-b border-slate-100 last:border-b-0 last:pb-0">
                 <span className="text-[12px] text-slate-600">{label}</span>
@@ -182,7 +182,7 @@ export default function OverallReportSection({
             ))}
             <div className="pt-2">
               <div className="h-2 bg-slate-100 rounded-full overflow-hidden">
-                <div className="h-full bg-[#1a3a6b] rounded-full transition-all" style={{ width: `${budgetUtil}%` }} />
+                <div className="h-full bg-[#0F2444] rounded-full transition-all" style={{ width: `${budgetUtil}%` }} />
               </div>
               <p className="text-[10px] text-slate-400 mt-2">{budgetUtil}% of total budget utilized</p>
             </div>
@@ -248,14 +248,14 @@ export default function OverallReportSection({
                       <td className="px-3 py-3">
                         <PriorityBadge priority={s.sdo_priority_level} />
                       </td>
-                      <td className="px-3 py-3 text-center font-semibold text-[#1a3a6b]">{s.proposed_classrooms || 0}</td>
+                      <td className="px-3 py-3 text-center font-semibold text-[#0F2444]">{s.proposed_classrooms || 0}</td>
                       <td className="px-3 py-3 text-center text-slate-600">{s.number_of_units || 0}</td>
                       <td className="px-3 py-3">
                         <div className="flex items-center gap-2 min-w-25">
                           <div className="flex-1 h-1.5 bg-slate-100 rounded-full overflow-hidden">
-                            <div className="h-full bg-[#1a3a6b] rounded-full" style={{ width: `${s.construction_progress_pct || 0}%` }} />
+                            <div className="h-full bg-[#0F2444] rounded-full" style={{ width: `${s.construction_progress_pct || 0}%` }} />
                           </div>
-                          <span className="font-mono text-[11px] text-[#1a3a6b] font-semibold w-8">{s.construction_progress_pct || 0}%</span>
+                          <span className="font-mono text-[11px] text-[#0F2444] font-semibold w-8">{s.construction_progress_pct || 0}%</span>
                         </div>
                       </td>
                       <td className="px-3 py-3">
@@ -288,13 +288,13 @@ export default function OverallReportSection({
               <tfoot>
                 <tr className="bg-slate-100 border-t border-slate-200">
                   <td colSpan={6} className="px-3 py-3 text-[10px] font-semibold text-slate-900">TOTALS / AVERAGES</td>
-                  <td className="px-3 py-3 text-center font-bold text-[#1a3a6b]">{totalClassrooms}</td>
-                  <td className="px-3 py-3 text-center font-bold text-[#1a3a6b]">{totalUnits}</td>
-                  <td className="px-3 py-3"><span className="font-mono text-[10px] font-bold text-[#1a3a6b]">{avgConstruction}% avg</span></td>
-                  <td className="px-3 py-3"><span className="font-mono text-[10px] font-bold text-[#1a3a6b]">{avgMaterials}% avg</span></td>
+                  <td className="px-3 py-3 text-center font-bold text-[#0F2444]">{totalClassrooms}</td>
+                  <td className="px-3 py-3 text-center font-bold text-[#0F2444]">{totalUnits}</td>
+                  <td className="px-3 py-3"><span className="font-mono text-[10px] font-bold text-[#0F2444]">{avgConstruction}% avg</span></td>
+                  <td className="px-3 py-3"><span className="font-mono text-[10px] font-bold text-[#0F2444]">{avgMaterials}% avg</span></td>
                   <td className="px-3 py-3" />
-                  <td className="px-3 py-3 font-bold text-[#1a3a6b] whitespace-nowrap text-[10px]">{formatPHP(totalBudget)}</td>
-                  <td className="px-3 py-3 font-bold text-[#1a3a6b] whitespace-nowrap text-[10px]">{formatPHP(totalUtilized)}</td>
+                  <td className="px-3 py-3 font-bold text-[#0F2444] whitespace-nowrap text-[10px]">{formatPHP(totalBudget)}</td>
+                  <td className="px-3 py-3 font-bold text-[#0F2444] whitespace-nowrap text-[10px]">{formatPHP(totalUtilized)}</td>
                   <td colSpan={2} />
                 </tr>
               </tfoot>

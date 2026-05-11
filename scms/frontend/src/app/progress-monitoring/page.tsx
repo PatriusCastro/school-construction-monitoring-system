@@ -83,8 +83,8 @@ export default function ProgressMonitoring() {
 
   const SortIcon = ({ field }: { field: typeof sortField }) => (
     <span className="inline-flex flex-col ml-1 opacity-40">
-      <ChevronUp size={8} className={sortField === field && sortDir === 'asc' ? 'opacity-100 text-[#1a3a6b]' : ''} />
-      <ChevronDown size={8} className={sortField === field && sortDir === 'desc' ? 'opacity-100 text-[#1a3a6b]' : ''} />
+      <ChevronUp size={8} className={sortField === field && sortDir === 'asc' ? 'opacity-100 text-[#0F2444]' : ''} />
+      <ChevronDown size={8} className={sortField === field && sortDir === 'desc' ? 'opacity-100 text-[#0F2444]' : ''} />
     </span>
   )
 
@@ -124,8 +124,8 @@ export default function ProgressMonitoring() {
           <div className="bg-white border border-slate-200 rounded-xl p-5">
             <h2 className="text-[13px] font-semibold text-slate-800 mb-4">Overall Progress</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-              <OverallBar label="Average Construction Progress" value={avgConstruction} color="#1a3a6b" />
-              <OverallBar label="Average Materials Delivered" value={avgMaterials} color="#c8a800" />
+              <OverallBar label="Average Construction Progress" value={avgConstruction} color="#0F2444" />
+              <OverallBar label="Average Materials Delivered" value={avgMaterials} color="#FFB900" />
             </div>
           </div>
 
@@ -196,7 +196,7 @@ export default function ProgressMonitoring() {
 
                           {/* Scope */}
                           <td className="px-4 py-3">
-                            <span className="font-mono text-[11px] bg-blue-50 text-[#1a3a6b] border border-blue-100 px-2 py-0.5 rounded-md">
+                            <span className="font-mono text-[11px] bg-blue-50 text-[#0F2444] border border-blue-100 px-2 py-0.5 rounded-md">
                               {s.auto_generated_scope || '—'}
                             </span>
                           </td>
@@ -208,12 +208,12 @@ export default function ProgressMonitoring() {
 
                           {/* Construction % */}
                           <td className="px-4 py-3">
-                            <ProgressCell value={s.construction_progress_pct} color="#1a3a6b" />
+                            <ProgressCell value={s.construction_progress_pct} color="#0F2444" />
                           </td>
 
                           {/* Materials % */}
                           <td className="px-4 py-3">
-                            <ProgressCell value={s.materials_delivered_pct} color="#c8a800" />
+                            <ProgressCell value={s.materials_delivered_pct} color="#FFB900" />
                           </td>
 
                           {/* Status */}
@@ -279,21 +279,21 @@ export default function ProgressMonitoring() {
                             <p className="text-[10px] text-slate-400 font-mono">{s.municipality || '—'}</p>
                           </td>
                           <td className="px-4 py-3">
-                            <span className="font-mono text-[11px] bg-blue-50 text-[#1a3a6b] border border-blue-100 px-2 py-0.5 rounded-md">
+                            <span className="font-mono text-[11px] bg-blue-50 text-[#0F2444] border border-blue-100 px-2 py-0.5 rounded-md\">
                               {s.auto_generated_scope || '—'}
                             </span>
                           </td>
                           <td className="px-4 py-3"><PriorityBadge priority={s.sdo_priority_level} /></td>
                           <td className="px-4 py-3">
-                            <span className="text-[12px] font-mono font-semibold text-[#1a3a6b]">{s.construction_progress_pct || 0}%</span>
+                            <span className="text-[12px] font-mono font-semibold text-[#0F2444]">{s.construction_progress_pct || 0}%</span>
                           </td>
                           <td className="px-4 py-3">
-                            <span className="text-[12px] font-mono font-semibold text-amber-600">{s.materials_delivered_pct || 0}%</span>
+                            <span className="text-[12px] font-mono font-semibold text-[#FFB900]">{s.materials_delivered_pct || 0}%</span>
                           </td>
                           <td className="px-4 py-3">
                             <div className="flex items-center gap-2">
                               <div className="w-16 h-1.5 bg-slate-100 rounded-full overflow-hidden">
-                                <div className="h-full rounded-full bg-[#1a3a6b]" style={{ width: `${overall}%` }} />
+                                <div className="h-full rounded-full bg-[#0F2444]" style={{ width: `${overall}%` }} />
                               </div>
                               <span className="text-[11px] font-mono text-slate-500">{overall}%</span>
                             </div>
