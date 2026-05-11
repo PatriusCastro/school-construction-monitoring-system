@@ -25,3 +25,5 @@ app.get("/api/health", (_req, res) => res.json({ status: "ok" }));
 app.listen(port, () => {
   console.log(`Backend running on port ${port}`);
 }); 
+
+export default app;
