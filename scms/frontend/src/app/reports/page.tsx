@@ -161,7 +161,7 @@ export default function Reports() {
         columnStyles: { 0: { cellWidth: 40 }, 8: { halign: 'center' }, 9: { halign: 'center' } },
       })
 
-      const pageCount = doc.getNumberOfPages()
+      const pageCount = (doc as any).internal.getNumberOfPages()
       for (let i = 1; i <= pageCount; i++) {
         doc.setPage(i)
         doc.setFontSize(7)
