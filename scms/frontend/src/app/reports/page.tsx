@@ -355,7 +355,7 @@ export default function Reports() {
         },
       })
 
-      const pageCount = doc.getNumberOfPages()
+      const pageCount = (doc as any).internal.getNumberOfPages()
       for (let i = 1; i <= pageCount; i++) {
         doc.setPage(i)
         doc.setFontSize(7)
@@ -456,7 +456,7 @@ export default function Reports() {
         footStyles: { fillColor: [26, 58, 107], textColor: 255, fontSize: 7, fontStyle: 'bold' },
       })
 
-      const pageCount = doc.getNumberOfPages()
+      const pageCount = (doc as any).internal.getNumberOfPages()
       for (let i = 1; i <= pageCount; i++) {
         doc.setPage(i)
         doc.setFontSize(7)
