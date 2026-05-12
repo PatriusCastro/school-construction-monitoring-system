@@ -27,7 +27,7 @@ const sidebarLinks = [
   { href: "/planning-parameters", label: "Planning Parameters", icon: Calendar,      adminOnly: false },
   { href: "/progress-monitoring", label: "Progress Monitoring", icon: MessageSquare, adminOnly: false },
   { href: "/admin-panel",         label: "Admin Panel",         icon: Bell,          adminOnly: true  },
-  { href: "/reports",             label: "Reports",             icon: HelpCircle,    adminOnly: true  },
+  { href: "/reports",             label: "Reports",             icon: HelpCircle,    adminOnly: false  },
 ];
 
 interface SidebarLayoutProps {

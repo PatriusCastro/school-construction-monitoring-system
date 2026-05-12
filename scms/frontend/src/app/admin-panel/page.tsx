@@ -256,7 +256,7 @@ export default function AdminPanel() {
                   </span>
                 </nav>
               </div>
-              <div className="flex items-center gap-2">
+              {/* <div className="flex items-center gap-2">
                 <button
                   onClick={handleCancel}
                   className="px-3.5 py-1.5 text-[12px] font-medium text-slate-600 bg-white border border-slate-200 rounded-lg hover:bg-slate-50 transition-colors"
@@ -272,7 +272,7 @@ export default function AdminPanel() {
                   {isSubmitting ? <Loader2 size={12} className="animate-spin" /> : <CheckCircle2 size={12} />}
                   {isSubmitting ? 'Saving…' : viewMode === 'add' ? 'Create School' : 'Save Changes'}
                 </button>
-              </div>
+              </div> */}
             </div>
           </div>
 

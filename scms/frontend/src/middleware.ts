@@ -2,7 +2,7 @@ import { createServerClient } from '@supabase/ssr'
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
 
-const ADMIN_ONLY_ROUTES = ['/admin-panel', '/reports']
+const ADMIN_ONLY_ROUTES = ['/admin-panel']
 const PUBLIC_ROUTES = ['/login', '/register']
 
 export async function middleware(request: NextRequest) {
@@ -24,35 +24,33 @@ export async function middleware(request: NextRequest) {
     }
   )
 
-  const { data: { user } } = await supabase.auth.getUser()
+  try {
+    const { data: { user } } = await supabase.auth.getUser()
 
-  // If logged in, block access to public routes and redirect to dashboard
-  if (PUBLIC_ROUTES.some(route => pathname.startsWith(route))) {
-    if (user) {
-      return NextResponse.redirect(new URL('/dashboard', request.url))
+    if (PUBLIC_ROUTES.some(route => pathname.startsWith(route))) {
+      if (user) return NextResponse.redirect(new URL('/dashboard', request.url))
+      return response
     }
-    return response
-  }
 
-  // Redirect unauthenticated users to login
-  if (!user) {
+    if (!user) return NextResponse.redirect(new URL('/login', request.url))
+
+    if (ADMIN_ONLY_ROUTES.some(route => pathname.startsWith(route))) {
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('role')
+        .eq('id', user.id)
+        .single()
+
+      if (profile?.role !== 'admin') {
+        return NextResponse.redirect(new URL('/dashboard', request.url))
+      }
+    }
+
+    return response
+  } catch {
+    // On error, always redirect to login — fail closed, not open
     return NextResponse.redirect(new URL('/login', request.url))
   }
-
-  // Check admin-only routes
-  if (ADMIN_ONLY_ROUTES.some(route => pathname.startsWith(route))) {
-    const { data: profile } = await supabase
-      .from('profiles')
-      .select('role')
-      .eq('id', user.id)
-      .single()
-
-    if (profile?.role !== 'admin') {
-      return NextResponse.redirect(new URL('/dashboard', request.url))
-    }
-  }
-
-  return response
 }
 
 export const config = {

@@ -81,7 +81,7 @@ export default function SchoolsMap() {
                   value={search}
                   onChange={e => setSearch(e.target.value)}
                   placeholder="Search schools..."
-                  className="w-full pl-8 pr-3 py-2 text-[12px] border border-slate-200 rounded-lg bg-slate-50 focus:outline-none focus:border-[#0F2444]"
+                  className="w-full pl-8 pr-3 py-2 text-[12px] text-black/80 border border-slate-200 rounded-lg bg-slate-50 focus:outline-none focus:border-[#0F2444]"
                 />
               </div>
             </div>
