@@ -41,10 +41,13 @@ export default function SidebarLayout({ children, title, description }: SidebarL
   const [mobileOpen,  setMobileOpen]  = useState(false);
   const [role,        setRole]        = useState<"admin" | "viewer" | null>(null);
   const [mounted,     setMounted]     = useState(false);
+  const [showLogoutModal, setShowLogoutModal] = useState(false)
 
   const pathname = usePathname();
   const router   = useRouter();
   const supabase = createClient();
+
+  const handleLogoutClick = () => setShowLogoutModal(true)
 
   useEffect(() => {
     setMounted(true);
@@ -65,6 +68,11 @@ export default function SidebarLayout({ children, title, description }: SidebarL
     await supabase.auth.signOut();
     router.push("/login");
   };
+
+  const handleLogoutConfirm = async () => {
+    await supabase.auth.signOut()
+    router.push('/login')
+  }
 
   const visibleLinks = sidebarLinks.filter(
     (link) => !link.adminOnly || role === "admin"
@@ -182,7 +190,7 @@ export default function SidebarLayout({ children, title, description }: SidebarL
 
         {/* Logout */}
         <button
-          onClick={handleLogout}
+          onClick={handleLogoutClick}
           title={collapsed ? "Log out" : undefined}
           className={[
             "flex w-full items-center gap-3 rounded-xl text-white/45 transition-all duration-200",
@@ -301,6 +309,37 @@ export default function SidebarLayout({ children, title, description }: SidebarL
           {children}
         </main>
       </div>
+
+      {/* Logout Confirmation Modal */}
+      {showLogoutModal && (
+        <div className="fixed inset-0 z-100 flex items-center justify-center bg-black/50 backdrop-blur-sm">
+          <div className="w-full max-w-sm mx-4 bg-white rounded-2xl shadow-xl p-6">
+            <div className="flex items-center justify-center w-12 h-12 rounded-full bg-red-50 mx-auto mb-4">
+              <LogOut size={20} className="text-red-500" />
+            </div>
+            <h3 className="text-[15px] font-semibold text-slate-900 text-center mb-1">
+              Log out?
+            </h3>
+            <p className="text-[13px] text-slate-500 text-center mb-6">
+              Are you sure you want to log out of your account?
+            </p>
+            <div className="flex gap-3">
+              <button
+                onClick={() => setShowLogoutModal(false)}
+                className="flex-1 px-4 py-2.5 text-[13px] font-medium text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-xl transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleLogoutConfirm}
+                className="flex-1 px-4 py-2.5 text-[13px] font-semibold text-white bg-red-500 hover:bg-red-600 rounded-xl transition-colors"
+              >
+                Log out
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
